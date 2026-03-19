@@ -29,6 +29,7 @@
                                                 <th>{{ __('Name') }}</th>
                                                 <th>{{ __('Email') }}</th>
                                                 <th>{{ __('Phone') }}</th>
+												<th>{{ __('Status') }}</th>
                                                 <th>{{ __('Action') }}</th>
                                             </tr>
                                         </thead>
@@ -39,6 +40,16 @@
                                                     <td>{{ $staff->name }}</td>
                                                     <td>{{ $staff->email }}</td>
                                                     <td>{{ $staff->phone }}</td>
+													<td>
+    <input onchange="changeStaffStatus({{ $staff->id }})"
+        type="checkbox"
+        {{ $staff->is_active == 1 ? 'checked' : '' }}
+        data-toggle="toggle"
+        data-onlabel="{{ __('Active') }}"
+        data-offlabel="{{ __('Inactive') }}"
+        data-onstyle="success"
+        data-offstyle="danger">
+</td>
                                                     <td>
                                                         <a class="btn btn-primary btn-sm"
                                                             href="{{ route('admin.staff.edit', $staff->id) }}"><i
@@ -66,6 +77,8 @@
 @endsection
 @push('js')
     <script src="{{ asset('backend/js/jquery.uploadPreview.min.js') }}"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   
     <script>
         "use strict";
@@ -75,5 +88,41 @@
             url = url.replace(':id', id);
             $("#deleteForm").attr('action', url);
         }
+
+		function changeStaffStatus(id) {
+    $.ajax({
+        url: "{{ route('admin.staff.status') }}",
+        type: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            id: id
+        },
+        success: function(response) {
+            if (response.success) {
+                toastr.success(response.message, 'Success', {
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: "toast-top-right",
+                    timeOut: 3000
+                });
+            } else {
+                toastr.error(response.message, 'Error', {
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: "toast-top-right",
+                    timeOut: 3000
+                });
+            }
+        },
+        error: function() {
+            toastr.error('Something went wrong!', 'Error', {
+                closeButton: true,
+                progressBar: true,
+                positionClass: "toast-top-right",
+                timeOut: 3000
+            });
+        }
+    });
+}
     </script>
 @endpush

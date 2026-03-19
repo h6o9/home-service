@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\RedirectType;
 use App\Http\Controllers\Controller;
 use App\Models\Staff;
+use App\Traits\RedirectHelperTrait;
 use Illuminate\Http\Request;
 
 class StaffController extends Controller
 {
+	use RedirectHelperTrait;
 	
     //
 	public function index()
@@ -38,7 +40,7 @@ public function store(Request $request)
 		'password' => bcrypt($password),
     ]);
 
-return redirect('admin/staff')->with('success', 'Staff added successfully');
+        return $this->redirectWithMessage(RedirectType::CREATE->value, 'admin.staff.index');
 }
 
 public function edit($id)
@@ -64,17 +66,30 @@ public function update(Request $request, $id)
 		'password' => bcrypt($password),
 	]);
 
-return $this->redirectWithMessage(
-    'Staff ' . RedirectType::UPDATE->value,
-    'admin.staff.index'
-);}
+        return $this->redirectWithMessage(RedirectType::UPDATE->value, 'admin.staff.index');
+
+}
 
 public function destroy($id)
     {
         $staff = \App\Models\Staff::findOrFail($id);
         $staff->delete();
 
-        return redirect()->route('admin.staff.index')->with('success','Staff deleted successfully');
+    return $this->redirectWithMessage(RedirectType::DELETE->value, 'admin.staff.index');
+
     }
+
+	public function status(Request $request)
+{
+    $staff = Staff::findOrFail($request->id);
+
+    $staff->is_active = !$staff->is_active;
+    $staff->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Status updated successfully'
+    ]);
+}
 
 }

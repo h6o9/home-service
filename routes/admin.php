@@ -78,11 +78,12 @@ Route::prefix('staff')->name('staff.')->middleware(['auth:staff'])->group(functi
     });
 });
 
+Route::post('/staff/status', [\App\Http\Controllers\Admin\StaffController::class, 'status'])->name('admin.staff.status');
 
 Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
     /* Start admin auth route */
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-
+	
 
     /* End admin auth route */
 
