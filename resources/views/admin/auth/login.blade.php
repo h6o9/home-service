@@ -26,7 +26,6 @@
                                                     width="220">
                                             </a>
                                         </div>
-
                                         <div class="mt-4">
                                             <form id="adminLoginForm" action="{{ route('admin.store-login') }}"
                                                 method="POST">
@@ -55,11 +54,11 @@
 
                                                 <div class="mb-2 d-flex justify-content-between">
                                                     <div class="form-check">
-                                                        <!-- <input class="form-check-input" id="remember" name="remember"
+                                                        <input class="form-check-input" id="remember" name="remember"
                                                             type="checkbox" tabindex="3"
                                                             {{ old('remember') ? 'checked' : '' }}>
                                                         <label class="form-check-label"
-                                                            for="remember">{{ __('Remember Me') }}</label> -->
+                                                            for="remember">{{ __('Remember Me') }}</label>
                                                     </div>
                                                 </div>
 

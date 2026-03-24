@@ -79,10 +79,10 @@
                         @endif -->
                     </ul>
                 </div>
-                <!-- <div class="mr-auto me-md-auto search-box position-relative">
-                    <x-admin.form-input id="search_menu" autocomplete="off" :placeholder="__('Search option')" />
+                <div class="mr-auto me-md-auto search-box position-relative">
+                    <!-- <x-admin.form-input id="search_menu" autocomplete="off" :placeholder="__('Search option')" /> -->
 
-                    <div class="position-absolute d-none rounded-2" id="admin_menu_list"> -->
+                    <div class="position-absolute d-none rounded-2" id="admin_menu_list">
                         <!-- @foreach (App\Enums\RouteList::getAll() as $route_item)
                             @if (checkAdminHasPermission($route_item?->permission) || empty($route_item?->permission))
                                 <a href="{{ $route_item?->route }}"
@@ -93,8 +93,8 @@
                                     @endisset>{{ $route_item?->name }}</a>
                             @endif
                         @endforeach -->
-                        <!-- <a class="not-found-message d-none" href="javascript:;">{{ __('Not Found!') }}</a>
-                    </div> -->
+                        <a class="not-found-message d-none" href="javascript:;">{{ __('Not Found!') }}</a>
+                    </div>
                 </div>
 
                 <ul class="navbar-nav">
@@ -156,8 +156,12 @@
 
             <footer class="main-footer">
                 <div class="footer-left">
-                   Home-Services-Technicians-Plumbers
+					Home-Services-Technicians-Plumbers
                 </div>
+                <!-- <div class="footer-right">
+                    <span>{{ __('version') }}: {{ $version }} ({{ __('Loaded in') }}
+                        %%LOAD_TIME%%)</span>
+                </div> -->
             </footer>
 
         </div>

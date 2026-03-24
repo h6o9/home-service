@@ -28,49 +28,51 @@ class StaffAuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
 public function store(Request $request)
-{ 
-	$rules = [
+{
+    // ✅ Validation
+    $request->validate([
         'email' => 'required|email',
         'password' => 'required',
-    ];
+    ], [
+        'email.required' => 'Email is required',
+        'password.required' => 'Password is required',
+    ]);
 
-    $customMessages = [
-        'email.required' => __('Email is required'),
-        // 'password.required' => __('Password is required'),
-    ];
+    // ✅ Credentials
+    $credentials = $request->only('email', 'password');
 
-    $request->validate($rules, $customMessages);
-
-    $credentials = $request->only('email','password');
-
+    // ✅ Check Staff Exists
     $staff = Staff::where('email', $request->email)->first();
-	 // Debugging line to check if staff is retrieved correctl
 
     if (!$staff) {
         return back()->with([
-            'message' => __('Invalid Email'),
+            'message' => 'Invalid Email',
             'alert-type' => 'error'
         ]);
     }
 
+    // ✅ Check Status
     if ($staff->status !== 'active') {
         return back()->with([
-            'message' => __('Inactive account'),
+            'message' => 'Inactive account',
             'alert-type' => 'error'
         ]);
     }
 
-    if (Auth::guard('staff')->attempt($credentials, $request->remember)) {
+    // ✅ FIXED Remember Me (IMPORTANT 🔥)
+    if (Auth::guard('staff')->attempt($credentials, $request->has('remember'))) {
+
         $request->session()->regenerate();
 
         return redirect()->route('staff.dashboard')->with([
-            'message' => __('Logged in successfully.'),
+            'message' => 'Logged in successfully.',
             'alert-type' => 'success'
         ]);
     }
 
+    // ❌ Wrong Password
     return back()->with([
-        'message' => __('Invalid Password'),
+        'message' => 'Invalid Password',
         'alert-type' => 'error'
     ]);
 }
