@@ -40,6 +40,10 @@ if ($adminPrefix !== 'admin') {
     });
 }
 
+ Route::get('/dashboard', [\App\Http\Controllers\Admin\StaffDashboardController::class, 'index'])->name('staff.dashboard');
+    Route::post('/shops/save-draft', [\App\Http\Controllers\Admin\StaffDashboardController::class, 'saveDraft'])->name('staff.shops.save-draft');
+    Route::get('/shops/get-draft', [\App\Http\Controllers\Admin\StaffDashboardController::class, 'getDraft'])->name('staff.shops.get-draft');
+    Route::post('/shops/clear-draft', [\App\Http\Controllers\Admin\StaffDashboardController::class, 'clearDraft'])->name('staff.shops.clear-draft');
 // In your web.php
 Route::post('/staff/shops/store', [ShopController::class, 'store'])->name('staff.shops.store');
 if ($adminPrefix !== 'staff') {
