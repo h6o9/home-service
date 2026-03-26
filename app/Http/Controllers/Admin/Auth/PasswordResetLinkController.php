@@ -27,7 +27,7 @@ class PasswordResetLinkController extends Controller
      * Handle an incoming password reset link request.
      */
     public function custom_forget_password(Request $request)
-    { 
+    {
 
         $setting = Cache::get('setting');
 

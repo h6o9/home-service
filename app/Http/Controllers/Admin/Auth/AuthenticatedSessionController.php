@@ -30,64 +30,59 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(Request $request)
-{
-    // ✅ Validation
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ], [
-        'email.required' => 'Email is required',
-        'password.required' => 'Password is required',
-    ]);
-
-    // ✅ Credentials
-    $credentials = [
-        'email' => $request->email,
-        'password' => $request->password,
-    ];
-
-    // ✅ Check Admin Exists
-    $admin = Admin::where('email', $request->email)->first();
-
-    if (!$admin) {
-        return back()->with([
-            'message' => 'Invalid Email',
-            'alert-type' => 'error'
-        ]);
-    }
-
-    // ✅ Check Status
-    if ($admin->status !== 'active') {
-        return back()->with([
-            'message' => 'Inactive account',
-            'alert-type' => 'error'
-        ]);
-    }
-
-    // ✅ Attempt Login with Remember Me
-    if (Auth::guard('admin')->attempt($credentials, $request->has('remember'))) {
-
-        $notification = [
-            'message' => 'Logged in successfully.',
-            'alert-type' => 'success'
+    {
+        $rules = [
+            'email' => 'required|email',
+            'password' => 'required',
         ];
 
-        // ✅ Intended URL handling
-        $intendedUrl = session()->get('url.intended');
+        $customMessages = [
+            'email.required' => __('Email is required'),
+            'password.required' => __('Password is required'),
+        ];
+        $this->validate($request, $rules, $customMessages);
 
-        if ($intendedUrl && Str::contains($intendedUrl, '/admin')) {
-            return redirect()->intended(route('admin.dashboard'))->with($notification);
+        $credential = [
+            'email' => $request->email,
+            'password' => $request->password,
+        ];
+
+        $admin = Admin::where('email', $request->email)->first();
+
+        if ($admin) {
+            if ($admin->status == 'active') {
+                if (Hash::check($request->password, $admin->password)) {
+                    if (Auth::guard('admin')->attempt($credential, $request->remember)) {
+                        $notification = __('Logged in successfully.');
+                        $notification = ['message' => $notification, 'alert-type' => 'success'];
+
+                        $intendedUrl = session()->get('url.intended');
+                        if ($intendedUrl && Str::contains($intendedUrl, '/admin')) {
+                            return redirect()->intended(route('admin.dashboard'))->with($notification);
+                        }
+
+                        return redirect()->route('admin.dashboard')->with($notification);
+                    }
+                } else {
+                    $notification = __('Invalid Password');
+                    $notification = ['message' => $notification, 'alert-type' => 'error'];
+
+                    return redirect()->back()->with($notification);
+                }
+            } else {
+                $notification = __('Inactive account');
+                $notification = ['message' => $notification, 'alert-type' => 'error'];
+
+                return redirect()->back()->with($notification);
+            }
+        } else {
+            $notification = __('Invalid Email');
+            $notification = ['message' => $notification, 'alert-type' => 'error'];
+
+            return redirect()->back()->with($notification);
         }
 
-        return redirect()->route('admin.dashboard')->with($notification);
     }
-
-    // ❌ Wrong Password
-    return back()->with([
-        'message' => 'Invalid Password',
-        'alert-type' => 'error'
-    ]);
-}
 
     /**
      * Destroy an authenticated session.

@@ -28,51 +28,49 @@ class StaffAuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
 public function store(Request $request)
-{
-    // ✅ Validation
-    $request->validate([
+{ 
+	$rules = [
         'email' => 'required|email',
         'password' => 'required',
-    ], [
-        'email.required' => 'Email is required',
-        'password.required' => 'Password is required',
-    ]);
+    ];
 
-    // ✅ Credentials
-    $credentials = $request->only('email', 'password');
+    $customMessages = [
+        'email.required' => __('Email is required'),
+        // 'password.required' => __('Password is required'),
+    ];
 
-    // ✅ Check Staff Exists
+    $request->validate($rules, $customMessages);
+
+    $credentials = $request->only('email','password');
+
     $staff = Staff::where('email', $request->email)->first();
+	 // Debugging line to check if staff is retrieved correctl
 
     if (!$staff) {
         return back()->with([
-            'message' => 'Invalid Email',
+            'message' => __('Invalid Email'),
             'alert-type' => 'error'
         ]);
     }
 
-    // ✅ Check Status
-    if ($staff->status !== 'active') {
+    if ($staff->status != 1) {
         return back()->with([
-            'message' => 'Inactive account',
+            'message' => __('Inactive account'),
             'alert-type' => 'error'
         ]);
     }
 
-    // ✅ FIXED Remember Me (IMPORTANT 🔥)
-    if (Auth::guard('staff')->attempt($credentials, $request->has('remember'))) {
-
+    if (Auth::guard('staff')->attempt($credentials, $request->remember)) {
         $request->session()->regenerate();
 
         return redirect()->route('staff.dashboard')->with([
-            'message' => 'Logged in successfully.',
+            'message' => __('Logged in successfully.'),
             'alert-type' => 'success'
         ]);
     }
 
-    // ❌ Wrong Password
     return back()->with([
-        'message' => 'Invalid Password',
+        'message' => __('Invalid Password'),
         'alert-type' => 'error'
     ]);
 }

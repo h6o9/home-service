@@ -62,9 +62,9 @@
                         </div>
                     </div>
                     
-                    <!-- Shop List Card (Static - No Functionality) -->
+                    <!-- Shop List Card (Static) -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card static-card" style="border: 1px solid #e3e3e3; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s;">
+                        <div class="card static-card" style="border: 1px solid #e3e3e3; border-radius: 12px; padding: 20px; cursor: pointer;">
                             <div style="display: flex; align-items: center;">
                                 <div style="background: #cbd5e0; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
                                     <i class="fas fa-list" style="color: white; font-size: 20px;"></i>
@@ -77,9 +77,9 @@
                         </div>
                     </div>
                     
-                    <!-- Navigation Card (Static - No Functionality) -->
+                    <!-- Navigation Card (Static) -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card static-card" style="border: 1px solid #e3e3e3; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s;">
+                        <div class="card static-card" style="border: 1px solid #e3e3e3; border-radius: 12px; padding: 20px; cursor: pointer;">
                             <div style="display: flex; align-items: center;">
                                 <div style="background: #cbd5e0; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
                                     <i class="fas fa-map-marker-alt" style="color: white; font-size: 20px;"></i>
@@ -92,9 +92,9 @@
                         </div>
                     </div>
                     
-                    <!-- Visit History Card (Static - No Functionality) -->
+                    <!-- Visit History Card (Static) -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card static-card" style="border: 1px solid #e3e3e3; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s;">
+                        <div class="card static-card" style="border: 1px solid #e3e3e3; border-radius: 12px; padding: 20px; cursor: pointer;">
                             <div style="display: flex; align-items: center;">
                                 <div style="background: #cbd5e0; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
                                     <i class="fas fa-history" style="color: white; font-size: 20px;"></i>
@@ -154,7 +154,7 @@
                             <h5 class="mb-3">Shop Information</h5>
                             <div class="form-group">
                                 <label>Shop Name <span class="text-danger">*</span></label>
-                                <input type="text" name="shop_name" id="shop_name" class="form-control" placeholder="Enter shop name">
+                                <input type="text" name="shop_name" id="shop_name" class="form-control">
                             </div>
                             <div class="form-group">
                                 <label>Category <span class="text-danger">*</span></label>
@@ -168,27 +168,27 @@
                             </div>
                             <div class="form-group">
                                 <label>Owner Name <span class="text-danger">*</span></label>
-                                <input type="text" name="owner_name" id="owner_name" class="form-control" placeholder="Enter owner name">
+                                <input type="text" name="owner_name" id="owner_name" class="form-control">
                             </div>
                             <div class="form-group">
                                 <label>Phone Number <span class="text-danger">*</span></label>
-                                <input type="tel" name="phone_number" id="phone_number" class="form-control" placeholder="Enter phone number">
+                                <input type="tel" name="phone_number" id="phone_number" class="form-control">
                             </div>
                             <div class="form-group">
                                 <label>WhatsApp Number</label>
-                                <input type="tel" name="whatsapp_number" id="whatsapp_number" class="form-control" placeholder="Enter WhatsApp number (optional)">
+                                <input type="tel" name="whatsapp_number" id="whatsapp_number" class="form-control">
                             </div>
                             <div class="form-group">
                                 <label>Address <span class="text-danger">*</span></label>
-                                <textarea name="address" id="address" class="form-control" rows="3" placeholder="Enter full address"></textarea>
+                                <textarea name="address" id="address" class="form-control" rows="3"></textarea>
                             </div>
                             <div class="form-group">
                                 <label>About Shop</label>
-                                <textarea name="about_shop" id="about_shop" class="form-control" rows="3" placeholder="Tell something about the shop (optional)"></textarea>
+                                <textarea name="about_shop" id="about_shop" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
                         
-                        <!-- Step 2: Location -->
+                        <!-- Step 2: Location with OpenStreetMap -->
                         <div id="step2" class="form-step" style="display: none;">
                             <h5 class="mb-3">Shop Location</h5>
                             <div class="form-group">
@@ -199,9 +199,7 @@
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="getCurrentLocation()">
                                     <i class="fas fa-location-arrow"></i> Use Current Location
                                 </button>
-                                <div class="mt-2 alert alert-info" style="font-size: 12px;">
-                                    <i class="fas fa-info-circle"></i> Click on map or drag marker to set shop location
-                                    <br>
+                                <div class="mt-2 alert alert-info">
                                     <strong>Latitude:</strong> <span id="latDisplay">Not selected</span> | 
                                     <strong>Longitude:</strong> <span id="lonDisplay">Not selected</span>
                                 </div>
@@ -214,7 +212,7 @@
                             <div class="form-group">
                                 <label>Shop Photos</label>
                                 <input type="file" name="photos[]" id="shop_photos" class="form-control" multiple accept="image/*">
-                                <small class="text-muted">You can select multiple photos. Max size 5MB each.</small>
+                                <small>You can select multiple photos. Max size 5MB each.</small>
                             </div>
                             <div id="photoPreview" class="row mt-3"></div>
                             <div class="mt-3 text-center">
@@ -228,14 +226,32 @@
                     <button type="button" class="btn btn-secondary" id="backBtn" onclick="prevStep()" style="display: none;">Back</button>
                     <button type="button" class="btn btn-info" id="saveBtn" onclick="saveStep1()">Save</button>
                     <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">Next</button>
-                    <button type="button" class="btn btn-success" id="submitBtn" onclick="submitShop()" style="display: none;">Save Shop</button>
+                    <button type="button" class="btn btn-success" id="submitBtn" onclick="directSubmit()">Save Shop</button>
                 </div>
             </div>
         </div>
     </div>
 @endsection
 
+@push('css')
+    <!-- Leaflet CSS for OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 8px;
+            z-index: 1;
+        }
+        .leaflet-control-attribution {
+            font-size: 9px;
+        }
+    </style>
+@endpush
+
 @push('js')
+    <!-- Leaflet JS for OpenStreetMap -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
@@ -246,28 +262,12 @@
         let step1Completed = false;
         let step2Completed = false;
         
+        // Default location: Lahore, Pakistan
         const DEFAULT_LAT = 31.5204;
         const DEFAULT_LNG = 74.3587;
         
-        // Load Google Maps API
-        function loadGoogleMapsAPI() {
-            return new Promise((resolve, reject) => {
-                if (typeof google !== 'undefined') {
-                    resolve();
-                    return;
-                }
-                const script = document.createElement('script');
-                script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMapCallback';
-                script.async = true;
-                script.defer = true;
-                script.onerror = () => reject(new Error('Google Maps failed to load'));
-                window.initMapCallback = () => resolve();
-                document.head.appendChild(script);
-            });
-        }
-        
         $(document).ready(function() {
-            // Load draft data immediately when modal opens
+            // Load draft data when modal opens
             $('#addShopModal').on('show.bs.modal', function() {
                 loadDraftData();
             });
@@ -291,7 +291,7 @@
             
             // Clickable steps
             $('.clickable-step').click(function() {
-                const targetStep = parseInt($(this).data('step'));    
+                const targetStep = parseInt($(this).data('step'));  
                 currentStep = targetStep;
                 showStep(currentStep);
                 updateStepIndicators();
@@ -323,7 +323,6 @@
                 cache: false,
                 success: function(response) {
                     if(response.has_draft && response.draft) {
-                        // Step 1 data
                         if(response.step1_completed && response.draft) {
                             $('#shop_name').val(response.draft.shop_name || '');
                             $('#category').val(response.draft.category || '');
@@ -340,7 +339,6 @@
                             $('#step1Status').html('');
                         }
                         
-                        // Step 2 data
                         if(response.step2_completed && response.draft) {
                             $('#latitude').val(response.draft.latitude || DEFAULT_LAT);
                             $('#longitude').val(response.draft.longitude || DEFAULT_LNG);
@@ -475,15 +473,6 @@
         }
         
         function nextStep() {
-            // if(currentStep === 1 && !step1Completed) {
-            //     Toast.fire({ icon: 'warning', title: 'Please save Step 1 first' });
-            //     return;
-            // }
-            // if(currentStep === 2 && !step2Completed) {
-            //     Toast.fire({ icon: 'warning', title: 'Please select location on map' });
-            //     return;
-            // }
-            
             if(currentStep < totalSteps) {
                 currentStep++;
                 showStep(currentStep);
@@ -499,7 +488,7 @@
             }
         }
         
-        async function showStep(step) {
+        function showStep(step) {
             $('#step1, #step2, #step3').hide();
             $('#step' + step).show();
             
@@ -507,18 +496,13 @@
                 $('#backBtn').hide();
                 $('#nextBtn').show();
                 $('#saveBtn').show();
-                $('#submitBtn').hide();
+                $('#submitBtn').show(); // Show Save Shop button on step 1 also
             } else if(step === 2) {
                 $('#backBtn').show();
                 $('#nextBtn').show();
                 $('#saveBtn').hide();
-                $('#submitBtn').hide();
-                try {
-                    await loadGoogleMapsAPI();
-                    initMap();
-                } catch(error) {
-                    $('#map').html('<div class="alert alert-danger">Failed to load map</div>');
-                }
+                $('#submitBtn').show(); // Show Save Shop button on step 2 also
+                initMap();
             } else if(step === 3) {
                 $('#backBtn').show();
                 $('#nextBtn').hide();
@@ -543,45 +527,105 @@
             $('#step3Circle').css('background', '#e2e8f0').css('color', '#4a5568');
         }
         
-        function submitShop() {
+        // Initialize OpenStreetMap (Leaflet)
+        function initMap() {
+            if (map) {
+                map.remove();
+            }
+            
+            const lat = $('#latitude').val() ? parseFloat($('#latitude').val()) : DEFAULT_LAT;
+            const lng = $('#longitude').val() ? parseFloat($('#longitude').val()) : DEFAULT_LNG;
+            
+            map = L.map('map').setView([lat, lng], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            const markerIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="background: #5d78ee; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+            
+            marker = L.marker([lat, lng], { draggable: true, icon: markerIcon }).addTo(map);
+            
+            marker.on('dragend', function(e) {
+                const position = marker.getLatLng();
+                updateCoordinates(position.lat, position.lng);
+            });
+            
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                updateCoordinates(e.latlng.lat, e.latlng.lng);
+            });
+            
+            updateCoordinates(lat, lng);
+        }
+        
+        function getCurrentLocation() {
+            if(navigator.geolocation) {
+                Toast.fire({ icon: 'info', title: 'Getting location...', timer: 2000 });
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setView([lat, lng], 13);
+                    marker.setLatLng([lat, lng]);
+                    updateCoordinates(lat, lng);
+                    Toast.fire({ icon: 'success', title: 'Location found!' });
+                }, function() {
+                    Toast.fire({ icon: 'error', title: 'Could not get location' });
+                });
+            } else {
+                Toast.fire({ icon: 'error', title: 'Geolocation not supported' });
+            }
+        }
+        
+        function updateCoordinates(lat, lng) {
+            $('#latitude').val(lat);
+            $('#longitude').val(lng);
+            $('#latDisplay').text(lat.toFixed(6));
+            $('#lonDisplay').text(lng.toFixed(6));
+        }
+        
+        // Direct Submit - Save all data directly to shops table
+        function directSubmit() {
+            // Validate Step 1 fields
+            if(!$('#shop_name').val()) {
+                Toast.fire({ icon: 'error', title: 'Shop name is required' });
+                $('#shop_name').focus();
+                return;
+            }
+            if(!$('#category').val()) {
+                Toast.fire({ icon: 'error', title: 'Category is required' });
+                $('#category').focus();
+                return;
+            }
+            if(!$('#owner_name').val()) {
+                Toast.fire({ icon: 'error', title: 'Owner name is required' });
+                $('#owner_name').focus();
+                return;
+            }
+            if(!$('#phone_number').val()) {
+                Toast.fire({ icon: 'error', title: 'Phone number is required' });
+                $('#phone_number').focus();
+                return;
+            }
+            if(!$('#address').val()) {
+                Toast.fire({ icon: 'error', title: 'Address is required' });
+                $('#address').focus();
+                return;
+            }
+            
+            // Validate location
             // if(!$('#latitude').val() || !$('#longitude').val()) {
             //     Toast.fire({ icon: 'error', title: 'Please select location on map' });
             //     return;
             // }
             
             let formData = new FormData();
-            formData.append('step', 2);
-            formData.append('latitude', $('#latitude').val());
-            formData.append('longitude', $('#longitude').val());
-            
-            const submitBtn = $('#submitBtn');
-            const originalHtml = submitBtn.html();
-            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving location...');
-            
-            $.ajax({
-                url: '{{ route("staff.shops.save-draft") }}',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    if(response.success) {
-                        step2Completed = true;
-                        $('#step2Status').html('✓ Completed').css('color', 'green');
-                        updateStepIndicators();
-                        finalizeShop(submitBtn, originalHtml);
-                    }
-                },
-                error: function() {
-                    submitBtn.prop('disabled', false).html(originalHtml);
-                    Toast.fire({ icon: 'error', title: 'Failed to save location' });
-                }
-            });
-        }
-        
-        function finalizeShop(submitBtn, originalHtml) {
-            let formData = new FormData();
-            formData.append('step', 3);
+            formData.append('direct_save', true); // Flag for direct save
             formData.append('shop_name', $('#shop_name').val());
             formData.append('category', $('#category').val());
             formData.append('owner_name', $('#owner_name').val());
@@ -592,15 +636,18 @@
             formData.append('latitude', $('#latitude').val());
             formData.append('longitude', $('#longitude').val());
             
+            // Add photos
             const photos = $('#shop_photos')[0].files;
             for(let i = 0; i < photos.length; i++) {
                 formData.append('photos[]', photos[i]);
             }
             
-            submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Creating Shop...');
+            const submitBtn = $('#submitBtn');
+            const originalHtml = submitBtn.html();
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Creating Shop...');
             
             $.ajax({
-                url: '{{ route("staff.shops.save-draft") }}',
+                url: '{{ route("staff.shops.direct-save") }}',
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -609,6 +656,14 @@
                     if(response.success) {
                         Toast.fire({ icon: 'success', title: 'Shop created successfully!' });
                         $('#addShopModal').modal('hide');
+                        
+                        // Clear draft if exists
+                        $.ajax({
+                            url: '{{ route("staff.shops.clear-draft") }}',
+                            type: 'POST',
+                            data: { _token: '{{ csrf_token() }}' }
+                        });
+                        
                         setTimeout(() => location.reload(), 1500);
                     }
                 },
@@ -626,57 +681,6 @@
                     submitBtn.prop('disabled', false).html(originalHtml);
                 }
             });
-        }
-        
-        function initMap() {
-            const lat = $('#latitude').val() ? parseFloat($('#latitude').val()) : DEFAULT_LAT;
-            const lng = $('#longitude').val() ? parseFloat($('#longitude').val()) : DEFAULT_LNG;
-            
-            map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 13,
-                center: { lat: lat, lng: lng }
-            });
-            
-            marker = new google.maps.Marker({
-                position: { lat: lat, lng: lng },
-                map: map,
-                draggable: true
-            });
-            
-            marker.addListener('dragend', function() {
-                const pos = marker.getPosition();
-                updateCoordinates(pos.lat(), pos.lng());
-            });
-            
-            map.addListener('click', function(e) {
-                marker.setPosition(e.latLng);
-                updateCoordinates(e.latLng.lat(), e.latLng.lng());
-            });
-            
-            updateCoordinates(lat, lng);
-        }
-        
-        function getCurrentLocation() {
-            if(navigator.geolocation) {
-                Toast.fire({ icon: 'info', title: 'Getting location...', timer: 2000 });
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    map.setCenter({ lat: lat, lng: lng });
-                    marker.setPosition({ lat: lat, lng: lng });
-                    updateCoordinates(lat, lng);
-                    Toast.fire({ icon: 'success', title: 'Location found!' });
-                }, function() {
-                    Toast.fire({ icon: 'error', title: 'Could not get location' });
-                });
-            }
-        }
-        
-        function updateCoordinates(lat, lng) {
-            $('#latitude').val(lat);
-            $('#longitude').val(lng);
-            $('#latDisplay').text(lat.toFixed(6));
-            $('#lonDisplay').text(lng.toFixed(6));
         }
         
         const Toast = Swal.mixin({

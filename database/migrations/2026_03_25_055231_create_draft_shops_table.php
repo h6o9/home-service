@@ -10,7 +10,7 @@ class CreateDraftShopsTable extends Migration
     {
         Schema::create('draft_shops', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('staff_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('staff_id')->constrained('staff')->onDelete('cascade');
             $table->string('shop_name')->nullable();
             $table->string('category')->nullable();
             $table->string('owner_name')->nullable();
@@ -23,12 +23,12 @@ class CreateDraftShopsTable extends Migration
             $table->integer('current_step')->default(1);
             $table->enum('status', ['draft', 'completed'])->default('draft');
             $table->timestamps();
-            
+
             // Only one draft per staff
             $table->unique('staff_id');
         });
     }
-    
+
     public function down()
     {
         Schema::dropIfExists('draft_shops');

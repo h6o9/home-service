@@ -52,6 +52,35 @@
                                                 @enderror
                                             </div>
                                         </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="status">{{ __('Status') }} <span class="text-danger">*</span></label>
+                                                <select name="status" id="status" class="form-control">
+                                                    <option value="1" selected>{{ __('Active') }}</option>
+                                                    <option value="0">{{ __('Inactive') }}</option>
+                                                </select>
+                                                @error('status')
+                                                    <span class="text-danger error-message">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 mt-3">
+                                            <div class="form-group">
+                                                <label>{{ __('Permissions') }}</label>
+                                                <div class="row">
+                                                    @foreach($permissions as $key => $name)
+                                                        <div class="col-md-4 mb-2">
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input type="checkbox" class="custom-control-input" id="perm_{{ $key }}" name="permissions[]" value="{{ $key }}">
+                                                                <label class="custom-control-label" style="cursor: pointer;" for="perm_{{ $key }}">{{ __($name) }}</label>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="row">
@@ -70,8 +99,6 @@
 
 <!-- jQuery CDN - Google ka use karo -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="{{ asset('backend/js/jquery.uploadPreview.min.js') }}"></script>
-
 
 <script>
 $(document).ready(function() {

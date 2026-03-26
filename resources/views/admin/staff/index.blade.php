@@ -14,7 +14,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
-                                <h4>{{ __('Staff List') }} <small class="font-weight-bold text-danger"> (The default password for all staff members is 12345678. This password is automatically generated when a new sub-admin is created.)</small></h4>
+                                <h4>{{ __('Staff List') }} <small class="font-weight-bold text-danger"> (The default password for all staff members is 12345678. This password is automatically generated when a new staff member is created.)</small></h4>
                                 <div>
                                     <a class="btn btn-primary" href="{{ route('admin.staff.create') }}"><i
                                             class="fa fa-plus"></i> {{ __('Add New') }}</a>
@@ -41,15 +41,14 @@
                                                     <td>{{ $staff->email }}</td>
                                                     <td>{{ $staff->phone }}</td>
 													<td>
-    <input onchange="changeStaffStatus({{ $staff->id }})"
-        type="checkbox"
-        {{ $staff->is_active == 1 ? 'checked' : '' }}
-        data-toggle="toggle"
-        data-onlabel="{{ __('Active') }}"
-        data-offlabel="{{ __('Inactive') }}"
-        data-onstyle="success"
-        data-offstyle="danger">
-</td>
+														<input onchange="changeStaffStatus({{ $staff->id }})"
+    id="status_toggle_{{ $staff->id }}" type="checkbox"
+    {{ $staff->status == 1 ? 'checked' : '' }}
+    data-toggle="toggle" data-onlabel="{{ __('Active') }}"
+    data-offlabel="{{ __('Inactive') }}" data-onstyle="success"
+    data-offstyle="danger">
+                                                    </td>
+
                                                     <td>
                                                         <a class="btn btn-primary btn-sm"
                                                             href="{{ route('admin.staff.edit', $staff->id) }}"><i
@@ -76,10 +75,6 @@
     </div>
 @endsection
 @push('js')
-    <script src="{{ asset('backend/js/jquery.uploadPreview.min.js') }}"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-  
     <script>
         "use strict";
 
@@ -89,38 +84,25 @@
             $("#deleteForm").attr('action', url);
         }
 
-		function changeStaffStatus(id) {
+        function changeStaffStatus(staffId) {
+    let status = $('#status_toggle_' + staffId).prop('checked') ? 1 : 0;
+    
     $.ajax({
-        url: "{{ route('admin.staff.status') }}",
-        type: "POST",
+        url: '{{ route('staff.change.status', ':id') }}'.replace(':id', staffId),
+        type: 'POST',
         data: {
-            _token: "{{ csrf_token() }}",
-            id: id
+            status: status,
+            _token: '{{ csrf_token() }}'
         },
         success: function(response) {
-            if (response.success) {
-                toastr.success(response.message, 'Success', {
-                    closeButton: true,
-                    progressBar: true,
-                    positionClass: "toast-top-right",
-                    timeOut: 3000
-                });
+            if(response.success) {
+                toastr.success('Staff status updated successfully');
             } else {
-                toastr.error(response.message, 'Error', {
-                    closeButton: true,
-                    progressBar: true,
-                    positionClass: "toast-top-right",
-                    timeOut: 3000
-                });
+                toastr.error('Something went wrong');
             }
         },
         error: function() {
-            toastr.error('Something went wrong!', 'Error', {
-                closeButton: true,
-                progressBar: true,
-                positionClass: "toast-top-right",
-                timeOut: 3000
-            });
+            toastr.error('Error updating status');
         }
     });
 }

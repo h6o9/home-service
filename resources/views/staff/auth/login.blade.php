@@ -54,13 +54,13 @@
                                                 </div>
 
                                                 <div class="mb-2 d-flex justify-content-between">
-                                                    <!-- <div class="form-check">
+                                                    <div class="form-check">
                                                         <input class="form-check-input" id="remember" name="remember"
                                                             type="checkbox" tabindex="3"
                                                             {{ old('remember') ? 'checked' : '' }}>
                                                         <label class="form-check-label"
                                                             for="remember">{{ __('Remember Me') }}</label>
-                                                    </div> -->
+                                                    </div>
                                                 </div>
 
                                                 <x-admin.button class="btn w-100" type="submit"

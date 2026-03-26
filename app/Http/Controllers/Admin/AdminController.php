@@ -30,7 +30,7 @@ class AdminController extends Controller
     {
         checkAdminHasPermissionAndThrowException('admin.create');
         $roles = Role::where('name', '!=', 'Super Admin')->get();
-        if (! $roles->count()) {
+        if (!$roles->count()) {
             $notification = __('No role found! First, create at least one role. Then, create the admin.');
             $notification = ['message' => $notification, 'alert-type' => 'warning'];
 
@@ -96,7 +96,7 @@ class AdminController extends Controller
         $admin = Admin::notSuperAdmin()->find($id);
         $rules = [
             'name' => 'required',
-            'email' => 'required|unique:admins,email,'.$admin->id,
+            'email' => 'required|unique:admins,email,' . $admin->id,
             'password' => 'nullable|min:4',
             'status' => 'required',
             'role' => 'required|array',
@@ -150,7 +150,7 @@ class AdminController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $notification,
+            'message' => 'Status updated successfully',
         ]);
     }
 }

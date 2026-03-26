@@ -11,11 +11,13 @@
         </div>
 
         <ul class="sidebar-menu">
-            <li class="{{ Route::is('admin.dashboard') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('admin.dashboard') }}"><i class="fas fa-home"></i>
-                    <span>{{ __('Dashboard') }}</span>
-                </a>
-            </li>
+            @adminCan('dashboard.view')
+                <li class="{{ Route::is('admin.dashboard') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('admin.dashboard') }}"><i class="fas fa-home"></i>
+                        <span>{{ __('Dashboard') }}</span>
+                    </a>
+                </li>
+            @endadminCan
 
             @if (Module::isEnabled('GlobalSetting'))
                 @include('globalsetting::sidebar')
@@ -28,21 +30,21 @@
                     <a class="nav-link has-dropdown" href="#"><i
                             class="fas fa-shield-alt"></i><span>{{ __('Admin & Roles') }}</span></a>
                     <ul class="dropdown-menu">
-                        <!-- @adminCan('admin.view') -->
+                        @adminCan('admin.view')
                             <li class="{{ Route::is('admin.admin.*') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('admin.admin.index') }}">{{ __('Manage Admin') }}</a>
                             </li>
-                        <!-- @endadminCan -->
-                        <!-- @adminCan('role.view') -->
+                        @endadminCan
+                        @adminCan('role.view')
                             <li class="{{ Route::is('admin.role.*') ? 'active' : '' }}">
                                 <a class="nav-link"
                                     href="{{ route('admin.role.index') }}">{{ __('Role & Permissions') }}</a>
                             </li>
-                        <!-- @endadminCan -->
+                        @endadminCan
                     </ul>
                 </li>
             @endif
-            @if (Module::isEnabled('GlobalSetting') && checkAdminHasPermission('setting.view'))
+            <!-- @if (Module::isEnabled('GlobalSetting') && checkAdminHasPermission('setting.view'))
                 <li class="menu-header">{{ __('System Settings') }}</li>
                 <li class="{{ Route::is('admin.addons.*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('admin.addons.view') }}"><i class="fas fa-plug"></i>
@@ -55,7 +57,7 @@
                         <span>{{ __('System Update') }}</span>
                     </a>
                 </li>
-            @endif
+            @endif -->
         </ul>
     </aside>
 </div>

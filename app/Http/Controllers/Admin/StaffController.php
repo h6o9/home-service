@@ -2,94 +2,121 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\RedirectType;
 use App\Http\Controllers\Controller;
 use App\Models\Staff;
-use App\Traits\RedirectHelperTrait;
 use Illuminate\Http\Request;
 
 class StaffController extends Controller
 {
-	use RedirectHelperTrait;
-	
+
     //
-	public function index()
-	{
-		$staffs = \App\Models\Staff::latest()->paginate(15);
-		return view('admin.staff.index', compact('staffs'));
-	}
+    public function index()
+    {
+        $staffs = \App\Models\Staff::latest()->paginate(15);
+        return view('admin.staff.index', compact('staffs'));
+    }
 
-	public function create()
-	{
-		return view('admin.staff.create');
-	}
+    public function create()
+    {
+        $permissions = [
+            'add_shop' => 'Add Shop',
+            'view_shop_list' => 'Shop List / Jobs'
+        ];
+        foreach ($permissions as $key => $name) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $key, 'guard_name' => 'staff']);
+        }
+        return view('admin.staff.create', compact('permissions'));
+    }
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:staff,email',
+            'phone' => 'required|string|max:20',
+            'status' => 'required|boolean'
+        ]);
 
-public function store(Request $request)
-{
-    $request->validate([
-        'name'  => 'required|string|max:255',
-        'email' => 'required|email|unique:staff,email',
-        'phone' => 'required|string|max:20'
-    ]);
+        $password = 12345678;
+        $staff = \App\Models\Staff::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'status' => $request->status,
+            'password' => bcrypt($password),
+        ]);
 
-	$password = 12345678;
-    \App\Models\Staff::create([
-        'name'  => $request->name,
-        'email' => $request->email,
-        'phone' => $request->phone,
-		'password' => bcrypt($password),
-    ]);
+        if ($request->has('permissions')) {
+            $staff->syncPermissions($request->permissions);
+        }
 
-        return $this->redirectWithMessage(RedirectType::CREATE->value, 'admin.staff.index');
-}
+        return redirect()->route('admin.staff.index')->with([
+            'message' => 'Staff added successfully',
+            'alert-type' => 'success'
+        ]);
+    }
+    public function edit($id)
+    {
+        $staff = \App\Models\Staff::findOrFail($id);
+        $permissions = [
+            'add_shop' => 'Add Shop',
+            'view_shop_list' => 'Shop List / Jobs'
+        ];
+        foreach ($permissions as $key => $name) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $key, 'guard_name' => 'staff']);
+        }
+        $staffPermissions = $staff->permissions->pluck('name')->toArray();
+        return view('admin.staff.edit', compact('staff', 'permissions', 'staffPermissions'));
+    }
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:staff,email,' . $id,
+            'phone' => 'required|string|max:20',
+            'status' => 'required|boolean'
+        ]);
 
-public function edit($id)
-{
-	$staff = \App\Models\Staff::findOrFail($id);
-	return view('admin.staff.edit', compact('staff'));
-}
+        $password = 12345678;
+        $staff = \App\Models\Staff::findOrFail($id);
+        $staff->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'status' => $request->status,
+            'password' => bcrypt($password),
+        ]);
 
-public function update(Request $request, $id)
-{
-	$request->validate([
-		'name'  => 'required|string|max:255',
-		'email' => 'required|email|unique:staff,email,' . $id,
-		'phone' => 'required|string|max:20'
-	]);
+        if ($request->has('permissions')) {
+            $staff->syncPermissions($request->permissions);
+        }
+        else {
+            $staff->syncPermissions([]);
+        }
 
-	$password = 12345678;
-	$staff = \App\Models\Staff::findOrFail($id);
-	$staff->update([
-		'name'  => $request->name,
-		'email' => $request->email,
-		'phone' => $request->phone,
-		'password' => bcrypt($password),
-	]);
-
-        return $this->redirectWithMessage(RedirectType::UPDATE->value, 'admin.staff.index');
-
-}
-
-public function destroy($id)
+        return redirect()->route('admin.staff.index')->with([
+            'message' => 'Staff updated successfully',
+            'alert-type' => 'success'
+        ]);
+    }
+    public function destroy($id)
     {
         $staff = \App\Models\Staff::findOrFail($id);
         $staff->delete();
 
-    return $this->redirectWithMessage(RedirectType::DELETE->value, 'admin.staff.index');
+        return redirect()->route('admin.staff.index')->with([
+            'message' => 'Staff deleted successfully',
+            'alert-type' => 'success'
+        ]);
 
     }
 
-	public function status(Request $request)
-{
-    $staff = Staff::findOrFail($request->id);
+    public function changeStatus($id)
+    {
+        $staff = Staff::findOrFail($id);
+        $staff->status = request('status');
+        $staff->save();
 
-    $staff->is_active = !$staff->is_active;
-    $staff->save();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Status updated successfully'
-    ]);
-}
+        return response()->json(['success' => true]);
+    }
 
 }
