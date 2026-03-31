@@ -281,13 +281,13 @@
             });
             
             // Static cards - show coming soon message
-            $('.static-card').click(function() {
-                Toast.fire({
-                    icon: 'info',
-                    title: 'Coming Soon!',
-                    text: 'This feature will be available soon.'
-                });
-            });
+            // $('.static-card').click(function() {
+            //     Toast.fire({
+            //         icon: 'info',
+            //         title: 'Coming Soon!',
+            //         text: 'This feature will be available soon.'
+            //     });
+            // });
             
             // Clickable steps
             $('.clickable-step').click(function() {

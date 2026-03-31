@@ -16,6 +16,11 @@
                     <span>{{ __('Dashboard') }}</span>
                 </a>
             </li>
+			<li class="{{ isRoute('staff.shop.index', 'active') }}">
+				<a class="nav-link" href="{{ route('staff.shop.index') }}"><i class="fas fa-store"></i>
+					<span>{{ __('Manage Shops') }}</span>
+				</a>
+			
         </ul>
     </aside>
 </div>

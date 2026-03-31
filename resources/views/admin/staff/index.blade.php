@@ -96,7 +96,7 @@
         },
         success: function(response) {
             if(response.success) {
-                toastr.success('Staff status updated successfully');
+                toastr.success('Status updated successfully');
             } else {
                 toastr.error('Something went wrong');
             }
