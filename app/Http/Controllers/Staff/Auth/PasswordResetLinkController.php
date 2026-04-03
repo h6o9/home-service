@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Auth;
+namespace App\Http\Controllers\Staff\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin;
+use App\Models\Staff;
 use App\Traits\GetGlobalInformationTrait;
 use App\Traits\GlobalMailTrait;
 use Illuminate\Http\Request;
@@ -20,7 +20,7 @@ class PasswordResetLinkController extends Controller
      */
     public function create(): View
     {
-        return view('admin.auth.forgot-password');
+        return view('staff.auth.forgot-password');
     }
 
     /**
@@ -28,8 +28,8 @@ class PasswordResetLinkController extends Controller
      */
     public function custom_forget_password(Request $request)
     {
-
         $setting = Cache::get('setting');
+        
 
         $request->validate([
             'email' => ['required', 'email'],
@@ -37,16 +37,15 @@ class PasswordResetLinkController extends Controller
             'email.required' => __('Email is required'),
         ]);
 
-        $admin = Admin::where('email', $request->email)->first();
+        $staff = Staff::where('email', $request->email)->first();
+        if ($staff) {
+            $staff->forget_password_token = Str::random(100);
+            $staff->save();
 
-        if ($admin) {
-            $admin->forget_password_token = Str::random(100);
-            $admin->save();
+            [$subject, $message] = $this->fetchEmailTemplate('password_reset', ['user_name' => $staff->name]);
+            $link                = [__('CONFIRM YOUR EMAIL') => route('staff.password.reset', $staff->forget_password_token)];
 
-            [$subject, $message] = $this->fetchEmailTemplate('password_reset', ['user_name' => $admin->name]);
-            $link                = [__('CONFIRM YOUR EMAIL') => route('admin.password.reset', $admin->forget_password_token)];
-
-            $this->sendMail($admin->email, $subject, $message, $link);
+            $this->sendMail($staff->email, $subject, $message, $link);
 
             $notification = __('A password reset link has been send to your mail');
             $notification = ['message' => $notification, 'alert-type' => 'success'];

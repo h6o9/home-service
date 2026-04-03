@@ -62,6 +62,11 @@ public function store(Request $request)
 
     if (Auth::guard('staff')->attempt($credentials, $request->remember)) {
         $request->session()->regenerate();
+        
+        // Set session variables for better tracking
+        session(['staff_authenticated' => true]);
+        session(['staff_login_time' => now()]);
+        session(['staff_last_activity' => now()]);
 
         return redirect()->route('staff.dashboard')->with([
             'message' => __('Logged in successfully.'),
@@ -79,7 +84,10 @@ public function store(Request $request)
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('admin')->logout();
+        // Clear session variables
+        session()->forget(['staff_authenticated', 'staff_login_time', 'staff_last_activity']);
+        
+        Auth::guard('staff')->logout();
 
         $notification = __('Logged out successfully.');
         $notification = ['message' => $notification, 'alert-type' => 'success'];

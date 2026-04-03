@@ -73,8 +73,8 @@
 
                                         <div class="col-md-12 mt-3">
                                             <div class="form-group">
-                                                <label>{{ __('Permissions') }}</label>
-                                                <div class="row">
+                                                <!-- <label>{{ __('Permissions') }}</label> -->
+                                                <!-- <div class="row">
                                                     @foreach($permissions as $key => $name)
                                                         <div class="col-md-4 mb-2">
                                                             <div class="custom-control custom-checkbox">
@@ -83,7 +83,7 @@
                                                             </div>
                                                         </div>
                                                     @endforeach
-                                                </div>
+                                                </div> -->
                                             </div>
                                         </div>
                                     </div>

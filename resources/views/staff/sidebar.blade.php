@@ -1,12 +1,12 @@
 <div class="main-sidebar">
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-            <a href="{{ route('staff.dashboard') }}"><img class="w-75" src="{{ asset($setting->logo) ?? '' }}"
+            <a href="{{ route('staff.dashboard') }}"><img class="w-75" src="{{ asset('public/backend/img/admin-auth-bg.jpg') }}"
                     alt="{{ $setting->app_name ?? '' }}"></a>
         </div>
 
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="{{ route('staff.dashboard') }}"><img src="{{ asset($setting->favicon) ?? '' }}"
+            <a href="{{ route('staff.dashboard') }}"><img src="{{ asset('public/backend/img/admin-auth-bg.jpg') }}"
                     alt="{{ $setting->app_name ?? '' }}"></a>
         </div>
 

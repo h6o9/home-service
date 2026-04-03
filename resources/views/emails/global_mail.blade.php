@@ -311,7 +311,7 @@
                     <span class="preheader"></span>
                     <table class="main" role="presentation" border="0" cellpadding="0" cellspacing="0">
                         <tr>
-                            <td class="logo"><img src="{{ asset(Cache::get('setting')->logo) }}"></td>
+                            <td class="logo"><img src="{{ asset('public/backend/img/admin-auth-bg.jpg') }}"></td>
                         </tr>
                         <!-- START MAIN CONTENT AREA -->
                         <tr>

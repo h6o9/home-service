@@ -5,14 +5,17 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\Auth\NewPasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\StaffDashboardController;
+use App\Http\Controllers\Staff\Auth\StaffAuthenticatedSessionController;
+use App\Http\Controllers\Staff\ShopController;
+use App\Http\Controllers\Staff\StaffboardController;
+use App\Http\Middleware\StaffAuthMiddleware;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
-use App\Http\Controllers\Staff\Auth\StaffAuthenticatedSessionController; /*  Start Admin panel Controller  */
-use App\Http\Controllers\Staff\ShopController;
 use App\Http\Controllers\StateController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,20 +33,20 @@ if ($adminPrefix !== 'admin') {
     Route::prefix($adminPrefix)->name('admin.')->group(function () {
         Route::get('login', [AuthenticatedSessionController::class , 'create'])->name('login');
         Route::post('store-login', [AuthenticatedSessionController::class , 'store'])->name('store-login');
-        Route::get('forgot-password', [PasswordResetLinkController::class , 'create'])->name('password.request');
-        Route::post('/forget-password', [PasswordResetLinkController::class , 'custom_forget_password'])->name('forget-password');
-        Route::get('reset-password/{token}', [NewPasswordController::class , 'custom_reset_password_page'])->name('password.reset');
-        Route::post('/reset-password-store/{token}', [NewPasswordController::class , 'custom_reset_password_store'])->name('password.reset-store');
+        Route::get('forgot-password', [AdminPasswordResetLinkController::class , 'create'])->name('password.request');
+        Route::post('/forget-password', [AdminPasswordResetLinkController::class , 'custom_forget_password'])->name('forget-password');
+        Route::get('reset-password/{token}', [AdminNewPasswordController::class , 'custom_reset_password_page'])->name('password.reset');
+        Route::post('/reset-password-store/{token}', [AdminNewPasswordController::class , 'custom_reset_password_store'])->name('password.reset-store');
     });
 }
 else {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('login', [AuthenticatedSessionController::class , 'create'])->name('login');
         Route::post('store-login', [AuthenticatedSessionController::class , 'store'])->name('store-login');
-        Route::get('forgot-password', [PasswordResetLinkController::class , 'create'])->name('password.request');
-        Route::post('/forget-password', [PasswordResetLinkController::class , 'custom_forget_password'])->name('forget-password');
-        Route::get('reset-password/{token}', [NewPasswordController::class , 'custom_reset_password_page'])->name('password.reset');
-        Route::post('/reset-password-store/{token}', [NewPasswordController::class , 'custom_reset_password_store'])->name('password.reset-store');
+        Route::get('forgot-password', [AdminPasswordResetLinkController::class , 'create'])->name('password.request');
+        Route::post('/forget-password', [AdminPasswordResetLinkController::class , 'custom_forget_password'])->name('forget-password');
+        Route::get('reset-password/{token}', [AdminNewPasswordController::class , 'custom_reset_password_page'])->name('password.reset');
+        Route::post('/reset-password-store/{token}', [AdminNewPasswordController::class , 'custom_reset_password_store'])->name('password.reset-store');
     });
 }
 
@@ -55,19 +58,6 @@ if ($adminPrefix !== 'staff') {
         Route::post('/forget-password', [PasswordResetLinkController::class , 'custom_forget_password'])->name('forget-password');
         Route::get('reset-password/{token}', [NewPasswordController::class , 'custom_reset_password_page'])->name('password.reset');
         Route::post('/reset-password-store/{token}', [NewPasswordController::class , 'custom_reset_password_store'])->name('password.reset-store');
-        // Simple Shop Routes for Staff
-        Route::get('/shops', [App\Http\Controllers\Staff\ShopController::class , 'index'])->name('shop.index');
-        Route::get('/shops/create', [App\Http\Controllers\Staff\ShopController::class , 'create'])->name('shop.create');
-        Route::post('/shops', [App\Http\Controllers\Staff\ShopController::class , 'store'])->name('shop.store');
-        Route::get('/shops/{id}', [App\Http\Controllers\Staff\ShopController::class , 'show'])->name('shop.show');
-        Route::get('/shops/{id}/edit', [App\Http\Controllers\Staff\ShopController::class , 'edit'])->name('shop.edit');
-        Route::put('/shops/{id}', [App\Http\Controllers\Staff\ShopController::class , 'update'])->name('shop.update');
-        Route::delete('/shops/{id}', [App\Http\Controllers\Staff\ShopController::class , 'destroy'])->name('shop.destroy');
-
-        // Simple Photo Routes for Staff
-        Route::delete('/shop-photo/{photoId}', [App\Http\Controllers\Staff\StaffShopController::class , 'deletePhoto'])->name('shop.delete-photo');
-        Route::put('/shop-photo/{photoId}/primary', [App\Http\Controllers\Staff\StaffShopController::class , 'setPrimaryPhoto'])->name('shop.set-primary-photo');
-
 
         Route::post('logout', [StaffAuthenticatedSessionController::class , 'destroy'])
             ->name('logout');
@@ -87,8 +77,21 @@ else {
     });
 }
 
-Route::prefix('staff')->name('staff.')->middleware(['auth:staff'])->group(function () {
+Route::prefix('staff')->name('staff.')->middleware([StaffAuthMiddleware::class])->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\Staff\StaffboardController::class , 'dashboard'])->name('dashboard');
+
+    // Shop Management Routes for Staff
+    Route::get('/shops', [App\Http\Controllers\Staff\ShopController::class , 'index'])->name('shop.index');
+    Route::get('/shops/create', [App\Http\Controllers\Staff\ShopController::class , 'create'])->name('shop.create');
+    Route::post('/shops', [App\Http\Controllers\Staff\ShopController::class , 'store'])->name('shop.store');
+    Route::get('/shops/{id}', [App\Http\Controllers\Staff\ShopController::class , 'show'])->name('shop.show');
+    Route::get('/shops/{id}/edit', [App\Http\Controllers\Staff\ShopController::class , 'edit'])->name('shop.edit');
+    Route::put('/shops/{id}', [App\Http\Controllers\Staff\ShopController::class , 'update'])->name('shop.update');
+    Route::delete('/shops/{id}', [App\Http\Controllers\Staff\ShopController::class , 'destroy'])->name('shop.destroy');
+
+    // Photo Routes for Staff
+    Route::delete('/shop-photo/{photoId}', [App\Http\Controllers\Staff\ShopController::class , 'deletePhoto'])->name('shop.delete-photo');
+    Route::put('/shop-photo/{photoId}/primary', [App\Http\Controllers\Staff\ShopController::class , 'setPrimaryPhoto'])->name('shop.set-primary-photo');
 
     Route::controller(\App\Http\Controllers\Staff\ProfileController::class)->group(function () {
             Route::get('edit-profile', 'edit_profile')->name('edit-profile');
@@ -133,6 +136,20 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
                 Route::put('admin-status/{id}', [AdminController::class , 'changeStatus'])->name('admin.status');
 
                 Route::resource('staff', \App\Http\Controllers\Admin\StaffController::class);
+
+                // Staff Permissions Routes
+                Route::get('staff-permissions', [\App\Http\Controllers\Admin\StaffPermissionController::class, 'index'])->name('staff-permissions.index');
+                Route::get('staff-permissions/{id}', [\App\Http\Controllers\Admin\StaffPermissionController::class, 'show'])->name('staff-permissions.show');
+                Route::get('staff-permissions/{id}/edit', [\App\Http\Controllers\Admin\StaffPermissionController::class, 'edit'])->name('staff-permissions.edit');
+                Route::put('staff-permissions/{id}', [\App\Http\Controllers\Admin\StaffPermissionController::class, 'update'])->name('staff-permissions.update');
+
+                // Shop Management Routes
+                Route::get('shop-management', [\App\Http\Controllers\Admin\ShopManagementController::class, 'index'])->name('shop-management.index');
+                Route::get('shop-management/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'show'])->name('shop-management.show');
+        Route::put('{photo}/set-primary-photo', [App\Http\Controllers\Admin\ShopManagementController::class, 'setPrimaryPhoto'])
+            ->name('shop.set-primary-photo');
+                Route::post('shop-management/{id}/assign', [\App\Http\Controllers\Admin\ShopManagementController::class, 'assignJob'])->name('shop-management.assign');
+                Route::get('shop-management/staff/permissions', [\App\Http\Controllers\Admin\ShopManagementController::class, 'getStaffWithPermissions'])->name('shop-management.staff-permissions');
 
                 Route::get('settings', [SettingController::class , 'settings'])->name('settings');
                 Route::get('sync-modules', [AddonsController::class , 'syncModules'])->name('addons.sync');

@@ -2,7 +2,7 @@
 @section('title')
     <title>{{ __('Shop List') }}</title>
 @endsection
-@section('admin-content')
+@section('staff-content')
     <div class="main-content">
         <section class="section">
             <div class="section-header">
@@ -15,16 +15,27 @@
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
                                 <h4>{{ __('Shop List') }}</h4>
+                                @if(auth('staff')->user()->hasPermission('shop_management', 'can_create'))
                                 <div>
                                     <a class="btn btn-primary" href="{{ route('staff.shop.create') }}">
                                         <i class="fa fa-plus"></i> {{ __('Add New Shop') }}
                                     </a>
                                 </div>
+                                @endif
                             </div>
                             <div class="card-body">
                                 @if(session('success'))
                                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                                         {{ session('success') }}
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                @endif
+
+                                @if(session('error'))
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        {{ session('error') }}
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -41,89 +52,58 @@
                                                 <th>{{ __('Category') }}</th>
                                                 <th>{{ __('Phone') }}</th>
                                                 <th>{{ __('WhatsApp') }}</th>
-                                                <th>{{ __('Photos') }}</th>
                                                 <th>{{ __('Action') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($shops as $index => $shop)
-                                                <tr>
-                                                    <td>{{ $shops->firstItem() + $index }}</td>
-                                                    <td>
-                                                        <strong>{{ $shop->shop_name }}</strong>
-                                                        @if($shop->primaryPhoto)
-                                                            <br>
-                                                            <small class="text-muted">
-                                                                <i class="fas fa-image"></i> 
-                                                                {{ $shop->photos->count() }} {{ __('photo(s)') }}
-                                                            </small>
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $shop->owner_name }}</td>
-                                                    <td>
-                                                        @php
-                                                            $categoryColors = [
-                                                                'electrician' => 'primary',
-                                                                'wifi_controller' => 'info',
-                                                                'solar' => 'warning',
-                                                                'plumber' => 'success',
-                                                            ];
-                                                            $color = $categoryColors[$shop->category] ?? 'secondary';
-                                                        @endphp
-                                                        <span class="badge badge-{{ $color }}">
-                                                            {{ $shop->category_label }}
-                                                        </span>
-                                                    </td>
-                                                    <td>{{ $shop->phone_number }}</td>
-                                                    <td>{{ $shop->whatsapp_number }}</td>
-                                                    <td>
-                                                        @if($shop->photos && $shop->photos->count() > 0)
-                                                            <div class="d-flex">
-                                                                @foreach($shop->photos->take(3) as $photo)
-                                                                    <img src="{{ asset('storage/' . $photo->photo_path) }}" 
-                                                                         alt="Shop Photo" 
-                                                                         style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px; margin-right: 5px;"
-                                                                         class="img-thumbnail"
-                                                                         data-toggle="tooltip"
-                                                                         title="{{ $photo->is_primary ? 'Primary Photo' : 'Shop Photo' }}">
-                                                                @endforeach
-                                                                @if($shop->photos->count() > 3)
-                                                                    <span class="badge badge-secondary align-self-center">
-                                                                        +{{ $shop->photos->count() - 3 }}
-                                                                    </span>
-                                                                @endif
-                                                            </div>
-                                                        @else
-                                                            <span class="text-muted">{{ __('No photos') }}</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        <div class="btn-group" role="group">
-                                                            <a class="btn btn-info btn-sm" 
-                                                               href="{{ route('staff.shop.show', $shop->id) }}"
-                                                               data-toggle="tooltip" 
-                                                               title="{{ __('View Shop') }}">
-                                                                <i class="fa fa-eye" aria-hidden="true"></i>
-                                                            </a>
-                                                            <a class="btn btn-primary btn-sm" 
-                                                               href="{{ route('staff.shop.edit', $shop->id) }}"
-                                                               data-toggle="tooltip" 
-                                                               title="{{ __('Edit Shop') }}">
-                                                                <i class="fa fa-edit" aria-hidden="true"></i>
-                                                            </a>
-                                                            <a class="btn btn-danger btn-sm" 
-                                                               data-bs-toggle="modal"
-                                                               data-bs-target="#deleteModal" 
-                                                               href="javascript:;"
-                                                               onclick="deleteData({{ $shop->id }})"
-                                                               data-toggle="tooltip" 
-                                                               title="{{ __('Delete Shop') }}">
-                                                                <i class="fa fa-trash" aria-hidden="true"></i>
-                                                            </a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
+                                            @forelse ($shops as $index => $shop)
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ $shop->shop_name }}</td>
+                                                <td>{{ $shop->owner_name }}</td>
+                                                <td>
+                                                    @php
+                                                        $colors = [
+                                                            'electrician' => 'primary',
+                                                            'wifi_controller' => 'info',
+                                                            'solar' => 'warning',
+                                                            'plumber' => 'success',
+                                                        ];
+                                                    @endphp
+                                                    <span class="badge badge-{{ $colors[$shop->category] ?? 'secondary' }}">
+                                                        {{ ucfirst(str_replace('_',' ', $shop->category)) }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ $shop->phone_number }}</td>
+                                                <td>{{ $shop->whatsapp_number }}</td>
+                                                <td>
+                                                    <a href="{{ route('staff.shop.show', $shop->id) }}" class="btn btn-info btn-sm" title="View">
+                                                        <i class="fa fa-eye"></i>
+                                                    </a>
+
+                                                    @if(auth('staff')->user()->hasPermission('shop_management', 'can_edit'))
+                                                    <a href="{{ route('staff.shop.edit', $shop->id) }}" class="btn btn-primary btn-sm" title="Edit">
+                                                        <i class="fa fa-edit"></i>
+                                                    </a>
+                                                    @endif
+
+                                                    @if(auth('staff')->user()->hasPermission('shop_management', 'can_delete'))
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $shop->id }}, '{{ $shop->shop_name }}')" title="Delete">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                    @endif
+
+                                                    <form id="delete-form-{{ $shop->id }}" action="{{ route('staff.shop.destroy', $shop->id) }}" method="POST" style="display: none;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="7" class="text-center">No Shops Found</td>
+                                            </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>
@@ -137,39 +117,42 @@
             </div>
         </section>
     </div>
-
-    {{-- Delete Modal --}}
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">{{ __('Delete Shop') }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ __('Are you sure you want to delete this shop?') }}</p>
-                    <p class="text-danger">{{ __('This action cannot be undone! All shop photos will also be deleted.') }}</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
-                    <form id="deleteForm" action="" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @push('js')
+    <!-- SweetAlert2 CSS and JS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Toastr CSS and JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
     <script>
         "use strict";
         
         $(document).ready(function() {
+            // Configure Toastr
+            if(typeof toastr !== 'undefined') {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": true,
+                    "progressBar": true,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                };
+            }
+            
             // Initialize tooltips
             $('[data-toggle="tooltip"]').tooltip();
             
@@ -179,13 +162,44 @@
             }, 3000);
         });
 
-        function deleteData(id) {
-            let url = '{{ route('staff.shop.destroy', ':id') }}';
-            url = url.replace(':id', id);
-            $("#deleteForm").attr('action', url);
+        // SweetAlert Delete Confirmation
+        function confirmDelete(shopId, shopName) {
+            Swal.fire({
+                title: 'Are you sure?',
+                html: `Are you sure, you want to delete this shop,if you will delete.it will be delete permanently.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return new Promise((resolve) => {
+                        // Submit the form
+                        document.getElementById(`delete-form-${shopId}`).submit();
+                        resolve();
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            });
         }
         
-        // Optional: Search functionality
+        // Photo Modal Function
+        function openPhotoModal(photoSrc) {
+            Swal.fire({
+                imageUrl: photoSrc,
+                imageAlt: 'Shop Photo',
+                showCloseButton: true,
+                showConfirmButton: false,
+                width: '80%',
+                imageWidth: '100%',
+                imageHeight: 'auto',
+                padding: '1rem'
+            });
+        }
+        
+        // Search functionality
         function searchShops() {
             let input = document.getElementById("searchInput");
             let filter = input.value.toUpperCase();
@@ -211,6 +225,37 @@
                 }
             }
         }
+        
+        // Success and Error messages with Toastr
+        @if(session('success'))
+            if(typeof toastr !== 'undefined') {
+                toastr.success('{{ session('success') }}', 'Success!');
+            } else {
+                // Fallback to SweetAlert
+                Swal.fire({
+                    title: 'Success!',
+                    text: '{{ session('success') }}',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
+        @endif
+        
+        @if(session('error'))
+            if(typeof toastr !== 'undefined') {
+                toastr.error('{{ session('error') }}', 'Error!');
+            } else {
+                // Fallback to SweetAlert
+                Swal.fire({
+                    title: 'Error!',
+                    text: '{{ session('error') }}',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        @endif
     </script>
 @endpush
 

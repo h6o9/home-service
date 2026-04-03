@@ -67,7 +67,7 @@
                                         </div>
 
                                         <div class="col-md-12 mt-3">
-                                            <div class="form-group">
+                                            <!-- <div class="form-group">
                                                 <label>{{ __('Permissions') }}</label>
                                                 <div class="row">
                                                     @foreach($permissions as $key => $name)
@@ -79,7 +79,7 @@
                                                         </div>
                                                     @endforeach
                                                 </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
 

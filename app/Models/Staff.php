@@ -20,4 +20,25 @@ class Staff extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function staffPermissions()
+    {
+        return $this->hasMany(StaffPermission::class);
+    }
+
+    public function assignedJobs()
+    {
+        return $this->hasMany(StaffJob::class, 'assigned_to');
+    }
+
+    public function createdShops()
+    {
+        return $this->hasMany(Shop::class, 'staff_id');
+    }
+
+    public function hasPermission($module, $action = 'can_view')
+    {
+        $permission = $this->staffPermissions()->where('module', $module)->first();
+        return $permission && $permission->$action;
+    }
 }

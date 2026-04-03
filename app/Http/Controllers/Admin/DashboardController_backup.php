@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Staff;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -15,10 +14,9 @@ use Modules\Product\app\Models\Product;
 use Modules\Product\app\Models\ProductReview;
 use Modules\Subscription\app\Models\SubscriptionHistory;
 
-class StaffboardController extends Controller
+class DashboardController extends Controller
 {
-    //
-	/**
+    /**
      * @param Request $request
      */
     public function dashboard(Request $request)
@@ -81,9 +79,8 @@ class StaffboardController extends Controller
 
         [$cardData['sellChartLabels'], $cardData['sellChartValues'], $cardData['sellChartAmount']]   = $this->getBalanceData();
         [$cardData['salesChartLabels'], $cardData['salesChartValues'], $cardData['salesChartCount']] = $this->getSalesCountData();
-    	$totalShops = Shop::count();
 
-        return view('staff.dashboard', compact( 'totalShops', 'todayOrders', 'totalOrders', 'monthlyOrders', 'yearlyOrders', 'products', 'reviews', 'reports', 'totalWithdraw', 'totalPendingWithdraw', 'cardData'));
+        return view('admin.dashboard', compact('todayOrders', 'totalOrders', 'monthlyOrders', 'yearlyOrders', 'products', 'reviews', 'reports', 'totalWithdraw', 'totalPendingWithdraw', 'cardData'));
     }
 
     public function getBalanceData()

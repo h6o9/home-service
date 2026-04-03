@@ -8,14 +8,26 @@ use App\Models\ShopPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Traits\RedirectHelper;
+use App\Enums\RedirectType;
+use App\Traits\RedirectHelperTrait;
+
+
 
 class ShopController extends Controller
 {
+    use RedirectHelperTrait;
+    
     /**
      * Display a listing of the shops.
      */
     public function index()
     {
+        // Check if staff has permission to view shop list
+        if (!auth('staff')->user()->hasPermission('shop_management', 'can_view')) {
+            abort(403, 'You do not have permission to view shop list.');
+        }
+
         $shops = Shop::with('photos')->latest()->paginate(10);
         return view('staff.shop.index', compact('shops'));
     }
@@ -25,6 +37,11 @@ class ShopController extends Controller
      */
     public function create()
     {
+        // Check if staff has permission to create shops
+        if (!auth('staff')->user()->hasPermission('shop_management', 'can_create')) {
+            abort(403, 'You do not have permission to create shops.');
+        }
+
         return view('staff.shop.create');
     }
 
@@ -33,6 +50,11 @@ class ShopController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if staff has permission to create shops
+        if (!auth('staff')->user()->hasPermission('shop_management', 'can_create')) {
+            abort(403, 'You do not have permission to create shops.');
+        }
+
         // Validation rules
         $validated = $request->validate([
             'shop_name' => 'required|string|max:255',
@@ -56,20 +78,36 @@ class ShopController extends Controller
             'address' => $validated['address'],
             'about_shop' => $validated['about_shop'],
             'slug' => Str::slug($validated['shop_name']) . '-' . uniqid(),
+            'staff_id' => auth('staff')->id(), // Add staff_id
         ]);
 
         // Handle multiple photos upload
         if ($request->hasFile('shop_photos')) {
             foreach ($request->file('shop_photos') as $photo) {
-                // Store photo
-                $path = $photo->store('shop-photos', 'public');
-
-                // Create photo record
-                ShopPhoto::create([
-                    'shop_id' => $shop->id,
-                    'photo_path' => $path,
-                    'is_primary' => false,
-                ]);
+                // Store photo with proper error handling
+                try {
+                    // Create public directory if it doesn't exist
+                    $publicPath = public_path('storage/shop-photos');
+                    if (!file_exists($publicPath)) {
+                        mkdir($publicPath, 0755, true);
+                    }
+                    
+                    // Generate unique filename
+                    $filename = 'shop_' . $shop->id . '_' . time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+                    
+                    // Move file to public directory
+                    if ($photo->move($publicPath, $filename)) {
+                        // Create photo record with public path
+                        ShopPhoto::create([
+                            'shop_id' => $shop->id,
+                            'photo_path' => 'shop-photos/' . $filename,
+                            'is_primary' => false,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    // Log error but continue with other photos
+                    \Log::error('Photo upload failed: ' . $e->getMessage());
+                }
             }
 
             // Set the first photo as primary
@@ -79,9 +117,17 @@ class ShopController extends Controller
             }
         }
 
+        // Check if request is AJAX (for dashboard modal)
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Created successfully!',
+                'shop' => $shop
+            ]);
+        }
+
         // Redirect to staff shop index (not admin)
-        return redirect()->route('staff.shop.index')
-            ->with('success', 'Shop created successfully!');
+        return $this->redirectWithMessage(RedirectType::CREATE->value, 'staff.shop.index');
     }
 
     /**
@@ -98,6 +144,11 @@ class ShopController extends Controller
      */
     public function edit($id)
     {
+        // Check edit permission
+        if (!auth('staff')->user()->hasPermission('shop_management', 'can_edit')) {
+            abort(403, 'You do not have permission to edit shops.');
+        }
+        
         $shop = Shop::with('photos')->findOrFail($id);
         return view('staff.shop.edit', compact('shop'));
     }
@@ -107,6 +158,11 @@ class ShopController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Check edit permission
+        if (!auth('staff')->user()->hasPermission('shop_management', 'can_edit')) {
+            abort(403, 'You do not have permission to edit shops.');
+        }
+        
         $shop = Shop::findOrFail($id);
 
         $validated = $request->validate([
@@ -135,18 +191,35 @@ class ShopController extends Controller
         // Handle new photos upload
         if ($request->hasFile('shop_photos')) {
             foreach ($request->file('shop_photos') as $photo) {
-                $path = $photo->store('shop-photos', 'public');
-                ShopPhoto::create([
-                    'shop_id' => $shop->id,
-                    'photo_path' => $path,
-                    'is_primary' => false,
-                ]);
+                // Store photo with proper error handling
+                try {
+                    // Create public directory if it doesn't exist
+                    $publicPath = public_path('storage/shop-photos');
+                    if (!file_exists($publicPath)) {
+                        mkdir($publicPath, 0755, true);
+                    }
+                    
+                    // Generate unique filename
+                    $filename = 'shop_' . $shop->id . '_' . time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+                    
+                    // Move file to public directory
+                    if ($photo->move($publicPath, $filename)) {
+                        ShopPhoto::create([
+                            'shop_id' => $shop->id,
+                            'photo_path' => 'shop-photos/' . $filename,
+                            'is_primary' => false,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    // Log error but continue with other photos
+                    \Log::error('Photo upload failed: ' . $e->getMessage());
+                }
             }
         }
 
         // Redirect to staff shop index
-        return redirect()->route('staff.shop.index')
-            ->with('success', 'Shop updated successfully!');
+        return $this->redirectWithMessage(RedirectType::UPDATE->value, 'staff.shop.index');
+
     }
 
     /**
@@ -154,12 +227,19 @@ class ShopController extends Controller
      */
     public function destroy($id)
     {
+        // Check delete permission
+        if (!auth('staff')->user()->hasPermission('shop_management', 'can_delete')) {
+            abort(403, 'You do not have permission to delete shops.');
+        }
+        
         $shop = Shop::findOrFail($id);
 
-        // Delete all associated photos
+        // Delete all associated photos from public path
         foreach ($shop->photos as $photo) {
-            // Delete file from storage
-            Storage::disk('public')->delete($photo->photo_path);
+            $filePath = public_path('storage/' . $photo->photo_path);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
             // Delete database record
             $photo->delete();
         }
@@ -167,8 +247,8 @@ class ShopController extends Controller
         // Delete shop
         $shop->delete();
 
-        return redirect()->route('staff.shop.index')
-            ->with('success', 'Shop deleted successfully!');
+            return $this->redirectWithMessage(RedirectType::DELETE->value, 'staff.shop.index');
+
     }
 
     /**
@@ -176,11 +256,19 @@ class ShopController extends Controller
      */
     public function deletePhoto($photoId)
     {
+        // Check edit permission (photo deletion is part of editing)
+        if (!auth('staff')->user()->hasPermission('shop_management', 'can_edit')) {
+            abort(403, 'You do not have permission to edit shops.');
+        }
+        
         $photo = ShopPhoto::findOrFail($photoId);
         $shopId = $photo->shop_id;
 
-        // Delete file from storage
-        Storage::disk('public')->delete($photo->photo_path);
+        // Delete file from public path
+        $filePath = public_path('storage/' . $photo->photo_path);
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
 
         // Delete database record
         $photo->delete();
@@ -193,14 +281,20 @@ class ShopController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Photo deleted successfully!');
+     return $this->redirectWithMessage(RedirectType::DELETE->value, 'staff.shop.edit');
+;
     }
 
     /**
-     * Set a photo as primary for the shop.
+     * Set a photo as primary.
      */
     public function setPrimaryPhoto($photoId)
     {
+        // Check edit permission
+        if (!auth('staff')->user()->hasPermission('shop_management', 'can_edit')) {
+            abort(403, 'You do not have permission to edit shops.');
+        }
+        
         $photo = ShopPhoto::findOrFail($photoId);
 
         // Remove primary status from all photos of this shop

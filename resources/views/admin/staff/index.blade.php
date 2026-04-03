@@ -85,26 +85,26 @@
         }
 
         function changeStaffStatus(staffId) {
-    let status = $('#status_toggle_' + staffId).prop('checked') ? 1 : 0;
-    
-    $.ajax({
-        url: '{{ route('staff.change.status', ':id') }}'.replace(':id', staffId),
-        type: 'POST',
-        data: {
-            status: status,
-            _token: '{{ csrf_token() }}'
-        },
-        success: function(response) {
-            if(response.success) {
-                toastr.success('Status updated successfully');
-            } else {
-                toastr.error('Something went wrong');
-            }
-        },
-        error: function() {
-            toastr.error('Error updating status');
+            let status = $('#status_toggle_' + staffId).prop('checked') ? 1 : 0;
+            
+            $.ajax({
+                url: '{{ route('staff.change.status', ':id') }}'.replace(':id', staffId),
+                type: 'POST',
+                data: {
+                    status: status,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if(response.success) {
+                        toastr.success('Status updated successfully');
+                    } else {
+                        toastr.error('Something went wrong');
+                    }
+                },
+                error: function() {
+                    toastr.error('Error updating status');
+                }
+            });
         }
-    });
-}
     </script>
 @endpush

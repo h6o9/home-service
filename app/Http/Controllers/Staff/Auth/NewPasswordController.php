@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Auth;
+namespace App\Http\Controllers\Staff\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin;
+use App\Models\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
+
 
 class NewPasswordController extends Controller
 {
@@ -18,16 +19,16 @@ class NewPasswordController extends Controller
     public function custom_reset_password_page(Request $request, $token)
     {
 
-        $admin = Admin::select('id', 'name', 'email', 'forget_password_token')->where('forget_password_token', $token)->first();
+        $staff = Staff::select('id', 'name', 'email', 'forget_password_token')->where('forget_password_token', $token)->first();
 
-        if (!$admin) {
+        if (!$staff) {
             $notification = __('Invalid token, please try again');
             $notification = ['message' => $notification, 'alert-type' => 'error'];
 
-            return redirect()->route('password.request')->with($notification);
+            return redirect()->route('staff.password.request')->with($notification);
         }
 
-        return view('admin.auth.reset-password', ['admin' => $admin, 'token' => $token]);
+        return view('staff.auth.reset-password', ['staff' => $staff, 'token' => $token]);
     }
 
     /**
@@ -49,22 +50,22 @@ class NewPasswordController extends Controller
         ];
         $this->validate($request, $rules, $customMessages);
 
-        $admin = Admin::select('id', 'name', 'email', 'forget_password_token')->where('forget_password_token', $token)->where('email', $request->email)->first();
+        $staff = Staff::select('id', 'name', 'email', 'forget_password_token')->where('forget_password_token', $token)->where('email', $request->email)->first();
 
-        if (!$admin) {
+        if (!$staff) {
             $notification = __('Invalid token, please try again');
             $notification = ['message' => $notification, 'alert-type' => 'error'];
 
             return redirect()->back()->with($notification);
         }
 
-        $admin->password              = Hash::make($request->password);
-        $admin->forget_password_token = null;
-        $admin->save();
+        $staff->password              = Hash::make($request->password);
+        $staff->forget_password_token = null;
+        $staff->save();
 
         $notification = __('Password Reset successfully');
         $notification = ['message' => $notification, 'alert-type' => 'success'];
 
-        return redirect()->route('admin.login')->with($notification);
+        return redirect()->route('staff.login')->with($notification);
     }
 }

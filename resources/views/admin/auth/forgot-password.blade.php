@@ -10,8 +10,8 @@
             <div class="row justify-content-center align-items-center min-vh-100">
                 <div class="col-md-4 my-3">
                     <div class="login-brand">
-                        <a href="{{ route('website.home') }}">
-                            <img src="{{ asset($setting?->logo) }}" alt="{{ $setting?->app_name }}" width="220">
+                        <a href="#">
+                            <img src="{{ asset('public/backend/img/admin-auth-bg.jpg') }}" alt="{{ $setting?->app_name }}" width="220">
                         </a>
                     </div>
                     <div class="card card-primary">

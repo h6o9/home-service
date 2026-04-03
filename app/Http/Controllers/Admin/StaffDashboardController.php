@@ -125,7 +125,6 @@ class StaffDashboardController extends Controller
                     'category' => 'required|string|max:100',
                     'owner_name' => 'required|string|max:255',
                     'phone_number' => 'required|string|max:20',
-                    'address' => 'required|string',
                     'whatsapp_number' => 'nullable|string|max:20',
                     'about_shop' => 'nullable|string',
                 ]);
@@ -202,10 +201,7 @@ class StaffDashboardController extends Controller
             'owner_name' => $draft->owner_name,
             'phone_number' => $draft->phone_number,
             'whatsapp_number' => $draft->whatsapp_number,
-            'address' => $draft->address,
             'about_shop' => $draft->about_shop,
-            'latitude' => $draft->latitude,
-            'longitude' => $draft->longitude,
         ];
 
         $validator = Validator::make($shopData, [
@@ -291,9 +287,6 @@ class StaffDashboardController extends Controller
                 'category' => 'required|string|max:100',
                 'owner_name' => 'required|string|max:255',
                 'phone_number' => 'required|string|max:20',
-                'address' => 'required|string',
-                'latitude' => 'required|numeric',
-                'longitude' => 'required|numeric',
                 'whatsapp_number' => 'nullable|string|max:20',
                 'about_shop' => 'nullable|string',
                 'photos.*' => 'nullable|image|mimes:jpeg,png,jpg|max:5120'

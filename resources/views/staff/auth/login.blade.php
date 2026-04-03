@@ -11,7 +11,7 @@
                         <div class="row g-0">
                             <div class="col-md-6 d-none d-md-block">
                                 <div class="h-100">
-                                    <img class="h-100 w-100 object-fit-fill" src="{{ asset($setting?->admin_auth_bg) }}"
+                                    <img class="h-100 w-100 object-fit-fill" src="{{ asset('public/website/images/logo.webp') }}"
                                         alt="{{ $setting?->app_name }}">
                                 </div>
                             </div>
@@ -21,8 +21,8 @@
                                 <div class="row d-flex justify-content-center align-items-center h-100">
                                     <div class="p-5">
                                         <div>
-                                            <a class="d-block text-center" href="{{ route('website.home') }}">
-                                                <img src="{{ asset($setting?->logo) }}" alt="{{ $setting?->app_name }}"
+                                            <a class="d-block text-center" href="#">
+                                                <img src="{{ asset('public/backend/img/admin-auth-bg.jpg') }}" alt="{{ $setting?->app_name }}"
                                                     width="220">
                                             </a>
                                         </div>
@@ -70,7 +70,7 @@
                                         </div>
                                         <div class="mt-3 text-center">
                                             <p>{{ __('Forgot your password?') }} <a class="fw-semibold text-primary"
-                                                    href="{{ route('admin.password.request') }}">{{ __('Reset Password') }}</a>
+                                                    href="{{ route('staff.password.request') }}">{{ __('Reset Password') }}</a>
                                             </p>
                                         </div>
                                     </div>

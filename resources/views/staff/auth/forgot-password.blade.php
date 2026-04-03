@@ -1,4 +1,4 @@
-@extends('admin.auth.app')
+  @extends('admin.auth.app')
 
 @section('title')
     <title>{{ __('Forgot Password') }}</title>
@@ -10,8 +10,8 @@
             <div class="row justify-content-center align-items-center min-vh-100">
                 <div class="col-md-4 my-3">
                     <div class="login-brand">
-                        <a href="{{ route('website.home') }}">
-                            <img src="{{ asset($setting?->logo) }}" alt="{{ $setting?->app_name }}" width="220">
+                        <a href="#">
+                            <img src="{{ asset('public/backend/img/admin-auth-bg.jpg') }}" alt="{{ $setting?->app_name }}" width="220">
                         </a>
                     </div>
                     <div class="card card-primary">
@@ -19,7 +19,7 @@
                             <x-admin.form-title :text="__('Forgot Password')" />
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('admin.forget-password') }}" method="POST">
+                            <form action="{{ route('staff.forget-password') }}" method="POST">
                                 @csrf
 
                                 <div class="form-group">
@@ -32,7 +32,7 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="d-block btn btn-primary">
-                                        <a href="{{ route('admin.login') }}"
+                                        <a href="{{ route('staff.login') }}"
                                             class="text-white">{{ __('Go to login page') }}</a>
                                     </div>
                                 </div>

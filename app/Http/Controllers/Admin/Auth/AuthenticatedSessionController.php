@@ -53,6 +53,13 @@ class AuthenticatedSessionController extends Controller
             if ($admin->status == 'active') {
                 if (Hash::check($request->password, $admin->password)) {
                     if (Auth::guard('admin')->attempt($credential, $request->remember)) {
+                        $request->session()->regenerate();
+                        
+                        // Set session variables for better tracking
+                        session(['admin_authenticated' => true]);
+                        session(['admin_login_time' => now()]);
+                        session(['admin_last_activity' => now()]);
+                        
                         $notification = __('Logged in successfully.');
                         $notification = ['message' => $notification, 'alert-type' => 'success'];
 
@@ -89,6 +96,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Clear session variables
+        session()->forget(['admin_authenticated', 'admin_login_time', 'admin_last_activity']);
+        
         Auth::guard('admin')->logout();
 
         $notification = __('Logged out successfully.');

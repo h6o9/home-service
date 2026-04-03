@@ -5,9 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Staff;
 use Illuminate\Http\Request;
+use App\Traits\RedirectHelperTrait;
+use App\Enums\RedirectType;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\PermissionRegistrar;
+
 
 class StaffController extends Controller
 {
+	use RedirectHelperTrait;
 
     //
     public function index()
@@ -49,10 +55,9 @@ class StaffController extends Controller
             $staff->syncPermissions($request->permissions);
         }
 
-        return redirect()->route('admin.staff.index')->with([
-            'message' => 'Staff added successfully',
-            'alert-type' => 'success'
-        ]);
+       
+                return $this->redirectWithMessage(RedirectType::CREATE->value, 'admin.staff.index');
+
     }
     public function edit($id)
     {
@@ -86,29 +91,63 @@ class StaffController extends Controller
             'password' => bcrypt($password),
         ]);
 
-        if ($request->has('permissions')) {
-            $staff->syncPermissions($request->permissions);
-        }
-        else {
-            $staff->syncPermissions([]);
-        }
+       
+        // if ($request->has('permissions')) {
+        //     $staff->syncPermissions($request->permissions);
+        // }
+        // else {
+        //     $staff->syncPermissions([]);
+        // }
+                return $this->redirectWithMessage(RedirectType::UPDATE->value, 'admin.staff.index');
 
-        return redirect()->route('admin.staff.index')->with([
-            'message' => 'Staff updated successfully',
-            'alert-type' => 'success'
-        ]);
     }
-    public function destroy($id)
-    {
-        $staff = \App\Models\Staff::findOrFail($id);
+	
+    /**
+ * Remove the specified staff from storage.
+ */
+public function destroy($id)
+{
+    $staff = \App\Models\Staff::findOrFail($id);
+    
+    // Don't allow deleting yourself
+    // if ($staff->id == auth('admin')->id()) {
+    //     return redirect()->back()->with('error', 'You cannot delete your own account!');
+    // }
+
+    // 🔥 Delete related data first - Proper order
+    try {
+        // Delete custom module permissions (HasMany relationship)
+        $staff->staffPermissions()->delete();
+        
+        // Delete assigned jobs (HasMany relationship)
+        $staff->assignedJobs()->delete();
+        
+        // Remove Spatie roles/permissions (pivot tables)
+        // Some installations end up with a mis-resolved relationship type that throws:
+        // "Call to undefined method Illuminate\Database\Eloquent\Relations\HasMany::detach()"
+        // Deleting from pivots directly is safe and avoids relation-method mismatch.
+        DB::table('model_has_roles')
+            ->where('model_type', Staff::class)
+            ->where('model_id', $staff->id)
+            ->delete();
+
+        DB::table('model_has_permissions')
+            ->where('model_type', Staff::class)
+            ->where('model_id', $staff->id)
+            ->delete();
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        
+        // Then delete staff
         $staff->delete();
+        
+    return $this->redirectWithMessage(RedirectType::DELETE->value, 'admin.staff.index');
 
-        return redirect()->route('admin.staff.index')->with([
-            'message' => 'Staff deleted successfully',
-            'alert-type' => 'success'
-        ]);
-
+            
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Error deleting staff: ' . $e->getMessage());
     }
+}
 
     public function changeStatus($id)
     {

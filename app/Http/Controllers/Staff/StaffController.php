@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Staff;
 
 use App\Enums\RedirectType;
 use App\Http\Controllers\Controller;
 use App\Models\Staff;
 use App\Traits\RedirectHelperTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\PermissionRegistrar;
 
 class StaffController extends Controller
 {
@@ -32,15 +34,16 @@ public function store(Request $request)
         'phone' => 'required|string|max:20'
     ]);
 
-	$password = 12345678;
-    \App\Models\Staff::create([
+    $password = 12345678;
+    $staff = \App\Models\Staff::create([
         'name'  => $request->name,
         'email' => $request->email,
         'phone' => $request->phone,
-		'password' => bcrypt($password),
+        'password' => bcrypt($password),
     ]);
 
-        return $this->redirectWithMessage(RedirectType::CREATE->value, 'admin.staff.index');
+    return redirect()->route('admin.staff.index')
+        ->with('success', 'Staff member created successfully!');
 }
 
 public function edit($id)
@@ -71,12 +74,33 @@ public function update(Request $request, $id)
 }
 
 public function destroy($id)
-    {
-        $staff = \App\Models\Staff::findOrFail($id);
-        $staff->delete();
+{
+    $staff = \App\Models\Staff::find($id);
 
-    return $this->redirectWithMessage(RedirectType::DELETE->value, 'admin.staff.index');
-
+    if (!$staff) {
+        return redirect()->back()->with('error', 'Staff not found!');
     }
+
+    // 🔥 Delete related data first
+    $staff->staffPermissions()->delete();
+    $staff->assignedJobs()->delete();
+
+    // Then delete staff
+    DB::table('model_has_roles')
+        ->where('model_type', Staff::class)
+        ->where('model_id', $staff->id)
+        ->delete();
+
+    DB::table('model_has_permissions')
+        ->where('model_type', Staff::class)
+        ->where('model_id', $staff->id)
+        ->delete();
+
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+    $staff->delete();
+
+	        return $this->redirectWithMessage(RedirectType::DELETE->value, 'admin.staff.index');
+
+}
 
 }
