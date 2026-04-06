@@ -11,54 +11,151 @@
         </div>
 
         <ul class="sidebar-menu">
-            @adminCan('dashboard.view')
+            <!-- Dashboard Section -->
+            <li class="menu-header">{{ __('Dashboard') }}</li>
+            @can('dashboard.view')
                 <li class="{{ isRoute('admin.dashboard', 'active') }}">
-                    <a class="nav-link" href="{{ route('admin.dashboard') }}"><i class="fas fa-home"></i>
+                    <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i>
                         <span>{{ __('Dashboard') }}</span>
                     </a>
                 </li>
-            @endadminCan
+            @endcan
 
-			      @if (checkAdminHasPermission('setting.view') ||
-                    checkAdminHasPermission('basic.payment.view') ||
-                    checkAdminHasPermission('payment.view') ||
-                    checkAdminHasPermission('currency.view') ||
-                    checkAdminHasPermission('tax.view') ||
-                    checkAdminHasPermission('addon.view') ||
-                    checkAdminHasPermission('language.view') ||
-                    checkAdminHasPermission('role.view') ||
-                    checkAdminHasPermission('admin.view') ||
-                    checkAdminHasPermission('clubpoint.management'))
-                <li class="menu-header">{{ __('Settings') }}</li>
+            <!-- Admin Settings Section -->
+            @can('role.view')
+            <li class="menu-header">{{ __('Admin Settings') }}</li>
+            
+            <li class="submenu">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    <span>{{ __('Admin Settings') }}</span>
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                <ul class="submenu-nav">
+                    @can('role.view')
+                        <li class="{{ isRoute('admin.role.index', 'active') }}">
+                            <a class="nav-link" href="{{ route('admin.role.index') }}">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>{{ __('Roles & Permissions') }}</span>
+                            </a>
+                        </li>
+                    @endcan
 
-                @if (Module::isEnabled('GlobalSetting'))
-                    <li class="{{ isRoute('admin.settings', 'active') }}">
-                        <a class="nav-link" href="{{ route('admin.settings') }}"><i class="fas fa-cog"></i>
-                            <span>{{ __('Settings') }}</span>
-                        </a>
-                    </li>
-                @endif
+                    @can('permission.assign')
+                        <li class="{{ isRoute('admin.role.assign', 'active') }}">
+                            <a class="nav-link" href="{{ route('admin.role.assign') }}">
+                                <i class="fas fa-key"></i>
+                                <span>{{ __('Assign Permissions') }}</span>
+                            </a>
+                        </li>
+                    @endcan
 
-            @endif
-          	@if (auth()->guard('admin')->check())
-                <li class="menu-header">{{ __('Manage Staff') }}</li>
-                <li class="{{ isRoute('admin.staff.index', 'active') }}">
-                    <a class="nav-link" href="{{ route('admin.staff.index') }}"><i class="fas fa-user-friends"></i>
-                        <span>{{ __('Staff') }}</span>
-                    </a>
-                </li>
-                <li class="{{ isRoute('admin.staff-permissions.index', 'active') }}">
-                    <a class="nav-link" href="{{ route('admin.staff-permissions.index') }}"><i class="fas fa-shield-alt"></i>
-                        <span>{{ __('Staff Permissions') }}</span>
-                    </a>
-                </li>
-                <li class="menu-header">{{ __('Shop Management') }}</li>
-                <li class="{{ isRoute('admin.shop-management.index', 'active') }}">
-                    <a class="nav-link" href="{{ route('admin.shop-management.index') }}"><i class="fas fa-store"></i>
-                        <span>{{ __('Shop Management') }}</span>
-                    </a>
-                </li>
-            @endif
-	
-       </aside>
+                    @can('admin.activity.view')
+                        <li>
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-history"></i>
+                                <span>{{ __('Admin Activity Logs') }}</span>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @if (Module::isEnabled('GlobalSetting'))
+                        @can('setting.view')
+                            <li class="{{ isRoute('admin.settings', 'active') }}">
+                                <a class="nav-link" href="{{ route('admin.settings') }}">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>{{ __('System Settings') }}</span>
+                                </a>
+                            </li>
+                        @endcan
+                    @endif
+                </ul>
+            </li>
+            @endcan
+
+            <!-- Staff Management Section -->
+            @can('staff.view')
+            <li class="menu-header">{{ __('Staff Management') }}</li>
+            
+            <li class="submenu">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>{{ __('Staff Management') }}</span>
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                <ul class="submenu-nav">
+                    @can('staff.view')
+                        <li class="{{ isRoute('admin.staff.index', 'active') }}">
+                            <a class="nav-link" href="{{ route('admin.staff.index') }}">
+                                <i class="fas fa-list"></i>
+                                <span>{{ __('Staff List') }}</span>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('staff.create')
+                        <li>
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-plus"></i>
+                                <span>{{ __('Add Staff') }}</span>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('staff.permission.view')
+                        <li class="{{ isRoute('admin.staff-permissions.index', 'active') }}">
+                            <a class="nav-link" href="{{ route('admin.staff-permissions.index') }}">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>{{ __('Staff Permissions') }}</span>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('staff.activity.view')
+                        <li>
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-history"></i>
+                                <span>{{ __('Staff Activity Logs') }}</span>
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
+            </li>
+            @endcan
+
+            <!-- Shop Management Section -->
+            @can('shop.view')
+            <li class="menu-header">{{ __('Shop Management') }}</li>
+            
+            <li class="submenu">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <span>{{ __('Shop Management') }}</span>
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                <ul class="submenu-nav">
+                    @can('shop.view')
+                        <li class="{{ isRoute('admin.shop-management.index', 'active') }}">
+                            <a class="nav-link" href="{{ route('admin.shop-management.index') }}">
+                                <i class="fas fa-list"></i>
+                                <span>{{ __('Shop List') }}</span>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('shop.create')
+                        <li>
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-plus"></i>
+                                <span>{{ __('Add Shop') }}</span>
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
+            </li>
+            @endcan
+
+        </ul>
+    </aside>
 </div>

@@ -3,6 +3,7 @@
     <title>{{ __('Create Staff') }}</title>
 @endsection
 @section('admin-content')
+@can('staff.create')
     <div class="main-content">
         <section class="section">
             <div class="section-header">
@@ -115,3 +116,4 @@ $(document).ready(function() {
 </script>
 
 @endsection
+@endcan

@@ -3,6 +3,7 @@
     <title>{{ __('Edit Staff') }}</title>
 @endsection
 @section('admin-content')
+@can('staff.edit')
     <div class="main-content">
         <section class="section">
             <div class="section-header">
@@ -122,3 +123,4 @@ $(document).ready(function() {
 </script>
 
 @endsection
+@endcan

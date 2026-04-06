@@ -19,6 +19,7 @@
 <script src="{{ asset('backend/js/jquery.uploadPreview.min.js') }}"></script>
 <script src="{{ asset('website/js/Font-Awesome.js') }}"></script>
 <script src="{{ asset('backend/js/custom.js') }}?v={{ $setting?->version }}"></script>
+<script src="{{ asset('js/admin-sidebar-custom.js') }}?v={{ $setting?->version }}"></script>
 
 <script>
     @session('message')

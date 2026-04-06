@@ -3,6 +3,7 @@
     <title>Shop Management</title>
 @endsection
 @section('admin-content')
+@can('shop.view')
     <div class="main-content">
         <section class="section">
             <div class="section-header">
@@ -170,12 +171,10 @@
         </div>
     </div>
 @endsection
-
+@endcan
 @push('js')
     <script>
-        $(document).ready(function() {
-            $('#shopsTable').DataTable();
-        });
+        "use strict";
 
         function openAssignModal(shopId) {
             $('#modalShopId').val(shopId);
