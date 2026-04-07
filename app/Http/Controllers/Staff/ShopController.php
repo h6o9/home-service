@@ -12,8 +12,6 @@ use App\Traits\RedirectHelper;
 use App\Enums\RedirectType;
 use App\Traits\RedirectHelperTrait;
 
-
-
 class ShopController extends Controller
 {
     use RedirectHelperTrait;
@@ -78,26 +76,21 @@ class ShopController extends Controller
             'address' => $validated['address'],
             'about_shop' => $validated['about_shop'],
             'slug' => Str::slug($validated['shop_name']) . '-' . uniqid(),
-            'staff_id' => auth('staff')->id(), // Add staff_id
+            'staff_id' => auth('staff')->id(),
         ]);
 
         // Handle multiple photos upload
         if ($request->hasFile('shop_photos')) {
             foreach ($request->file('shop_photos') as $photo) {
-                // Store photo with proper error handling
                 try {
-                    // Create public directory if it doesn't exist
                     $publicPath = public_path('storage/shop-photos');
                     if (!file_exists($publicPath)) {
                         mkdir($publicPath, 0755, true);
                     }
                     
-                    // Generate unique filename
                     $filename = 'shop_' . $shop->id . '_' . time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
                     
-                    // Move file to public directory
                     if ($photo->move($publicPath, $filename)) {
-                        // Create photo record with public path
                         ShopPhoto::create([
                             'shop_id' => $shop->id,
                             'photo_path' => 'shop-photos/' . $filename,
@@ -105,7 +98,6 @@ class ShopController extends Controller
                         ]);
                     }
                 } catch (\Exception $e) {
-                    // Log error but continue with other photos
                     \Log::error('Photo upload failed: ' . $e->getMessage());
                 }
             }
@@ -117,7 +109,6 @@ class ShopController extends Controller
             }
         }
 
-        // Check if request is AJAX (for dashboard modal)
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -126,7 +117,6 @@ class ShopController extends Controller
             ]);
         }
 
-        // Redirect to staff shop index (not admin)
         return $this->redirectWithMessage(RedirectType::CREATE->value, 'staff.shop.index');
     }
 
@@ -144,7 +134,6 @@ class ShopController extends Controller
      */
     public function edit($id)
     {
-        // Check edit permission
         if (!auth('staff')->user()->hasPermission('shop_management', 'can_edit')) {
             abort(403, 'You do not have permission to edit shops.');
         }
@@ -158,7 +147,6 @@ class ShopController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Check edit permission
         if (!auth('staff')->user()->hasPermission('shop_management', 'can_edit')) {
             abort(403, 'You do not have permission to edit shops.');
         }
@@ -191,18 +179,14 @@ class ShopController extends Controller
         // Handle new photos upload
         if ($request->hasFile('shop_photos')) {
             foreach ($request->file('shop_photos') as $photo) {
-                // Store photo with proper error handling
                 try {
-                    // Create public directory if it doesn't exist
                     $publicPath = public_path('storage/shop-photos');
                     if (!file_exists($publicPath)) {
                         mkdir($publicPath, 0755, true);
                     }
                     
-                    // Generate unique filename
                     $filename = 'shop_' . $shop->id . '_' . time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
                     
-                    // Move file to public directory
                     if ($photo->move($publicPath, $filename)) {
                         ShopPhoto::create([
                             'shop_id' => $shop->id,
@@ -211,15 +195,12 @@ class ShopController extends Controller
                         ]);
                     }
                 } catch (\Exception $e) {
-                    // Log error but continue with other photos
                     \Log::error('Photo upload failed: ' . $e->getMessage());
                 }
             }
         }
 
-        // Redirect to staff shop index
         return $this->redirectWithMessage(RedirectType::UPDATE->value, 'staff.shop.index');
-
     }
 
     /**
@@ -227,7 +208,6 @@ class ShopController extends Controller
      */
     public function destroy($id)
     {
-        // Check delete permission
         if (!auth('staff')->user()->hasPermission('shop_management', 'can_delete')) {
             abort(403, 'You do not have permission to delete shops.');
         }
@@ -240,15 +220,12 @@ class ShopController extends Controller
             if (file_exists($filePath)) {
                 unlink($filePath);
             }
-            // Delete database record
             $photo->delete();
         }
 
-        // Delete shop
         $shop->delete();
 
-            return $this->redirectWithMessage(RedirectType::DELETE->value, 'staff.shop.index');
-
+        return $this->redirectWithMessage(RedirectType::DELETE->value, 'staff.shop.index');
     }
 
     /**
@@ -256,53 +233,102 @@ class ShopController extends Controller
      */
     public function deletePhoto($photoId)
     {
-        // Check edit permission (photo deletion is part of editing)
+        // Check edit permission
         if (!auth('staff')->user()->hasPermission('shop_management', 'can_edit')) {
-            abort(403, 'You do not have permission to edit shops.');
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to delete photos.'
+            ], 403);
         }
         
-        $photo = ShopPhoto::findOrFail($photoId);
-        $shopId = $photo->shop_id;
-
-        // Delete file from public path
-        $filePath = public_path('storage/' . $photo->photo_path);
-        if (file_exists($filePath)) {
-            unlink($filePath);
-        }
-
-        // Delete database record
-        $photo->delete();
-
-        // If the deleted photo was primary and there are other photos, set a new primary
-        if ($photo->is_primary) {
-            $newPrimary = ShopPhoto::where('shop_id', $shopId)->first();
-            if ($newPrimary) {
-                $newPrimary->update(['is_primary' => true]);
+        try {
+            $photo = ShopPhoto::findOrFail($photoId);
+            $shopId = $photo->shop_id;
+            
+            // Delete the file from public path (CORRECTED PATH)
+            $filePath = public_path('storage/' . $photo->photo_path);
+            if (file_exists($filePath)) {
+                unlink($filePath);
             }
+            
+            // Delete the record
+            $photo->delete();
+            
+            // Check if there are any photos left
+            $remainingPhotos = ShopPhoto::where('shop_id', $shopId)->count();
+            
+            // If there are photos but no primary photo, set the first one as primary
+            if($remainingPhotos > 0) {
+                $hasPrimary = ShopPhoto::where('shop_id', $shopId)->where('is_primary', true)->exists();
+                if(!$hasPrimary) {
+                    $firstPhoto = ShopPhoto::where('shop_id', $shopId)->first();
+                    $firstPhoto->is_primary = true;
+                    $firstPhoto->save();
+                }
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Photo deleted successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete photo: ' . $e->getMessage()
+            ], 500);
         }
-
-     return $this->redirectWithMessage(RedirectType::DELETE->value, 'staff.shop.edit');
-;
     }
 
     /**
-     * Set a photo as primary.
+     * Set primary photo
      */
-    public function setPrimaryPhoto($photoId)
+    public function setPrimaryPhoto(Request $request)
     {
         // Check edit permission
         if (!auth('staff')->user()->hasPermission('shop_management', 'can_edit')) {
-            abort(403, 'You do not have permission to edit shops.');
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to edit shops.'
+            ], 403);
         }
         
-        $photo = ShopPhoto::findOrFail($photoId);
-
-        // Remove primary status from all photos of this shop
-        ShopPhoto::where('shop_id', $photo->shop_id)->update(['is_primary' => false]);
-
-        // Set this photo as primary
-        $photo->update(['is_primary' => true]);
-
-        return redirect()->back()->with('success', 'Primary photo updated successfully!');
+        try {
+            // Check if photo_id exists in request
+            if (!$request->has('photo_id')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Photo ID is required.'
+                ], 400);
+            }
+            
+            $photoId = $request->photo_id;
+            
+            // Check if photo exists
+            $photo = ShopPhoto::find($photoId);
+            if (!$photo) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Photo not found.'
+                ], 404);
+            }
+            
+            // Remove primary status from all photos of this shop
+            ShopPhoto::where('shop_id', $photo->shop_id)->update(['is_primary' => false]);
+            
+            // Set this photo as primary
+            $photo->is_primary = true;
+            $photo->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Primary photo updated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Set primary photo error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to set primary photo: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -23,7 +23,6 @@
             @endcan
 
             <!-- Admin Settings Section -->
-            @can('role.view')
             <li class="menu-header">{{ __('Admin Settings') }}</li>
             
             <li class="submenu">
@@ -37,12 +36,12 @@
                         <li class="{{ isRoute('admin.role.index', 'active') }}">
                             <a class="nav-link" href="{{ route('admin.role.index') }}">
                                 <i class="fas fa-shield-alt"></i>
-                                <span>{{ __('Roles & Permissions') }}</span>
+                                <span>{{ __('Manage Roles') }}</span>
                             </a>
                         </li>
                     @endcan
 
-                    @can('permission.assign')
+                    @can('role.assign')
                         <li class="{{ isRoute('admin.role.assign', 'active') }}">
                             <a class="nav-link" href="{{ route('admin.role.assign') }}">
                                 <i class="fas fa-key"></i>
@@ -51,11 +50,20 @@
                         </li>
                     @endcan
 
-                    @can('admin.activity.view')
-                        <li>
-                            <a class="nav-link" href="#">
+                    @can('role.assign')
+                        <li class="{{ isRoute('admin.assign-roles.index', 'active') }}">
+                            <a class="nav-link" href="{{ route('admin.assign-roles.index') }}">
+                                <i class="fas fa-user-tag"></i>
+                                <span>{{ __('Assign Roles') }}</span>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('activity.logs.view')
+                        <li class="{{ isRoute('admin.activity-logs.index', 'active') }}">
+                            <a class="nav-link" href="{{ route('admin.activity-logs.index') }}">
                                 <i class="fas fa-history"></i>
-                                <span>{{ __('Admin Activity Logs') }}</span>
+                                <span>{{ __('Activity Logs') }}</span>
                             </a>
                         </li>
                     @endcan
@@ -72,10 +80,8 @@
                     @endif
                 </ul>
             </li>
-            @endcan
 
             <!-- Staff Management Section -->
-            @can('staff.view')
             <li class="menu-header">{{ __('Staff Management') }}</li>
             
             <li class="submenu">
@@ -122,10 +128,8 @@
                     @endcan
                 </ul>
             </li>
-            @endcan
 
             <!-- Shop Management Section -->
-            @can('shop.view')
             <li class="menu-header">{{ __('Shop Management') }}</li>
             
             <li class="submenu">
@@ -154,7 +158,6 @@
                     @endcan
                 </ul>
             </li>
-            @endcan
 
         </ul>
     </aside>

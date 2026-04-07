@@ -455,6 +455,44 @@ trait PermissionsTrait
         ],
     ];
 
+    public static array $staffManagementPermissions = [
+        'group_name'  => 'Staff Management',
+        'permissions' => [
+            'staff.view',
+            'staff.create',
+            'staff.store',
+            'staff.edit',
+            'staff.update',
+            'staff.delete',
+            'staff.status',
+        ],
+    ];
+
+    public static array $staffPermissionsManagement = [
+        'group_name'  => 'Staff Permissions',
+        'permissions' => [
+            'staff.permissions.view',
+            'staff.permissions.edit',
+        ],
+    ];
+
+    public static array $activityLogsPermissions = [
+        'group_name'  => 'Activity Logs',
+        'permissions' => [
+            'activity.logs.view',
+            'activity.logs.view.subadmin',
+        ],
+    ];
+
+    public static array $shopManagementPermissions = [
+        'group_name'  => 'Shop Management',
+        'permissions' => [
+            'shop-management.view',
+            'shop-management.assign',
+            'shop-management.view-staff-permissions',
+        ],
+    ];
+
     /**
      * @return mixed
      */

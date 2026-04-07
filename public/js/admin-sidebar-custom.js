@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const submenu = this.parentElement;
             const wasOpen = submenu.classList.contains('open');
             
-            // Close all other submenus
+            // Only close other submenus if they're not the same section
+            // This keeps the same section open when navigating within it
             document.querySelectorAll('.sidebar-menu .submenu').forEach(function(otherSubmenu) {
                 if (otherSubmenu !== submenu) {
                     otherSubmenu.classList.remove('open');

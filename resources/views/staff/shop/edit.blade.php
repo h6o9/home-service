@@ -20,24 +20,6 @@
                                 <h4>{{ __('Edit Shop') }}</h4>
                             </div>
                             <div class="card-body">
-                                @if(session('success'))
-                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                        {{ session('success') }}
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                @endif
-
-                                @if(session('error'))
-                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                        {{ session('error') }}
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                @endif
-
                                 <form action="{{ route('staff.shop.update', $shop->id) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
@@ -45,9 +27,9 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="shop_name">{{ __('Shop Name') }} <span class="text-danger">*</span></label>
-                                                <input type="text" id="shop_name" name="shop_name" value="{{ old('shop_name', $shop->shop_name) }}" class="form-control clear-error" placeholder="Enter Shop Name">
+                                                <input type="text" id="shop_name" name="shop_name" value="{{ old('shop_name', $shop->shop_name) }}" class="form-control" placeholder="Enter Shop Name">
                                                 @error('shop_name')
-                                                    <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
+                                                    <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                         </div>
@@ -55,7 +37,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="category">{{ __('Category') }} <span class="text-danger">*</span></label>
-                                                <select id="category" name="category" class="form-control clear-error">
+                                                <select id="category" name="category" class="form-control">
                                                     <option value="">{{ __('Select Category') }}</option>
                                                     <option value="electrician" {{ old('category', $shop->category) == 'electrician' ? 'selected' : '' }}>{{ __('Electrician') }}</option>
                                                     <option value="wifi_controller" {{ old('category', $shop->category) == 'wifi_controller' ? 'selected' : '' }}>{{ __('Wifi Controller') }}</option>
@@ -63,7 +45,7 @@
                                                     <option value="plumber" {{ old('category', $shop->category) == 'plumber' ? 'selected' : '' }}>{{ __('Plumber') }}</option>
                                                 </select>
                                                 @error('category')
-                                                    <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
+                                                    <span class="text-danger">{{ $message }}</span>
                                                 @enderror   
                                             </div>
                                         </div>
@@ -71,9 +53,9 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="owner_name">{{ __('Owner Name') }} <span class="text-danger">*</span></label>
-                                                <input type="text" id="owner_name" name="owner_name" value="{{ old('owner_name', $shop->owner_name) }}" class="form-control clear-error" placeholder="Enter Owner Name">
+                                                <input type="text" id="owner_name" name="owner_name" value="{{ old('owner_name', $shop->owner_name) }}" class="form-control" placeholder="Enter Owner Name">
                                                 @error('owner_name')
-                                                    <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
+                                                    <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                         </div>
@@ -83,9 +65,9 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="phone_number">{{ __('Phone Number') }} <span class="text-danger">*</span></label>
-                                                <input type="text" id="phone_number" name="phone_number" value="{{ old('phone_number', $shop->phone_number) }}" class="form-control clear-error" placeholder="Enter Phone Number">
+                                                <input type="text" id="phone_number" name="phone_number" value="{{ old('phone_number', $shop->phone_number) }}" class="form-control" placeholder="Enter Phone Number">
                                                 @error('phone_number')
-                                                    <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
+                                                    <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                         </div>
@@ -93,9 +75,9 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="whatsapp_number">{{ __('WhatsApp Number') }} <span class="text-danger">*</span></label>
-                                                <input type="text" id="whatsapp_number" name="whatsapp_number" value="{{ old('whatsapp_number', $shop->whatsapp_number) }}" class="form-control clear-error" placeholder="Enter WhatsApp Number">
+                                                <input type="text" id="whatsapp_number" name="whatsapp_number" value="{{ old('whatsapp_number', $shop->whatsapp_number) }}" class="form-control" placeholder="Enter WhatsApp Number">
                                                 @error('whatsapp_number')
-                                                    <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
+                                                    <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                         </div>
@@ -105,9 +87,9 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="address">{{ __('Address') }} <span class="text-danger">*</span></label>
-                                                <textarea id="address" name="address" class="form-control clear-error" rows="3" placeholder="Enter Shop Address">{{ old('address', $shop->address) }}</textarea>
+                                                <textarea id="address" name="address" class="form-control" rows="3" placeholder="Enter Shop Address">{{ old('address', $shop->address) }}</textarea>
                                                 @error('address')
-                                                    <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
+                                                    <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                         </div>
@@ -117,9 +99,9 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="about_shop">{{ __('About Shop') }} <span class="text-danger">*</span></label>
-                                                <textarea id="about_shop" name="about_shop" class="form-control clear-error" rows="4" placeholder="Describe the shop services and details">{{ old('about_shop', $shop->about_shop) }}</textarea>
+                                                <textarea id="about_shop" name="about_shop" class="form-control" rows="4" placeholder="Describe the shop services and details">{{ old('about_shop', $shop->about_shop) }}</textarea>
                                                 @error('about_shop')
-                                                    <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
+                                                    <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                         </div>
@@ -136,21 +118,27 @@
                                                         <div class="col-md-3 mb-3">
                                                             <div class="position-relative">
                                                                 <img src="{{ asset('storage/' . $photo->photo_path) }}" alt="Shop Photo" class="img-fluid rounded" style="height: 150px; width: 100%; object-fit: cover;">
+                                                                
                                                                 @if($photo->is_primary)
                                                                     <span class="badge badge-primary" style="position: absolute; top: 5px; left: 5px;">Primary</span>
                                                                 @endif
-                                                                <form action="{{ route('staff.shop.delete-photo', $photo->id) }}" method="POST" class="delete-photo-form" style="position: absolute; top: 5px; right: 5px;">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this photo?')">
+                                                                
+                                                                <div style="position: absolute; top: 5px; right: 5px; display: flex; gap: 5px;">
+                                                                    @if(!$photo->is_primary)
+                                                                        <button type="button" class="btn btn-success btn-sm set-primary-btn" data-photo-id="{{ $photo->id }}">
+                                                                            <i class="fas fa-star"></i> Primary
+                                                                        </button>
+                                                                    @endif
+                                                                    
+                                                                    <button type="button" class="btn btn-danger btn-sm delete-photo-btn" data-photo-id="{{ $photo->id }}">
                                                                         <i class="fas fa-trash"></i>
                                                                     </button>
-                                                                </form>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     @endforeach
                                                 </div>
-                                                <small class="form-text text-muted">{{ __('Click on delete button to remove photos. The first photo will automatically become primary if you delete the current primary photo.') }}</small>
+                                                <small class="form-text text-muted">{{ __('Click on "Primary" button to set as primary image. Click on delete button to remove photos.') }}</small>
                                             </div>
                                         </div>
                                     </div>
@@ -161,13 +149,13 @@
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="shop_photos">{{ __('Add New Shop Photos') }}</label>
-                                                <input type="file" id="shop_photos" name="shop_photos[]" class="form-control clear-error" multiple accept="image/*">
+                                                <input type="file" id="shop_photos" name="shop_photos[]" class="form-control" multiple accept="image/*">
                                                 <small class="form-text text-muted">{{ __('You can select multiple photos. Allowed formats: jpg, jpeg, png, gif') }}</small>
                                                 @error('shop_photos')
-                                                    <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
+                                                    <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                                 @error('shop_photos.*')
-                                                    <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
+                                                    <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>
                                         </div>
@@ -198,75 +186,99 @@
     <script>
     $(document).ready(function() {
         // Configure Toastr
-        if(typeof toastr !== 'undefined') {
-            toastr.options = {
-                "closeButton": true,
-                "debug": false,
-                "newestOnTop": true,
-                "progressBar": true,
-                "positionClass": "toast-top-right",
-                "preventDuplicates": false,
-                "onclick": null,
-                "showDuration": "300",
-                "hideDuration": "1000",
-                "timeOut": "5000",
-                "extendedTimeOut": "1000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut"
-            };
-        }
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
         
-        // Show success/error messages with Toastr
-        @if(session('success'))
-            if(typeof toastr !== 'undefined') {
-                toastr.success('{{ session('success') }}', 'Success!');
-            }
-        @endif
-        
-        @if(session('error'))
-            if(typeof toastr !== 'undefined') {
-                toastr.error('{{ session('error') }}', 'Error!');
-            }
-        @endif
-        
-        // Hide error message when user interacts with the input field
-        $('.clear-error').on('click keyup focus', function() {
-            $(this).closest('.form-group').find('.error-message').fadeOut('fast');
-        });
-        
-        // Hide error message when clicking on it
-        $('.error-message').on('click', function() {
-            $(this).fadeOut('fast');
-        });
-        
-        // Optional: Add AJAX form submission for delete to prevent page refresh
-        $('.delete-photo-form').on('submit', function(e) {
-            e.preventDefault();
-            var form = $(this);
-            var url = form.attr('action');
+        // Handle delete photo - Direct delete without confirmation
+        $('.delete-photo-btn').on('click', function() {
+            var photoId = $(this).data('photo-id');
+            var button = $(this);
             
-            if(confirm('Are you sure you want to delete this photo?')) {
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: form.serialize(),
-                    success: function(response) {
-                        if(response.success) {
-                            toastr.success('Photo deleted successfully!', 'Success!');
-                            setTimeout(function() {
-                                location.reload();
-                            }, 1000);
-                        } else {
-                            toastr.error('Failed to delete photo!', 'Error!');
-                        }
-                    },
-                    error: function() {
-                        toastr.error('An error occurred!', 'Error!');
+            $.ajax({
+                url: '{{ url('/staff/shop/delete-photo') }}/' + photoId,
+                type: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                beforeSend: function() {
+                    button.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+                },
+                success: function(response) {
+                    if(response.success) {
+                        toastr.success('Photo deleted successfully!', 'Success!');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        toastr.error(response.message || 'Failed to delete photo!', 'Error!');
+                        button.html('<i class="fas fa-trash"></i>').prop('disabled', false);
                     }
-                });
-            }
+                },
+                error: function(xhr) {
+                    var errorMessage = 'An error occurred!';
+                    if(xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    toastr.error(errorMessage, 'Error!');
+                    button.html('<i class="fas fa-trash"></i>').prop('disabled', false);
+                }
+            });
+        });
+        
+        // Handle set primary photo
+        $('.set-primary-btn').on('click', function() {
+            var photoId = $(this).data('photo-id');
+            var button = $(this);
+            
+            console.log('Setting primary photo ID:', photoId);
+            
+            $.ajax({
+                url: '{{ url('/staff/shop/set-primary-photo') }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    photo_id: photoId
+                },
+                beforeSend: function() {
+                    button.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+                },
+                success: function(response) {
+                    console.log('Response:', response);
+                    if(response.success) {
+                        toastr.success('Primary photo updated successfully!', 'Success!');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        toastr.error(response.message || 'Failed to set primary photo!', 'Error!');
+                        button.html('<i class="fas fa-star"></i> Primary').prop('disabled', false);
+                    }
+                },
+                error: function(xhr) {
+                    console.log('XHR Error:', xhr);
+                    var errorMessage = 'An error occurred!';
+                    if(xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    toastr.error(errorMessage, 'Error!');
+                    button.html('<i class="fas fa-star"></i> Primary').prop('disabled', false);
+                }
+            });
         });
     });
     </script>

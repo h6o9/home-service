@@ -90,9 +90,8 @@ Route::prefix('staff')->name('staff.')->middleware([StaffAuthMiddleware::class])
     Route::delete('/shops/{id}', [App\Http\Controllers\Staff\ShopController::class , 'destroy'])->name('shop.destroy');
 
     // Photo Routes for Staff
-    Route::delete('/shop-photo/{photoId}', [App\Http\Controllers\Staff\ShopController::class , 'deletePhoto'])->name('shop.delete-photo');
-    Route::put('/shop-photo/{photoId}/primary', [App\Http\Controllers\Staff\ShopController::class , 'setPrimaryPhoto'])->name('shop.set-primary-photo');
-
+    Route::delete('shop/delete-photo/{photoId}', [ShopController::class, 'deletePhoto'])->name('shop.delete-photo');
+    Route::post('shop/set-primary-photo', [ShopController::class, 'setPrimaryPhoto'])->name('shop.set-primary-photo');
     Route::controller(\App\Http\Controllers\Staff\ProfileController::class)->group(function () {
             Route::get('edit-profile', 'edit_profile')->name('edit-profile');
             Route::put('profile-update', 'profile_update')->name('profile-update');
@@ -127,10 +126,18 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
                 }
                 );
 
+                // Roles CRUD Routes
+                Route::resource('/role', RolesController::class);
+                
+                // Assign Permissions to Roles (existing)
                 Route::get('role/assign', [RolesController::class , 'assignRoleView'])->name('role.assign');
                 Route::post('role/assign/{id}', [RolesController::class , 'getAdminRoles'])->name('role.assign.admin');
                 Route::put('role/assign', [RolesController::class , 'assignRoleUpdate'])->name('role.assign.update');
-                Route::resource('/role', RolesController::class);
+                
+                // Assign Roles to Admins (new)
+                Route::get('assign-roles', [\App\Http\Controllers\Admin\AssignRoleController::class, 'index'])->name('assign-roles.index');
+                Route::post('assign-roles', [\App\Http\Controllers\Admin\AssignRoleController::class, 'assign'])->name('assign-roles.assign');
+                Route::get('assign-roles/{admin}', [\App\Http\Controllers\Admin\AssignRoleController::class, 'getAdminRoles'])->name('assign-roles.get');
 
                 Route::resource('admin', AdminController::class)->except('show');
                 Route::put('admin-status/{id}', [AdminController::class , 'changeStatus'])->name('admin.status');
@@ -142,6 +149,11 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
                 Route::get('staff-permissions/{id}', [\App\Http\Controllers\Admin\StaffPermissionController::class, 'show'])->name('staff-permissions.show');
                 Route::get('staff-permissions/{id}/edit', [\App\Http\Controllers\Admin\StaffPermissionController::class, 'edit'])->name('staff-permissions.edit');
                 Route::put('staff-permissions/{id}', [\App\Http\Controllers\Admin\StaffPermissionController::class, 'update'])->name('staff-permissions.update');
+
+                // Admin Activity Logs Routes
+                Route::get('activity-logs', [\App\Http\Controllers\Admin\AdminActivityController::class, 'index'])->name('activity-logs.index');
+                Route::get('activity-logs/{activity}', [\App\Http\Controllers\Admin\AdminActivityController::class, 'show'])->name('activity-logs.show');
+                Route::get('activity-logs/admin/{admin}', [\App\Http\Controllers\Admin\AdminActivityController::class, 'getAdminActivities'])->name('activity-logs.admin');
 
                 // Shop Management Routes
                 Route::get('shop-management', [\App\Http\Controllers\Admin\ShopManagementController::class, 'index'])->name('shop-management.index');
