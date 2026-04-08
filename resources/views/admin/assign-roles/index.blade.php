@@ -7,13 +7,11 @@
 @section('admin-content')
     <div class="main-content">
         <section class="section">
-            <div class="section-header">
-                <h1>{{ __('Assign Roles') }}</h1>
-                <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></div>
-                    <div class="breadcrumb-item">{{ __('Assign Roles') }}</div>
-                </div>
-            </div>
+            <x-admin.breadcrumb title="{{ __('Assign Roles') }}" :list="[
+                __('Dashboard') => route('admin.dashboard'),
+                __('Admin Settings') => '#',
+                __('Assign Roles') => '#',
+            ]" />
 
             <div class="section-body">
                 <div class="row">
@@ -37,7 +35,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="admin_id">{{ __('Select Admin') }}</label>
+                                                <label for="admin_id">{{ __('Select Admin') }} <span class="text-danger">*</span></label>
                                                 <select name="admin_id" id="admin_id" class="form-control" required>
                                                     <option value="">{{ __('Select Admin') }}</option>
                                                     @foreach($admins as $admin)
@@ -48,26 +46,24 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label>{{ __('Select Roles') }}</label>
-                                                <div class="row">
+                                                <label for="role_id">{{ __('Select Role') }} <span class="text-danger">*</span></label>
+                                                <select name="role_id" id="role_id" class="form-control" required>
+                                                    <option value="">{{ __('Select Role') }}</option>
                                                     @foreach($roles as $role)
-                                                        <div class="col-md-6">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" name="roles[]" value="{{ $role->id }}" id="role_{{ $role->id }}">
-                                                                <label class="form-check-label" for="role_{{ $role->id }}">
-                                                                    {{ ucfirst($role->name) }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
+                                                        <option value="{{ $role->id }}">{{ ucfirst($role->name) }}</option>
                                                     @endforeach
-                                                </div>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">{{ __('Assign Roles') }}</button>
-                                            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">{{ __('Back') }}</a>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save"></i> {{ __('Assign Role') }}
+                                            </button>
+                                            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
+                                                <i class="fas fa-times"></i> {{ __('Cancel') }}
+                                            </a>
                                         </div>
                                     </div>
                                 </form>
@@ -139,16 +135,16 @@
                 // Set the admin in dropdown
                 $('#admin_id').val(adminId);
                 
-                // Clear all role checkboxes
-                $('input[name="roles[]"]').prop('checked', false);
+                // Clear role dropdown
+                $('#role_id').val('');
                 
-                // Get admin's current roles via AJAX
+                // Get admin's current role via AJAX
                 $.get('{{ route("admin.assign-roles.get", ":adminId") }}'.replace(':adminId', adminId))
                     .done(function(roles) {
-                        // Check the roles that admin currently has
-                        roles.forEach(function(roleId) {
-                            $('#role_' + roleId).prop('checked', true);
-                        });
+                        // Set the role if admin has one
+                        if (roles.length > 0) {
+                            $('#role_id').val(roles[0]);
+                        }
                         
                         // Scroll to form
                         $('html, body').animate({

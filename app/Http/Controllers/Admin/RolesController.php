@@ -69,6 +69,15 @@ class RolesController extends Controller
         return $this->redirectWithMessage(RedirectType::UPDATE->value, 'admin.role.index');
     }
 
+    public function show($id)
+    {
+        checkAdminHasPermissionAndThrowException('role.view');
+        $role = Role::where('name', '!=', 'Super Admin')->where('id', $id)->first();
+        abort_if(! $role, 403);
+        
+        return view('admin.roles.show', compact('role'));
+    }
+
     public function destroy($id)
     {
         checkAdminHasPermissionAndThrowException('role.delete');

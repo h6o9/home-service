@@ -26,7 +26,7 @@ class AssignRoleController extends Controller
     }
 
     /**
-     * Assign roles to admin.
+     * Assign role to admin.
      */
     public function assign(Request $request)
     {
@@ -37,18 +37,17 @@ class AssignRoleController extends Controller
 
         $request->validate([
             'admin_id' => 'required|exists:admins,id',
-            'roles' => 'required|array',
-            'roles.*' => 'exists:roles,id',
+            'role_id' => 'required|exists:roles,id',
         ]);
 
         $admin = Admin::findOrFail($request->admin_id);
-        $roles = Role::whereIn('id', $request->roles)->get();
+        $role = Role::findOrFail($request->role_id);
 
-        // Remove all existing roles and assign new ones
-        $admin->syncRoles($roles);
+        // Remove all existing roles and assign new one
+        $admin->syncRoles([$role]);
 
         return redirect()->route('admin.assign-roles.index')
-            ->with('success', 'Roles assigned successfully to ' . $admin->name);
+            ->with('success', 'Role assigned successfully to ' . $admin->name);
     }
 
     /**
@@ -61,8 +60,9 @@ class AssignRoleController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $roles = $admin->roles->pluck('id')->toArray();
+        $role = $admin->roles->first();
+        $roleId = $role ? $role->id : null;
 
-        return response()->json($roles);
+        return response()->json([$roleId]);
     }
 }

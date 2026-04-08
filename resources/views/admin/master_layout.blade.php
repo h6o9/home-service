@@ -147,7 +147,6 @@
             </nav>
 
             @if (request()->routeIs(
-                    'admin.general-setting',
                     'admin.crediential-setting',
                     'admin.email-configuration',
                     'admin.edit-email-template',
@@ -158,13 +157,11 @@
                     'admin.cache-clear',
                     'admin.database-clear',
                     'admin.system-update.index',
-                    'admin.admin.*',
                     'admin.languages.*',
                     'admin.basicpayment',
                     'admin.addons.*',
                     'admin.sitemap.*',
-                    'admin.ecom_setup.*',
-                    'admin.role.*'))
+                    'admin.ecom_setup.*'))
                 @include('admin.settings.sidebar')
             @else
                 @include('admin.sidebar')
