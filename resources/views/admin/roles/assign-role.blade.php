@@ -42,234 +42,164 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group">
-                                                <label class="form-label">{{ __('Permissions') }}</label>
+                                                <label class="form-label">{{ __('Admin Panel Menu Permissions') }}</label>
                                                 <div class="admin_role_border">
                                                     <div class="row">
-                                                        <!-- Dashboard Permission -->
+                                                        <!-- Dashboard Section -->
                                                         <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_dashboard_view" value="dashboard.view">
-                                                                <label for="perm_dashboard_view" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-tachometer-alt"></i> {{ __('Dashboard Access') }}
-                                                                </label>
+                                                            <div class="row">
+                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" id="dashboard_section" value="1">
+                                                                        <label for="dashboard_section" class="form-check-label text-capitalize fw-bold">
+                                                                            <i class="fas fa-tachometer-alt"></i> {{ __('Dashboard') }}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 dashboard_permissions">
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_dashboard_view" value="dashboard.view">
+                                                                        <label for="perm_dashboard_view" class="form-check-label">{{ __('Can View') }}</label>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
 
-                                                        <!-- Role Management Permissions -->
+                                                        <!-- Admin Settings Section -->
                                                         <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_role_view" value="role.view">
-                                                                <label for="perm_role_view" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-shield-alt"></i> {{ __('View Roles') }}
-                                                                </label>
+                                                            <div class="row">
+                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" id="admin_settings_section" value="1">
+                                                                        <label for="admin_settings_section" class="form-check-label text-capitalize fw-bold">
+                                                                            <i class="fas fa-user-shield"></i> {{ __('Admin Settings') }}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 admin_settings_permissions">
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_role_view" value="role.view">
+                                                                        <label for="perm_role_view" class="form-check-label">{{ __('Manage Roles') }}</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_role_assign" value="role.assign">
+                                                                        <label for="perm_role_assign" class="form-check-label">{{ __('Assign Permissions') }}</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_assign_roles" value="role.assign">
+                                                                        <label for="perm_assign_roles" class="form-check-label">{{ __('Assign Roles') }}</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_activity_logs" value="activity.logs.view">
+                                                                        <label for="perm_activity_logs" class="form-check-label">{{ __('Activity Logs') }}</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_admin_create" value="admin.create">
+                                                                        <label for="perm_admin_create" class="form-check-label">{{ __('Add Sub Admin') }}</label>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
 
+                                                        <!-- Staff Management Section -->
                                                         <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_role_create" value="role.create">
-                                                                <label for="perm_role_create" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-plus"></i> {{ __('Create Role') }}
-                                                                </label>
+                                                            <div class="row">
+                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" id="staff_management_section" value="1">
+                                                                        <label for="staff_management_section" class="form-check-label text-capitalize fw-bold">
+                                                                            <i class="fas fa-users"></i> {{ __('Staff Management') }}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 staff_management_permissions">
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_view" value="staff.view">
+                                                                        <label for="perm_staff_view" class="form-check-label">{{ __('Staff List') }}</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_create" value="staff.create">
+                                                                        <label for="perm_staff_create" class="form-check-label">{{ __('Add Staff') }}</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_permission_view" value="staff.permission.view">
+                                                                        <label for="perm_staff_permission_view" class="form-check-label">{{ __('Staff Permissions') }}</label>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
 
+                                                        <!-- Shop Management Section -->
                                                         <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_role_edit" value="role.edit">
-                                                                <label for="perm_role_edit" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-edit"></i> {{ __('Edit Role') }}
-                                                                </label>
+                                                            <div class="row">
+                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" id="shop_management_section" value="1">
+                                                                        <label for="shop_management_section" class="form-check-label text-capitalize fw-bold">
+                                                                            <i class="fas fa-store"></i> {{ __('Shop Management') }}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 shop_management_permissions">
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_shop_view" value="shop.view">
+                                                                        <label for="perm_shop_view" class="form-check-label">{{ __('Shop List') }}</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_shop_create" value="shop.create">
+                                                                        <label for="perm_shop_create" class="form-check-label">{{ __('Add Shop') }}</label>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
 
+                                                        <!-- Tasks & Jobs Section -->
                                                         <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_role_delete" value="role.delete">
-                                                                <label for="perm_role_delete" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-trash"></i> {{ __('Delete Role') }}
-                                                                </label>
+                                                            <div class="row">
+                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" id="tasks_jobs_section" value="1">
+                                                                        <label for="tasks_jobs_section" class="form-check-label text-capitalize fw-bold">
+                                                                            <i class="fas fa-tasks"></i> {{ __('Tasks & Jobs') }}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 tasks_jobs_permissions">
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_task_create" value="task.create">
+                                                                        <label for="perm_task_create" class="form-check-label">{{ __('Create Task') }}</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_task_view" value="task.view">
+                                                                        <label for="perm_task_view" class="form-check-label">{{ __('Assigned Tasks') }}</label>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
 
+                                                        <!-- Settings Section -->
                                                         <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_role_assign" value="role.assign">
-                                                                <label for="perm_role_assign" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-key"></i> {{ __('Assign Permissions to Role') }}
-                                                                </label>
+                                                            <div class="row">
+                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
+                                                                    <div class="form-check mb-2">
+                                                                        <input class="form-check-input" type="checkbox" id="settings_section" value="1">
+                                                                        <label for="settings_section" class="form-check-label text-capitalize fw-bold">
+                                                                            <i class="fas fa-cog"></i> {{ __('Settings') }}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 settings_permissions">
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_permission_setup" value="permission.view">
+                                                                        <label for="perm_permission_setup" class="form-check-label">{{ __('Permissions Setup') }}</label>
+                                                                    </div>
+                                                                    <div class="form-check mb-2">
+                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_setting_view" value="setting.view">
+                                                                        <label for="perm_setting_view" class="form-check-label">{{ __('System Settings') }}</label>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-
-                                                        <!-- Staff Management Permissions -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_view" value="staff.view">
-                                                                <label for="perm_staff_view" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-users"></i> {{ __('View Staff') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_create" value="staff.create">
-                                                                <label for="perm_staff_create" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-user-plus"></i> {{ __('Create Staff') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_edit" value="staff.edit">
-                                                                <label for="perm_staff_edit" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-user-edit"></i> {{ __('Edit Staff') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_delete" value="staff.delete">
-                                                                <label for="perm_staff_delete" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-user-times"></i> {{ __('Delete Staff') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Staff Permissions -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_permission_view" value="staff.permission.view">
-                                                                <label for="perm_staff_permission_view" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-user-lock"></i> {{ __('View Staff Permissions') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Activity Logs Permissions -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_activity_view" value="activity.logs.view">
-                                                                <label for="perm_activity_view" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-history"></i> {{ __('View Activity Logs') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_activity_view_subadmin" value="activity.logs.view.subadmin">
-                                                                <label for="perm_activity_view_subadmin" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-user-shield"></i> {{ __('View Sub-admin Activity Logs') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Sub Admin Permissions -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_admin_create" value="admin.create">
-                                                                <label for="perm_admin_create" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-user-plus"></i> {{ __('Create Sub Admin') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Shop Management Permissions -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_shop_view" value="shop.view">
-                                                                <label for="perm_shop_view" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-store"></i> {{ __('View Shops') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_shop_create" value="shop.create">
-                                                                <label for="perm_shop_create" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-plus"></i> {{ __('Create Shop') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_shop_edit" value="shop.edit">
-                                                                <label for="perm_shop_edit" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-edit"></i> {{ __('Edit Shop') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_shop_delete" value="shop.delete">
-                                                                <label for="perm_shop_delete" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-trash"></i> {{ __('Delete Shop') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Task Management Permissions -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_task_view" value="task.view">
-                                                                <label for="perm_task_view" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-tasks"></i> {{ __('View Tasks') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_task_create" value="task.create">
-                                                                <label for="perm_task_create" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-plus"></i> {{ __('Create Task') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_task_edit" value="task.edit">
-                                                                <label for="perm_task_edit" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-edit"></i> {{ __('Edit Task') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_task_delete" value="task.delete">
-                                                                <label for="perm_task_delete" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-trash"></i> {{ __('Delete Task') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Settings Permissions -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_setting_view" value="setting.view">
-                                                                <label for="perm_setting_view" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-cogs"></i> {{ __('View Settings') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="form-check">
-                                                                <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_setting_update" value="setting.update">
-                                                                <label for="perm_setting_update" class="form-check-label fw-bold">
-                                                                    <i class="fas fa-save"></i> {{ __('Update Settings') }}
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -299,6 +229,32 @@
 @push('js')
     <script>
         $(document).ready(function() {
+            // Handle section checkboxes
+            function handleSectionCheckbox(sectionId, permissionClass) {
+                $('#' + sectionId).on('change', function() {
+                    var isChecked = $(this).prop('checked');
+                    $('.' + permissionClass + ' input[type="checkbox"]').prop('checked', isChecked);
+                });
+            }
+
+            // Initialize section handlers
+            handleSectionCheckbox('dashboard_section', 'dashboard_permissions');
+            handleSectionCheckbox('admin_settings_section', 'admin_settings_permissions');
+            handleSectionCheckbox('staff_management_section', 'staff_management_permissions');
+            handleSectionCheckbox('shop_management_section', 'shop_management_permissions');
+            handleSectionCheckbox('tasks_jobs_section', 'tasks_jobs_permissions');
+            handleSectionCheckbox('settings_section', 'settings_permissions');
+
+            // Handle individual permission checkboxes
+            $('.admin_role_border input[type="checkbox"]').on('change', function() {
+                // Update section checkbox based on individual permissions
+                var sectionId = $(this).closest('[id$="_permissions"]').parent().find('input[type="checkbox"]:first').attr('id');
+                var permissionClass = $(this).closest('[class$="_permissions"]').attr('class').split(' ')[0];
+                var allChecked = $('.' + permissionClass + ' input[type="checkbox"]').length === 
+                                $('.' + permissionClass + ' input[type="checkbox"]:checked').length;
+                $('#' + sectionId).prop('checked', allChecked);
+            });
+
             // Load role permissions when role is selected
             $('#user_id').on('change', function() {
                 var roleId = $(this).val();

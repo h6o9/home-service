@@ -92,7 +92,7 @@ class RolesController extends Controller
 
     public function assignRoleView()
     {
-        checkAdminHasPermissionAndThrowException('role.assign');
+        // checkAdminHasPermissionAndThrowException('role.assign');
         $admins = Admin::notSuperAdmin()->whereStatus('active')->get();
         $roles = Role::where('name', '!=', 'Super Admin')->get();
 
@@ -101,17 +101,13 @@ class RolesController extends Controller
 
     public function getAdminRoles($id)
     {
-        $admin = Admin::notSuperAdmin()->find($id);
-        $options = "<option value='' disabled>".__('Select Role').'</option>';
-        if ($admin) {
-            $roles = Role::where('name', '!=', 'Super Admin')->get();
-            foreach ($roles as $role) {
-                $options .= "<option value='{$role->name}' ".($admin->hasRole($role->name) ? 'selected' : '').">{$role->name}</option>";
-            }
-
+        $role = Role::find($id);
+        if ($role) {
+            $permissions = $role->permissions->pluck('name')->toArray();
+            
             return response()->json([
                 'success' => true,
-                'data' => $options,
+                'permissions' => $permissions,
             ]);
         }
 
@@ -123,24 +119,31 @@ class RolesController extends Controller
 
     public function assignRoleUpdate(Request $request)
     {
-        checkAdminHasPermissionAndThrowException('role.assign');
+        // checkAdminHasPermissionAndThrowException('role.assign');
 
         $messages = [
-            'user_id.required' => __('You must select an admin'),
-            'user_id.exists' => __('Admin not found'),
-            'role.required' => __('You must select role'),
-            'role.array' => __('You must select role'),
-            'role.*.required' => __('You must select role'),
-            'role.*.string' => __('You must select role'),
+            'user_id.required' => __('You must select a role'),
+            'user_id.exists' => __('Role not found'),
+            'permissions.array' => __('You must select permissions'),
+            'permissions.*.required' => __('You must select permissions'),
+            'permissions.*.string' => __('You must select permissions'),
         ];
 
         $request->validate([
-            'user_id' => 'required|exists:admins,id',
-            'role' => 'required|array',
-            'role.*' => 'required|string',
+            'user_id' => 'required|exists:roles,id',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'nullable|string',
         ], $messages);
 
-        Admin::notSuperAdmin()->findOrFail($request->user_id)?->syncRoles($request->role);
+        $role = Role::findOrFail($request->user_id);
+        
+        // Sync permissions to the role
+        if ($request->has('permissions') && is_array($request->permissions)) {
+            $permissions = array_filter($request->permissions);
+            $role->syncPermissions($permissions);
+        } else {
+            $role->syncPermissions([]);
+        }
 
         return $this->redirectWithMessage(RedirectType::UPDATE->value, 'admin.role.index');
     }
