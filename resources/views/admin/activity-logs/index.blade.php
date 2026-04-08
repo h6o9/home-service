@@ -27,12 +27,13 @@
                                 <form method="GET" action="{{ route('admin.activity-logs.index') }}" class="mb-4">
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <label for="admin_id">{{ __('Admin') }}</label>
+                                            <label for="admin_id">{{ __('Select Admin') }}</label>
                                             <select name="admin_id" id="admin_id" class="form-control">
-                                                <option value="">{{ __('All Admins') }}</option>
+                                                <option value="">{{ __('All Sub Admins') }}</option>
+                                                <option value="all" {{ request('admin_id') == 'all' ? 'selected' : '' }}>{{ __('All Admins (Including Super Admin)') }}</option>
                                                 @foreach($admins as $admin)
                                                     <option value="{{ $admin->id }}" {{ request('admin_id') == $admin->id ? 'selected' : '' }}>
-                                                        {{ $admin->name }}
+                                                        {{ $admin->name }} ({{ $admin->email }})
                                                     </option>
                                                 @endforeach
                                             </select>
