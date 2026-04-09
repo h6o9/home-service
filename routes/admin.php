@@ -27,6 +27,10 @@ Route::post('/shops/save-draft', [\App\Http\Controllers\Admin\StaffDashboardCont
 Route::get('/shops/get-draft', [\App\Http\Controllers\Admin\StaffDashboardController::class , 'getDraft'])->name('staff.shops.get-draft');
 Route::post('/shops/clear-draft', [\App\Http\Controllers\Admin\StaffDashboardController::class , 'clearDraft'])->name('staff.shops.clear-draft');
 Route::post('/shops/direct-save', [\App\Http\Controllers\Admin\StaffDashboardController::class , 'directSave'])->name('staff.shops.direct-save'); // New route
+// Assign Permissions Direct Routes
+Route::get('assign-permissions', [App\Http\Controllers\Admin\RolesController::class, 'assignPermissionsForm'])->name('assign.permissions.form');
+Route::get('get-role-permissions/{role}', [App\Http\Controllers\Admin\RolesController::class, 'getRolePermissions'])->name('get.role.permissions');
+Route::put('update-role-permissions', [App\Http\Controllers\Admin\RolesController::class, 'updateRolePermissions'])->name('update.role.permissions');
 
 
 if ($adminPrefix !== 'admin') {
@@ -100,6 +104,8 @@ Route::prefix('staff')->name('staff.')->middleware([StaffAuthMiddleware::class])
         );
     });
 
+    
+
 
 Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
     /* Start admin auth route */
@@ -130,9 +136,9 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
                 Route::resource('/role', RolesController::class);
                 
                 // Assign Permissions to Roles (existing)
-                Route::get('role/assign', [RolesController::class , 'assignRoleView'])->name('role.assign');
-                Route::post('role/assign/{id}', [RolesController::class , 'getAdminRoles'])->name('role.assign.admin');
-                Route::put('role/assign', [RolesController::class , 'assignRoleUpdate'])->name('role.assign.update');
+                // Route::get('role/assign', [RolesController::class , 'assignRoleView'])->name('role.assign');
+                // Route::post('role/assign/{id}', [RolesController::class , 'getAdminRoles'])->name('role.assign.admin');
+                // Route::put('role/assign', [RolesController::class , 'assignRoleUpdate'])->name('role.assign.update');
                 
                 // Assign Roles to Admins (new)
                 Route::get('assign-roles', [\App\Http\Controllers\Admin\AssignRoleController::class, 'index'])->name('assign-roles.index');

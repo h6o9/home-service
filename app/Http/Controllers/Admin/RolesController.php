@@ -26,24 +26,105 @@ class RolesController extends Controller
 
     public function create()
     {
-        checkAdminHasPermissionAndThrowException('role.create');
-        $permissions = Permission::all();
-        $permission_groups = Admin::getPermissionGroupsWithPermissions();
-
-        return view('admin.roles.create', compact('permissions', 'permission_groups'));
+        // checkAdminHasPermissionAndThrowException('role.create');
+        return view('admin.roles.create');
     }
 
     public function store(RoleFormRequest $request)
     {
-        checkAdminHasPermissionAndThrowException('role.store');
+        // checkAdminHasPermissionAndThrowException('role.store');
         $role = Role::create(['name' => $request->name]);
-        if (! empty($request->permissions)) {
-            $role->syncPermissions($request->permissions);
-        }
 
         return $this->redirectWithMessage(RedirectType::CREATE->value, 'admin.role.index');
     }
 
+    public function assignPermissionsForm()
+    {
+        // Sirf wohi access kar sakte hain jinko 'role.assign' permission hai
+        checkAdminHasPermissionAndThrowException('role.assign');
+        
+        $roles = Role::where('name', '!=', 'Super Admin')->get();
+        
+        $permission_groups = Admin::getPermissionGroupsWithPermissions();
+        
+        return view('admin.roles.assign-role', compact('roles', 'permission_groups'));
+    }
+
+    /**
+     * Get role permissions via AJAX (ALAG FUNCTION)
+     */
+    public function getRolePermissions($roleId)
+    {
+        // Sirf wohi access kar sakte hain jinko 'role.assign' permission hai
+        checkAdminHasPermissionAndThrowException('role.assign');
+        
+        try {
+            $role = Role::findOrFail($roleId);
+            
+            // Super Admin check
+            if ($role->name === 'Super Admin') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot modify Super Admin permissions'
+                ], 403);
+            }
+            
+            $permissions = $role->permissions->pluck('name');
+            
+            return response()->json([
+                'success' => true,
+                'permissions' => $permissions
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading permissions: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update role permissions (ALAG FUNCTION - Sirf permissions handle karega)
+     */
+    public function updateRolePermissions(Request $request)
+    {
+        // Sirf wohi update kar sakte hain jinko 'role.assign' permission hai
+        checkAdminHasPermissionAndThrowException('role.assign');
+        
+        // Validation
+        $request->validate([
+            'user_id' => 'required|exists:roles,id',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string|exists:permissions,name'
+        ]);
+        
+        try {
+            DB::beginTransaction();
+            
+            $role = Role::findOrFail($request->user_id);
+            
+            // Super Admin ko modify nahi kar sakte
+            if ($role->name === 'Super Admin') {
+                return redirect()->back()->with('error', 'Super Admin permissions cannot be modified');
+            }
+            
+            // Permissions sync karo
+            if (!empty($request->permissions)) {
+                $role->syncPermissions($request->permissions);
+            } else {
+                // Agar koi permission select nahi ki toh saari hata do
+                $role->syncPermissions([]);
+            }
+            
+            DB::commit();
+            
+            return redirect()->back()->with('success', 'Permissions updated successfully!');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
+    }
     public function edit($id)
     {
         checkAdminHasPermissionAndThrowException('role.edit');
@@ -93,10 +174,9 @@ class RolesController extends Controller
     public function assignRoleView()
     {
         // checkAdminHasPermissionAndThrowException('role.assign');
-        $admins = Admin::notSuperAdmin()->whereStatus('active')->get();
         $roles = Role::where('name', '!=', 'Super Admin')->get();
 
-        return view('admin.roles.assign-role', compact('admins', 'roles'));
+        return view('admin.roles.assign-role', compact('roles'));
     }
 
     public function getAdminRoles($id)

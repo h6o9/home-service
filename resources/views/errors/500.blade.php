@@ -38,8 +38,6 @@
             3. Check route definitions<br>
             4. Verify controller exists and is properly namespaced
         </div>
-        
-        <a href="{{ url()->previous() }}" class="back-link">← Go Back</a>
     </div>
 </body>
 </html>

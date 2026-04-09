@@ -22,7 +22,6 @@
                             <h4>
                                 @yield('message')
                             </h4>
-                            <a class="common_btn" href="{{ route('website.home') }}">{{ __('Go Home') }}</a>
                         </div>
                     </div>
                 </div>

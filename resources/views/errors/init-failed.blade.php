@@ -70,8 +70,8 @@
             @endif
 
             <div class="contact">
-                <p>{{ __('If this issue persists, please contact the script provider.') }}</p>
-                <p>{{ __('Email') }}: <strong>websolutionus1@gmail.com</strong></p>
+                <!-- <p>{{ __('If this issue persists, please contact the script provider.') }}</p> -->
+                <!-- <p>{{ __('Email') }}: <strong>websolutionus1@gmail.com</strong></p> -->
             </div>
         </div>
     </body>

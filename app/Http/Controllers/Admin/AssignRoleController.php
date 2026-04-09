@@ -20,7 +20,7 @@ class AssignRoleController extends Controller
         }
 
         $admins = Admin::where('is_super_admin', 0)->get(); // Get sub-admins only
-        $roles = Role::where('guard_name', 'admin')->get();
+        $roles = Role::where('name', '!=', 'Super Admin')->where('guard_name', 'admin')->get();
 
         return view('admin.assign-roles.index', compact('admins', 'roles'));
     }

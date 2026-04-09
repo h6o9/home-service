@@ -25,40 +25,39 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <form role="form" action="{{ route('admin.role.store') }}" method="POST">
-                                    @csrf
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="name" class="form-label">{{ __('Role Name') }} <span class="text-danger">*</span></label>
-                                                <input name="name" type="text"
-                                                    class="form-control @error('name') is-invalid @enderror"
-                                                    id="role_name" placeholder="{{ __('Enter role name') }}" required>
-                                                @error('name')
-                                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                                @enderror
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form role="form" action="{{ route('admin.role.store') }}" method="POST">
+                                            @csrf
+                                            <div class="card-body">
+                                                <div class="form-group">
+                                                    <label for="name" class="form-label">{{ __('Role Name') }} <span class="text-danger">*</span></label>
+                                                    <input name="name" type="text"
+                                                        class="form-control @error('name') is-invalid @enderror"
+                                                        id="role_name" placeholder="{{ __('Enter role name') }}" required>
+                                                    @error('name')
+                                                        <span class="invalid-feedback"
+                                                            role="alert"><strong>{{ $message }}</strong></span>
+                                                    @enderror
+                                                </div>
+                                                <div class="alert alert-info">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    {{ __('After creating the role, you can assign permissions from the "Assign Permissions" page.') }}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label class="form-label">{{ __('Note') }}</label>
-                                                <p class="text-muted">{{ __('After creating the role, you can assign permissions to it from the "Assign Permissions" section.') }}</p>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="fas fa-save"></i> {{ __('Create Role') }}
+                                                    </button>
+                                                    <a href="{{ route('admin.role.index') }}" class="btn btn-secondary">
+                                                        <i class="fas fa-times"></i> {{ __('Cancel') }}
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </form>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="fas fa-save"></i> {{ __('Create Role') }}
-                                            </button>
-                                            <a href="{{ route('admin.role.index') }}" class="btn btn-secondary">
-                                                <i class="fas fa-times"></i> {{ __('Cancel') }}
-                                            </a>
-                                        </div>
-                                    </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>

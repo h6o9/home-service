@@ -83,8 +83,8 @@
                     @endcan
 
                     @can('role.assign')
-                        <li class="{{ isRoute('admin.role.assign', 'active') }}">
-                            <a class="nav-link" href="{{ route('admin.role.assign') }}">
+                        <li class="{{ isRoute('assign.permissions.form', 'active') }}">
+                            <a class="nav-link" href="{{ route('assign.permissions.form') }}">
                                 <i class="fas fa-key"></i>
                                 <span>{{ __('Assign Permissions') }}</span>
                             </a>

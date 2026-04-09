@@ -11,16 +11,36 @@
         </div>
 
         <ul class="sidebar-menu">
+            <!-- Dashboard -->
             <li class="{{ isRoute('staff.dashboard', 'active') }}">
-                <a class="nav-link" href="{{ route('staff.dashboard') }}"><i class="fas fa-home"></i>
+                <a class="nav-link" href="{{ route('staff.dashboard') }}">
+                    <i class="fas fa-home"></i>
                     <span>{{ __('Dashboard') }}</span>
                 </a>
             </li>
-			<li class="{{ isRoute('staff.shop.index', 'active') }}">
-				<a class="nav-link" href="{{ route('staff.shop.index') }}"><i class="fas fa-store"></i>
-					<span>{{ __('Manage Shops') }}</span>
-				</a>
-			
+
+            <!-- Shop Management Dropdown (Loy Madok Style) -->
+            <li class="submenu {{ isRoute('staff.shop.*', 'active') ? 'active' : '' }}">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <span>{{ __('Shop Management') }}</span>
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                <ul class="submenu-nav">
+                    <li class="{{ isRoute('staff.shop.index', 'active') }}">
+                        <a class="nav-link" href="{{ route('staff.shop.index') }}">
+                            <i class="fas fa-list"></i>
+                            <span>{{ __('Shop List') }}</span>
+                        </a>
+                    </li>
+                    <li class="{{ isRoute('staff.shop.create', 'active') }}">
+                        <a class="nav-link" href="{{ route('staff.shop.create') }}">
+                            <i class="fas fa-plus"></i>
+                            <span>{{ __('Add Shop') }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </ul>
     </aside>
 </div>

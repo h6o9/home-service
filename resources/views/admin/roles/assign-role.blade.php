@@ -16,21 +16,23 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
-                                <x-admin.form-title :text="__('Assign Permissions')" />
+                                <x-admin.form-title :text="__('Assign Permissions to Role')" />
                                 <div>
                                     @adminCan('role.view')
-                                        <x-admin.back-button :href="route('admin.role.index')" />
+                                        <a href="{{ url('/admin/role') }}" class="btn btn-secondary">
+                                            <i class="fas fa-arrow-left"></i> {{ __('Back') }}
+                                        </a>
                                     @endadminCan
                                 </div>
                             </div>
                             <div class="card-body">
-                                <form role="form" action="{{ route('admin.role.assign.update') }}" method="POST">
+                                <form id="permissionForm" action="{{ url('/update-role-permissions') }}" method="POST">
                                     @method('PUT')
                                     @csrf
                                     <div class="row">
                                         <div class="form-group col-md-6">
-                                            <label for="user_id">{{ __('Select Role') }} <span class="text-danger">*</span></label>
-                                            <select name="user_id" id="user_id" class="form-control select2" required>
+                                            <label for="role_id">{{ __('Select Role') }} <span class="text-danger">*</span></label>
+                                            <select name="user_id" id="role_id" class="form-control select2" required>
                                                 <option value="">{{ __('Select Role') }}</option>
                                                 @foreach ($roles as $role)
                                                     <option value="{{ $role->id }}">{{ ucfirst($role->name) }}</option>
@@ -39,179 +41,65 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="row">
+                                    <div class="row mt-4" id="permissionsSection" style="display: none;">
                                         <div class="col-12">
                                             <div class="form-group">
-                                                <label class="form-label">{{ __('Admin Panel Menu Permissions') }}</label>
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <label class="form-label font-weight-bold">{{ __('Admin Panel Menu Permissions') }}</label>
+                                                    <div>
+                                                        <button type="button" id="checkAll" class="btn btn-sm btn-primary">Check All</button>
+                                                        <button type="button" id="uncheckAll" class="btn btn-sm btn-secondary">Uncheck All</button>
+                                                    </div>
+                                                </div>
                                                 <div class="admin_role_border">
                                                     <div class="row">
-                                                        <!-- Dashboard Section -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="row">
-                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
-                                                                    <div class="form-check mb-2">
-                                                                        <input class="form-check-input" type="checkbox" id="dashboard_section" value="1">
-                                                                        <label for="dashboard_section" class="form-check-label text-capitalize fw-bold">
-                                                                            <i class="fas fa-tachometer-alt"></i> {{ __('Dashboard') }}
-                                                                        </label>
+                                                        @php $i=1; @endphp
+                                                        @foreach ($permission_groups as $groupName => $permissions)
+                                                            <div class="py-2 mb-2 col-lg-6 border-bottom">
+                                                                <div class="row">
+                                                                    <div class="col-12 col-md-5 col-lg-5 col-xl-4">
+                                                                        <div class="form-check mb-2">
+                                                                            <input class="form-check-input section-checkbox" 
+                                                                                   type="checkbox" 
+                                                                                   id="section_{{ $i }}" 
+                                                                                   data-section="{{ Str::slug($groupName) }}">
+                                                                            <label for="section_{{ $i }}" class="form-check-label text-capitalize fw-bold">
+                                                                                <i class="fas fa-folder"></i> {{ $groupName }}
+                                                                            </label>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 dashboard_permissions">
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_dashboard_view" value="dashboard.view">
-                                                                        <label for="perm_dashboard_view" class="form-check-label">{{ __('Can View') }}</label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Admin Settings Section -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="row">
-                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
-                                                                    <div class="form-check mb-2">
-                                                                        <input class="form-check-input" type="checkbox" id="admin_settings_section" value="1">
-                                                                        <label for="admin_settings_section" class="form-check-label text-capitalize fw-bold">
-                                                                            <i class="fas fa-user-shield"></i> {{ __('Admin Settings') }}
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 admin_settings_permissions">
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_role_view" value="role.view">
-                                                                        <label for="perm_role_view" class="form-check-label">{{ __('Manage Roles') }}</label>
-                                                                    </div>
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_role_assign" value="role.assign">
-                                                                        <label for="perm_role_assign" class="form-check-label">{{ __('Assign Permissions') }}</label>
-                                                                    </div>
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_assign_roles" value="role.assign">
-                                                                        <label for="perm_assign_roles" class="form-check-label">{{ __('Assign Roles') }}</label>
-                                                                    </div>
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_activity_logs" value="activity.logs.view">
-                                                                        <label for="perm_activity_logs" class="form-check-label">{{ __('Activity Logs') }}</label>
-                                                                    </div>
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_admin_create" value="admin.create">
-                                                                        <label for="perm_admin_create" class="form-check-label">{{ __('Add Sub Admin') }}</label>
+                                                                    <div class="col-12 col-md-7 col-lg-7 col-xl-8 permission-group-{{ $i }}">
+                                                                        @foreach ($permissions as $permission)
+                                                                            <div class="form-check mb-2">
+                                                                                <input name="permissions[]" 
+                                                                                       class="form-check-input permission-checkbox" 
+                                                                                       type="checkbox" 
+                                                                                       id="perm_{{ $permission->id }}" 
+                                                                                       value="{{ $permission->name }}" 
+                                                                                       data-section="{{ Str::slug($groupName) }}">
+                                                                                <label for="perm_{{ $permission->id }}" class="form-check-label">
+                                                                                    {{-- Convert permission name to readable format --}}
+                                                                                    {{ ucfirst(str_replace('.', ' ', $permission->name)) }}
+                                                                                </label>
+                                                                            </div>
+                                                                        @endforeach
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-
-                                                        <!-- Staff Management Section -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="row">
-                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
-                                                                    <div class="form-check mb-2">
-                                                                        <input class="form-check-input" type="checkbox" id="staff_management_section" value="1">
-                                                                        <label for="staff_management_section" class="form-check-label text-capitalize fw-bold">
-                                                                            <i class="fas fa-users"></i> {{ __('Staff Management') }}
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 staff_management_permissions">
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_view" value="staff.view">
-                                                                        <label for="perm_staff_view" class="form-check-label">{{ __('Staff List') }}</label>
-                                                                    </div>
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_create" value="staff.create">
-                                                                        <label for="perm_staff_create" class="form-check-label">{{ __('Add Staff') }}</label>
-                                                                    </div>
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_staff_permission_view" value="staff.permission.view">
-                                                                        <label for="perm_staff_permission_view" class="form-check-label">{{ __('Staff Permissions') }}</label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Shop Management Section -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="row">
-                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
-                                                                    <div class="form-check mb-2">
-                                                                        <input class="form-check-input" type="checkbox" id="shop_management_section" value="1">
-                                                                        <label for="shop_management_section" class="form-check-label text-capitalize fw-bold">
-                                                                            <i class="fas fa-store"></i> {{ __('Shop Management') }}
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 shop_management_permissions">
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_shop_view" value="shop.view">
-                                                                        <label for="perm_shop_view" class="form-check-label">{{ __('Shop List') }}</label>
-                                                                    </div>
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_shop_create" value="shop.create">
-                                                                        <label for="perm_shop_create" class="form-check-label">{{ __('Add Shop') }}</label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Tasks & Jobs Section -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="row">
-                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
-                                                                    <div class="form-check mb-2">
-                                                                        <input class="form-check-input" type="checkbox" id="tasks_jobs_section" value="1">
-                                                                        <label for="tasks_jobs_section" class="form-check-label text-capitalize fw-bold">
-                                                                            <i class="fas fa-tasks"></i> {{ __('Tasks & Jobs') }}
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 tasks_jobs_permissions">
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_task_create" value="task.create">
-                                                                        <label for="perm_task_create" class="form-check-label">{{ __('Create Task') }}</label>
-                                                                    </div>
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_task_view" value="task.view">
-                                                                        <label for="perm_task_view" class="form-check-label">{{ __('Assigned Tasks') }}</label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Settings Section -->
-                                                        <div class="py-2 mb-2 col-lg-6 border-bottom">
-                                                            <div class="row">
-                                                                <div class="col-12 col-md-5 col-lg-5 col-xl-4">
-                                                                    <div class="form-check mb-2">
-                                                                        <input class="form-check-input" type="checkbox" id="settings_section" value="1">
-                                                                        <label for="settings_section" class="form-check-label text-capitalize fw-bold">
-                                                                            <i class="fas fa-cog"></i> {{ __('Settings') }}
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-md-7 col-lg-7 col-xl-8 settings_permissions">
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_permission_setup" value="permission.view">
-                                                                        <label for="perm_permission_setup" class="form-check-label">{{ __('Permissions Setup') }}</label>
-                                                                    </div>
-                                                                    <div class="form-check mb-2">
-                                                                        <input name="permissions[]" class="form-check-input" type="checkbox" id="perm_setting_view" value="setting.view">
-                                                                        <label for="perm_setting_view" class="form-check-label">{{ __('System Settings') }}</label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                            @php $i++; @endphp
+                                                        @endforeach
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="row">
+                                    <div class="row mt-4" id="submitSection" style="display: none;">
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">
+                                            <button type="submit" class="btn btn-primary" id="saveBtn">
                                                 <i class="fas fa-save"></i> {{ __('Save Permissions') }}
                                             </button>
-                                            <a href="{{ route('admin.role.index') }}" class="btn btn-secondary">
+                                            <a href="{{ url('/admin/role') }}" class="btn btn-secondary">
                                                 <i class="fas fa-times"></i> {{ __('Cancel') }}
                                             </a>
                                         </div>
@@ -229,57 +117,116 @@
 @push('js')
     <script>
         $(document).ready(function() {
-            // Handle section checkboxes
-            function handleSectionCheckbox(sectionId, permissionClass) {
-                $('#' + sectionId).on('change', function() {
-                    var isChecked = $(this).prop('checked');
-                    $('.' + permissionClass + ' input[type="checkbox"]').prop('checked', isChecked);
-                });
+            // Build section mapping dynamically
+            var sectionMapping = {};
+            @php $i=1; @endphp
+            @foreach ($permission_groups as $groupName => $permissions)
+                var sectionKey = '{{ Str::slug($groupName) }}';
+                var sectionClass = '.permission-group-{{ $i }}';
+                sectionMapping[sectionKey] = sectionClass;
+            @php $i++; @endphp
+            @endforeach
+
+            // Function to update section checkbox based on individual permissions
+            function updateSectionCheckbox(section) {
+                const sectionClass = sectionMapping[section];
+                if (sectionClass) {
+                    const totalPermissions = $(sectionClass + ' .permission-checkbox').length;
+                    const checkedPermissions = $(sectionClass + ' .permission-checkbox:checked').length;
+                    const sectionCheckbox = $('.section-checkbox[data-section="' + section + '"]');
+                    sectionCheckbox.prop('checked', totalPermissions === checkedPermissions && totalPermissions > 0);
+                }
             }
 
-            // Initialize section handlers
-            handleSectionCheckbox('dashboard_section', 'dashboard_permissions');
-            handleSectionCheckbox('admin_settings_section', 'admin_settings_permissions');
-            handleSectionCheckbox('staff_management_section', 'staff_management_permissions');
-            handleSectionCheckbox('shop_management_section', 'shop_management_permissions');
-            handleSectionCheckbox('tasks_jobs_section', 'tasks_jobs_permissions');
-            handleSectionCheckbox('settings_section', 'settings_permissions');
+            // Handle section checkbox click
+            $('.section-checkbox').on('change', function() {
+                const section = $(this).data('section');
+                const sectionClass = sectionMapping[section];
+                const isChecked = $(this).prop('checked');
+                
+                if (sectionClass) {
+                    $(sectionClass + ' .permission-checkbox').prop('checked', isChecked);
+                }
+            });
 
-            // Handle individual permission checkboxes
-            $('.admin_role_border input[type="checkbox"]').on('change', function() {
-                // Update section checkbox based on individual permissions
-                var sectionId = $(this).closest('[id$="_permissions"]').parent().find('input[type="checkbox"]:first').attr('id');
-                var permissionClass = $(this).closest('[class$="_permissions"]').attr('class').split(' ')[0];
-                var allChecked = $('.' + permissionClass + ' input[type="checkbox"]').length === 
-                                $('.' + permissionClass + ' input[type="checkbox"]:checked').length;
-                $('#' + sectionId).prop('checked', allChecked);
+            // Handle individual permission checkbox click
+            $(document).on('change', '.permission-checkbox', function() {
+                const section = $(this).data('section');
+                updateSectionCheckbox(section);
+            });
+
+            // Check All button functionality
+            $('#checkAll').on('click', function() {
+                $('.permission-checkbox').prop('checked', true);
+                $('.section-checkbox').prop('checked', true);
+            });
+
+            // Uncheck All button functionality
+            $('#uncheckAll').on('click', function() {
+                $('.permission-checkbox').prop('checked', false);
+                $('.section-checkbox').prop('checked', false);
             });
 
             // Load role permissions when role is selected
-            $('#user_id').on('change', function() {
+            $('#role_id').on('change', function() {
                 var roleId = $(this).val();
                 if (roleId) {
-                    $.get('{{ route("admin.role.assign.admin", ":id") }}'.replace(':id', roleId))
-                        .done(function(response) {
+                    $('#permissionsSection, #submitSection').hide();
+                    
+                    $.ajax({
+                        url: '{{ url("/get-role-permissions") }}/' + roleId,
+                        type: 'GET',
+                        success: function(response) {
                             if (response.success) {
-                                // Clear all checkboxes first
-                                $('.admin_role_border input[type="checkbox"]').prop('checked', false);
+                                $('.permission-checkbox').prop('checked', false);
+                                $('.section-checkbox').prop('checked', false);
                                 
-                                // Check the permissions that belong to this role
                                 if (response.permissions && response.permissions.length > 0) {
-                                    $.each(response.permissions, function(index, permission) {
-                                        $('input[value="' + permission + '"]').prop('checked', true);
+                                    $.each(response.permissions, function(index, permissionName) {
+                                        $('.permission-checkbox[value="' + permissionName + '"]').prop('checked', true);
                                     });
                                 }
+                                
+                                setTimeout(function() {
+                                    for (const section in sectionMapping) {
+                                        updateSectionCheckbox(section);
+                                    }
+                                }, 100);
+                                
+                                $('#permissionsSection, #submitSection').fadeIn();
+                            } else {
+                                toastr.error(response.message || 'Error loading permissions');
+                                $('#permissionsSection, #submitSection').hide();
                             }
-                        })
-                        .fail(function() {
-                            console.error('Error loading role permissions');
-                        });
+                        },
+                        error: function(xhr) {
+                            console.error('Error:', xhr);
+                            toastr.error('Error loading role permissions');
+                            $('#permissionsSection, #submitSection').hide();
+                        }
+                    });
                 } else {
-                    // Clear all checkboxes if no role selected
-                    $('.admin_role_border input[type="checkbox"]').prop('checked', false);
+                    $('#permissionsSection, #submitSection').fadeOut();
+                    $('.permission-checkbox').prop('checked', false);
+                    $('.section-checkbox').prop('checked', false);
                 }
+            });
+
+            // Form submission with confirmation
+            $('#permissionForm').on('submit', function(e) {
+                var selectedRole = $('#role_id option:selected').text();
+                var hasPermissions = $('.permission-checkbox:checked').length > 0;
+                
+                if (!hasPermissions) {
+                    if (confirm('Are you sure you want to remove all permissions from this role?')) {
+                        return true;
+                    } else {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+                
+                return confirm('Are you sure you want to update permissions for "' + selectedRole + '" role?');
             });
         });
     </script>
