@@ -1,3 +1,44 @@
+<style>
+.main-sidebar {
+    height: 100vh;
+    overflow-y: auto;
+}
+
+#sidebar-wrapper {
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* Fix header spacing (keep it clean, not too tight) */
+.sidebar-menu .menu-header {
+    margin: 10px 0 5px;
+    padding: 5px 15px;
+    font-size: 12px;
+}
+
+/* Fix menu item alignment */
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+}
+
+/* Prevent text from breaking into two lines */
+.sidebar-menu li a span {
+    white-space: nowrap;
+}
+
+/* Fix icon + text spacing */
+.sidebar-menu li a i {
+    margin-right: 10px;
+}
+
+/* Submenu spacing (keep minimal but safe) */
+.submenu-nav {
+    padding-left: 15px;
+}
+</style>
 <div class="main-sidebar">
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
