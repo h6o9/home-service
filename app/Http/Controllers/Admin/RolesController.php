@@ -10,6 +10,7 @@ use App\Traits\RedirectHelperTrait;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
 
 class RolesController extends Controller
 {
@@ -125,6 +126,7 @@ class RolesController extends Controller
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
+
     public function edit($id)
     {
         checkAdminHasPermissionAndThrowException('role.edit');

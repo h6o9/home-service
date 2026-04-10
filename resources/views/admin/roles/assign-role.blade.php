@@ -40,8 +40,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
-                                    <div class="row mt-4" id="permissionsSection" style="display: none;">
+                                    <div class="row mt-4" id="permissionsSection" >
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <div class="d-flex justify-content-between align-items-center mb-3">
