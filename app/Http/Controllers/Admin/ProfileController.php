@@ -20,7 +20,6 @@ class ProfileController extends Controller
 
     public function edit_profile()
     {
-        checkAdminHasPermissionAndThrowException('admin.profile.view');
         $admin = Auth::guard('admin')->user();
 
         return view('admin.profile.edit_profile', compact('admin'));
@@ -31,7 +30,6 @@ class ProfileController extends Controller
      */
     public function profile_update(Request $request)
     {
-        checkAdminHasPermissionAndThrowException('admin.profile.update');
 
         $admin = Auth::guard('admin')->user();
         $rules = [
@@ -72,7 +70,6 @@ class ProfileController extends Controller
      */
     public function update_password(Request $request)
     {
-        checkAdminHasPermissionAndThrowException('admin.profile.update');
 
         $admin = Auth::guard('admin')->user();
         $rules = [

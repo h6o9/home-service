@@ -1,15 +1,11 @@
 @extends('admin.master_layout')
 @section('title')
-    <title>{{ __('Add Admin') }}</title>
+    <title>{{ __('Add Sub Admin') }}</title>
 @endsection
 @section('admin-content')
     <div class="main-content">
         <section class="section">
-            <x-admin.breadcrumb title="{{ __('Add Admin') }}" :list="[
-                __('Dashboard') => route('admin.dashboard'),
-                __('Settings') => route('admin.settings'),
-                __('Manage Admin') => route('admin.admin.index'),
-                __('Add Admin') => '#',
+            <x-admin.breadcrumb title="{{ __('Add Sub Admin') }}" :list="[
             ]" />
 
             <div class="section-body">
@@ -17,7 +13,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
-                                <x-admin.form-title :text="__('Add Admin')" />
+                                <x-admin.form-title :text="__('Add Sub Admin')" />
                                 <div>
                                     @adminCan('admin.view')
                                         <x-admin.back-button :href="route('admin.admin.index')" />
@@ -40,23 +36,6 @@
                                                         label="{{ __('Email') }}" placeholder="{{ __('Enter Email') }}"
                                                         value="{{ old('email') }}" required="true" />
                                                 </div>
-                                                <div class="form-group col-6">
-                                                    <x-admin.form-input type="password" id="password" name="password"
-                                                        label="{{ __('Password') }}"
-                                                        placeholder="{{ __('Enter Password') }}"
-                                                        value="{{ old('password') }}" required="true" />
-                                                </div>
-
-                                                <div class="form-group col-6">
-                                                    <x-admin.form-select id="role" name="role[]"
-                                                        label="{{ __('Assign Role') }}" class="select2" required="true" multiple>
-                                                        <x-admin.select-option value="" disabled text="{{ __('Select Role') }}" />
-                                                        @foreach ($roles as $role)
-                                                            <x-admin.select-option value="{{ $role->name }}" text="{{ $role->name }}" />
-                                                        @endforeach
-                                                    </x-admin.form-select>
-                                                </div>
-
                                                 <div class="form-group col-12">
                                                     <x-admin.form-switch name="status" label="{{ __('status') }}"
                                                         active_value="active" inactive_value="inactive" :checked="old('status') == 'active'" />

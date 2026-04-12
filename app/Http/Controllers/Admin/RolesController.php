@@ -89,14 +89,14 @@ class RolesController extends Controller
      */
     public function updateRolePermissions(Request $request)
     {
-        // Sirf wohi update kar sakte hain jinko 'role.assign' permission hai
+          // Sirf wohi update kar sakte hain jinko 'role.assign' permission hai
         checkAdminHasPermissionAndThrowException('role.assign');
         
-        // Validation
+        // Validation - Fix to check admin guard permissions
         $request->validate([
             'user_id' => 'required|exists:roles,id',
             'permissions' => 'nullable|array',
-            'permissions.*' => 'string|exists:permissions,name'
+            'permissions.*' => 'string|exists:permissions,name,guard_name,admin'
         ]);
         
         try {
@@ -109,17 +109,36 @@ class RolesController extends Controller
                 return redirect()->back()->with('error', 'Super Admin permissions cannot be modified');
             }
             
-            // Permissions sync karo
+            // Debug: Log incoming permissions
+            \Log::info('Permissions to save:', $request->permissions ?? []);
+            
+            // Permissions sync karo using Spatie's proper method
             if (!empty($request->permissions)) {
-                $role->syncPermissions($request->permissions);
+                // Filter out empty values and ensure all permissions exist
+                $validPermissions = array_filter($request->permissions);
+                \Log::info('Valid permissions after filter:', $validPermissions);
+                
+                $existingPermissions = Permission::whereIn('name', $validPermissions)
+                    ->where('guard_name', 'admin')
+                    ->pluck('name')
+                    ->toArray();
+                
+                \Log::info('Existing permissions from DB:', $existingPermissions);
+                
+                $role->syncPermissions($existingPermissions);
+                \Log::info('Permissions synced for role: ' . $role->name);
             } else {
                 // Agar koi permission select nahi ki toh saari hata do
+                \Log::info('Removing all permissions from role: ' . $role->name);
                 $role->syncPermissions([]);
             }
             
             DB::commit();
             
-            return redirect()->back()->with('success', 'Permissions updated successfully!');
+            return response()->json([
+                'success' => true,
+                'message' => 'Permissions updated successfully!'
+            ]);
             
         } catch (\Exception $e) {
             DB::rollBack();
@@ -132,22 +151,18 @@ class RolesController extends Controller
         checkAdminHasPermissionAndThrowException('role.edit');
         $role = Role::where('name', '!=', 'Super Admin')->where('id', $id)->first();
         abort_if(! $role, 403);
-        $permissions = Permission::all();
-        $permission_groups = Admin::getPermissionGroupsWithPermissions();
 
-        return view('admin.roles.edit', compact('permissions', 'permission_groups', 'role'));
+        return view('admin.roles.edit', compact('role'));
     }
 
     public function update(RoleFormRequest $request, $id)
-    {
+    { 
         checkAdminHasPermissionAndThrowException('role.update');
         $role = Role::where('name', '!=', 'Super Admin')->where('id', $id)->first();
         abort_if(! $role, 403);
-        if (! empty($request->permissions)) {
-            $role->name = $request->name;
-            $role->save();
-            $role->syncPermissions($request->permissions);
-        }
+        
+        $role->name = $request->name;
+        $role->save();
 
         return $this->redirectWithMessage(RedirectType::UPDATE->value, 'admin.role.index');
     }

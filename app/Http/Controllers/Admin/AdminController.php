@@ -49,9 +49,7 @@ class AdminController extends Controller
         $rules = [
             'name' => 'required',
             'email' => 'required|unique:admins',
-            'password' => 'required|min:4',
             'status' => 'required',
-            'role' => 'required|array',
         ];
         $customMessages = [
             'name.required' => __('Name is required'),
@@ -59,17 +57,16 @@ class AdminController extends Controller
             'status.required' => __('Status is required'),
             'email.unique' => __('Email already exist'),
             'password.required' => __('Password is required'),
-            'password.min' => __('Password Must be 4 characters'),
             'role.array' => __('You must select role'),
-            'role.required' => __('Role is required'),
         ];
         $this->validate($request, $rules, $customMessages);
+        $password =12345678;
 
         $admin = new Admin;
         $admin->name = $request->name;
         $admin->email = $request->email;
         $admin->status = $request->status;
-        $admin->password = Hash::make($request->password);
+        $admin->password = Hash::make($password);
         $admin->save();
         if ($request->role) {
             $admin->syncRoles($request->role);
@@ -99,7 +96,6 @@ class AdminController extends Controller
             'email' => 'required|unique:admins,email,' . $admin->id,
             'password' => 'nullable|min:4',
             'status' => 'required',
-            'role' => 'required|array',
         ];
         $customMessages = [
             'name.required' => __('Name is required'),
@@ -107,16 +103,14 @@ class AdminController extends Controller
             'email.unique' => __('Email already exist'),
             'password.min' => __('Password Must be 4 characters'),
             'role.array' => __('You must select role'),
-            'role.required' => __('Role is required'),
         ];
         $this->validate($request, $rules, $customMessages);
+        $password=12345678;
 
         $admin->name = $request->name;
         $admin->email = $request->email;
         $admin->status = $request->status;
-        if ($request->filled('password')) {
-            $admin->password = Hash::make($request->password);
-        }
+        $admin->password = Hash::make($password);
 
         $admin->save();
         if ($request->role) {

@@ -47,7 +47,7 @@ class AssignRoleController extends Controller
         $admin->syncRoles([$role]);
 
         return redirect()->route('admin.assign-roles.index')
-            ->with('success', 'Role assigned successfully to ' . $admin->name);
+            ->with('success', 'Role assigned successfully');
     }
 
     /**

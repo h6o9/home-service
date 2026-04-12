@@ -15,9 +15,7 @@ class AccessPermissionDeniedException extends Exception
             ], 403);
         }
 
-        return redirect()->back()->with([
-            'alert-type' => 'error',
-            'message' => __('Permission Denied, You can not perform this action!'),
-        ]);
+        // Show proper 403 error page
+        return response()->view('errors.403', ['exception' => $this], 403);
     }
 }

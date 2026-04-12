@@ -118,12 +118,10 @@
                             <div class="d-sm-none d-lg-inline-block">{{ $header_admin->name }}</div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
-                            @adminCan('admin.profile.view')
-                                <a class="dropdown-item has-icon d-flex align-items-center {{ isRoute(['admin.edit-profile'], 'text-primary') }}"
-                                    href="{{ route('admin.edit-profile') }}">
-                                    <i class="far fa-user"></i> {{ __('Profile') }}
-                                </a>
-                            @endadminCan
+                            <a class="dropdown-item has-icon d-flex align-items-center {{ isRoute(['admin.edit-profile'], 'text-primary') }}"
+                                href="{{ route('admin.edit-profile') }}">
+                                <i class="far fa-user"></i> {{ __('Profile') }}
+                            </a>
                             @adminCan('setting.view')
                                 <a class="dropdown-item has-icon d-flex align-items-center {{ isRoute(['admin.settings'], 'text-primary') }}"
                                     href="{{ route('admin.settings') }}">

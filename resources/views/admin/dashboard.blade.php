@@ -46,6 +46,7 @@
                         </a>
                     </div> -->
                     
+                    @can('staff.view')
                     <div class="col-lg-6 col-md-6 col-sm-12">
                         <a href="{{ url('admin/staff') }}" style="text-decoration: none;">
                             <div class="card" style="background: rgb(93, 120, 238); border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(93, 120, 238, 0.3); transition: all 0.3s; hover:transform: translateY(-5px);">
@@ -61,6 +62,7 @@
                             </div>
                         </a>
                     </div>
+                    @endcan
                 </div>
 
                 <!-- Static Dashboard Content -->

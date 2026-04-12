@@ -8,26 +8,25 @@
     <div class="main-content">
         <section class="section">
             <x-admin.breadcrumb title="{{ __('Assign Roles') }}" :list="[
-                __('Dashboard') => route('admin.dashboard'),
-                __('Admin Settings') => '#',
-                __('Assign Roles') => '#',
-            ]" />
-
+            ]" /> <small class="font-weight-bold text-danger"> (The default password for all staff members is 12345678. This password is automatically generated when a new sub admin is created.)</small>
             <div class="section-body">
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>{{ __('Assign Roles to Admins') }}</h4>
+                                <h4>{{ __('Assign Roles to 
+                                    Sub Admins') }}</h4>
                             </div>
                             <div class="card-body">
                                 @if(session('success'))
-                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                        {{ session('success') }}
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
+                                    <script>
+                                        // Wait for page to fully load then show toast
+                                        window.addEventListener('load', function() {
+                                            setTimeout(function() {
+                                                toastr.success('{{ session('success') }}');
+                                            }, 500);
+                                        });
+                                    </script>
                                 @endif
 
                                 <form method="POST" action="{{ route('admin.assign-roles.assign') }}">
@@ -35,7 +34,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="admin_id">{{ __('Select Admin') }} <span class="text-danger">*</span></label>
+                                                <label for="admin_id">{{ __('Select Sub Admin') }} <span class="text-danger">*</span></label>
                                                 <select name="admin_id" id="admin_id" class="form-control" required>
                                                     <option value="">{{ __('Select Admin') }}</option>
                                                     @foreach($admins as $admin)
@@ -61,9 +60,6 @@
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="fas fa-save"></i> {{ __('Assign Role') }}
                                             </button>
-                                            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
-                                                <i class="fas fa-times"></i> {{ __('Cancel') }}
-                                            </a>
                                         </div>
                                     </div>
                                 </form>
@@ -84,7 +80,7 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th>{{ __('Admin Name') }}</th>
+                                                <th>{{ __('Sub Admin Name') }}</th>
                                                 <th>{{ __('Email') }}</th>
                                                 <th>{{ __('Current Roles') }}</th>
                                                 <th>{{ __('Action') }}</th>

@@ -11,8 +11,8 @@
                         <div class="row g-0">
                             <div class="col-md-6 d-none d-md-block">
                                 <div class="h-100">
-                                    <img class="h-100 w-100 object-fit-fill" src="{{ asset('public/website/images/logo.webp') }}"
-                                        alt="{{ $setting?->app_name }}">
+                                    <img class="h-100 w-100 object-fit-fill" src="{{ asset('public/website/images/logo2.jpeg') }}"
+                                        alt="HomeService">
                                 </div>
                             </div>
                             <!-- end col -->

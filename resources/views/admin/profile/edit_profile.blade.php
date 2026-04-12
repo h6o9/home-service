@@ -16,8 +16,8 @@
                     <div class="col-12">
                         <div class="card profile-widget">
                             <div class="profile-widget-description">
-                                <form @adminCan('admin.profile.update') action="{{ route('admin.profile-update') }}"
-                                    @endadminCan enctype="multipart/form-data" method="POST">
+                                <form  action="{{ route('admin.profile-update') }}"
+                                    enctype="multipart/form-data" method="POST">
                                     @csrf
                                     @method('PUT')
                                     <div class="row">
@@ -36,13 +36,11 @@
                                                 label="{{ __('Email') }}" value="{{ $admin->email }}" required="true" />
                                         </div>
                                     </div>
-                                    @adminCan('admin.profile.update')
                                         <div class="row">
                                             <div class="col-12">
                                                 <x-admin.update-button :text="__('Update')" />
                                             </div>
                                         </div>
-                                    @endadminCan
                                 </form>
                             </div>
 
@@ -59,8 +57,8 @@
                     <div class="col-12">
                         <div class="card ">
                             <div class="card-body">
-                                <form @adminCan('admin.profile.update') action="{{ route('admin.update-password') }}"
-                                    @endadminCan enctype="multipart/form-data" method="POST">
+                                <form  action="{{ route('admin.update-password') }}"
+                                    enctype="multipart/form-data" method="POST">
                                     @csrf
                                     @method('PUT')
                                     <div class="row">
@@ -78,13 +76,11 @@
                                         </div>
 
                                     </div>
-                                    @adminCan('admin.profile.update')
                                         <div class="row">
                                             <div class="col-12">
                                                 <x-admin.update-button id="update-btn-2" :text="__('Update')" />
                                             </div>
                                         </div>
-                                    @endadminCan
                                 </form>
                             </div>
                         </div>

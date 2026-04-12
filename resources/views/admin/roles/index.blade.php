@@ -5,7 +5,7 @@
 @section('admin-content')
     <div class="main-content">
         <section class="section">
-            <x-admin.breadcrumb title="{{ __('Create Role') }}" :list="[
+            <x-admin.breadcrumb title="{{ __('Manage Role') }}" :list="[
                 __('Dashboard') => route('admin.dashboard'),
                 __('Settings') => route('admin.settings'),
                 __('Manage Roles') => '#',
@@ -21,12 +21,6 @@
                                     @adminCan('role.create')
                                         <x-admin.add-button :href="route('admin.role.create')" />
                                     @endadminCan
-                                    @if ($admins_exists)
-                                        @adminCan('role.assign')
-                                            <a href="{{ route('admin.role.assign') }}" class="btn btn-success"><i
-                                                    class="fa fa-sync"></i> {{ __('Assign Role') }}</a>
-                                        @endadminCan
-                                    @endif
                                 </div>
                             </div>
                             <div class="card-body">

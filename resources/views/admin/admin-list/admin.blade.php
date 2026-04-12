@@ -1,15 +1,12 @@
 @extends('admin.master_layout')
 @section('title')
-    <title>{{ __('Manage Admin') }}</title>
+    <title>{{ __('Manage Sub Admin') }}</title>
 @endsection
 @section('admin-content')
     <!-- Main Content -->
     <div class="main-content">
         <section class="section">
-            <x-admin.breadcrumb title="{{ __('Manage Admin') }}" :list="[
-                __('Dashboard') => route('admin.dashboard'),
-                __('Settings') => route('admin.settings'),
-                __('Manage Admin') => '#',
+            <x-admin.breadcrumb title="{{ __('Manage Sub Admin') }}" :list="[
             ]" />
 
             <div class="section-body">
@@ -17,7 +14,7 @@
                     <div class="col">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
-                                <x-admin.form-title :text="__('Manage Admin')" />
+                                <x-admin.form-title :text="__('Manage Sub Admin')" /> 
                                 <div>
                                     @adminCan('admin.create')
                                         <x-admin.add-button :href="route('admin.admin.create')" />
@@ -32,7 +29,6 @@
                                                 <th>{{ __('SN') }}</th>
                                                 <th>{{ __('Name') }}</th>
                                                 <th>{{ __('Email') }}</th>
-                                                <th>{{ __('Roles') }}</th>
                                                 @adminCan('admin.update')
                                                     <th>{{ __('Status') }}</th>
                                                 @endadminCan
@@ -47,10 +43,7 @@
                                                     <td>{{ ++$index }}</td>
                                                     <td>{{ $admin->name }}</td>
                                                     <td>{{ $admin->email }}</td>
-                                                    <td>
-                                                        {{ $admin->getRoleNames() }}
-                                                    </td>
-                                                    @adminCan('admin.update')
+                                                 
                                                         <td>
                                                             <input onchange="changeAdminStatus({{ $admin->id }})"
                                                                 id="status_toggle" type="checkbox"
@@ -59,7 +52,7 @@
                                                                 data-offlabel="{{ __('Inactive') }}" data-onstyle="success"
                                                                 data-offstyle="danger">
                                                         </td>
-                                                    @endadminCan
+                                              
                                                     @if (checkAdminHasPermission('admin.edit') || checkAdminHasPermission('admin.delete'))
                                                         <td>
                                                             @adminCan('admin.edit')

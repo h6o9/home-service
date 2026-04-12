@@ -40,10 +40,6 @@
                                                             role="alert"><strong>{{ $message }}</strong></span>
                                                     @enderror
                                                 </div>
-                                                <div class="alert alert-info">
-                                                    <i class="fas fa-info-circle"></i>
-                                                    {{ __('After creating the role, you can assign permissions from the "Assign Permissions" page.') }}
-                                                </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-12">
