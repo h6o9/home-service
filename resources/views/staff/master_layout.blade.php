@@ -29,6 +29,7 @@
                     <ul class="navbar-nav d-flex align-items-center">
                         <li><a class="nav-link nav-link-lg" data-toggle="sidebar" href="#"><i
                                     class="fas fa-bars"></i></a></li>
+																		<p style="margin: 0; padding: 0; color: #ffffff; font-size: 20px;">Loy Madok Panel</p>
                         <!-- @if (Module::isEnabled('Language') && Route::has('set-language') && allLanguages()?->where('status', 1)->count() > 1)
                             <li class="setLanguageHeader dropdown border rounded-2"><a
                                     class="nav-link dropdown-toggle nav-link-lg nav-link-user" data-bs-toggle="dropdown"
@@ -100,14 +101,9 @@
                 <ul class="navbar-nav">
                     <!-- @include('admin.partials.notifications', [
                         'adminNotifications' => Cache::get('admin-notifications', collect([])),
-                    ])
+                    ]) -->
 
-                    <li class="dropdown rounded-2 mx-2 dropdown-list-toggle">
-                        <a class="nav-link nav-link-lg" href="{{ route('website.home') }}"
-                            title="{{ __('Visit Website') }}" target="_blank">
-                            <i class="fas fa-home"></i>
-                        </a>
-                    </li> -->
+                   
 
                     <li class="dropdown"><a class="nav-link dropdown-toggle nav-link-lg nav-link-user dropdown_user"
                             data-bs-toggle="dropdown" href="javascript:;">

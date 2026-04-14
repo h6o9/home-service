@@ -46,12 +46,14 @@
                                                     <td>{{ $staff->email }}</td>
                                                     <td>{{ $staff->phone }}</td>
 													<td>
+                                                        @can('staff.edit')
 														<input onchange="changeStaffStatus({{ $staff->id }})"
                                                         id="status_toggle_{{ $staff->id }}" type="checkbox"
                                                         {{ $staff->status == 1 ? 'checked' : '' }}
                                                         data-toggle="toggle" data-onlabel="{{ __('Active') }}"
                                                         data-offlabel="{{ __('Inactive') }}" data-onstyle="success"
                                                         data-offstyle="danger">
+                                                        @endcan
                                                     </td>
 
                                                     <td>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Shop;
 use App\Models\Staff;
 use App\Models\StaffJob;
+use App\Models\ShopCategory;
 use Illuminate\Http\Request;
 use App\Enums\RedirectType;
 use App\Traits\RedirectHelperTrait;
@@ -85,4 +86,46 @@ class ShopManagementController extends Controller
 
         return response()->json($staff);
     }
+
+    public function Shopindex() {
+        $categories = ShopCategory::latest()->paginate(10);
+        return view('admin.shop-management.categories', compact('categories'));
+    }
+
+  public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|unique:shop_categories|max:255',
+        'is_active' => 'required|boolean',
+    ]);
+
+    ShopCategory::create([
+        'name' => $request->name,
+        'is_active' => $request->is_active
+    ]);
+
+    return response()->json(['message' => 'Category created successfully!']);
+}
+
+// Status Update
+public function updateStatus($id)
+{
+    $category = ShopCategory::findOrFail($id);
+    $category->is_active = !$category->is_active;
+    $category->save();
+    
+    $status = $category->is_active ? 'activated' : 'deactivated';
+    return response()->json(['message' => "Status updated successfully"]);
+}
+
+// Delete
+public function destroy($id)
+{
+    $category = ShopCategory::findOrFail($id);
+    
+    $category->delete();
+    return response()->json(['message' => 'Deleted successfully!']);
+}
+
+    
 }

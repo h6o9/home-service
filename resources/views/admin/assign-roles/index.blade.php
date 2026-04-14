@@ -8,7 +8,7 @@
     <div class="main-content">
         <section class="section">
             <x-admin.breadcrumb title="{{ __('Assign Roles') }}" :list="[
-            ]" /> <small class="font-weight-bold text-danger"> (The default password for all staff members is 12345678. This password is automatically generated when a new sub admin is created.)</small>
+            ]" /> 
             <div class="section-body">
                 <div class="row">
                     <div class="col-12">

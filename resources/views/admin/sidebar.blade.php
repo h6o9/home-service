@@ -91,7 +91,6 @@
                     </a>
                 </li>
                 @endcan
-
                 @can('role.assign')
                 <li class="{{ isRoute('assign.permissions.form', 'active') }}">
                     <a href="{{ route('assign.permissions.form') }}">
@@ -100,7 +99,14 @@
                     </a>
                 </li>
                 @endcan
-
+                 @can('admin.view')
+                <li class="{{ isRoute('admin.admin.index', 'active') }}">
+                    <a href="{{ route('admin.admin.index') }}">
+                        <i class="fas fa-user-plus"></i>
+                        <span>{{ __('Add Sub Admin') }}</span>
+                    </a>
+                </li>
+                @endcan
                 @can('role.assign')
                 <li class="{{ isRoute('admin.assign-roles.index', 'active') }}">
                     <a href="{{ route('admin.assign-roles.index') }}">
@@ -115,15 +121,6 @@
                     <a href="{{ route('admin.activity-logs.index') }}">
                         <i class="fas fa-history"></i>
                         <span>{{ __('Activity Logs') }}</span>
-                    </a>
-                </li>
-                @endcan
-
-                @can('admin.view')
-                <li class="{{ isRoute('admin.admin.index', 'active') }}">
-                    <a href="{{ route('admin.admin.index') }}">
-                        <i class="fas fa-user-plus"></i>
-                        <span>{{ __('Add Sub Admin') }}</span>
                     </a>
                 </li>
                 @endcan
@@ -148,7 +145,7 @@
                 @endcan
 
                 @can('staff.create')
-                <li>
+                <li class="{{ isRoute('admin.staff.create', 'active') }}">
                     <a href="{{ route('admin.staff.create') }}">
                         <i class="fas fa-user-plus"></i>
                         <span>{{ __('Add Staff') }}</span>
@@ -179,6 +176,15 @@
                     <a href="{{ route('admin.shop-management.index') }}">
                         <i class="fas fa-store"></i>
                         <span>{{ __('Shop List') }}</span>
+                    </a>
+                </li>
+                @endcan
+
+                @can('shop.category.view')
+                <li class="{{ isRoute('admin.shop-categories.index', 'active') }}">
+                    <a href="{{ route('admin.shop-categories.index') }}">
+                        <i class="fas fa-tags"></i>
+                        <span>{{ __('Shop Categories') }}</span>
                     </a>
                 </li>
                 @endcan

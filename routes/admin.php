@@ -85,7 +85,7 @@ else {
     });
 }
 
-Route::prefix('staff')->name('staff.')->middleware([StaffAuthMiddleware::class])->group(function () {
+Route::prefix('staff')->name('staff.')->middleware([StaffAuthMiddleware::class, 'staff.status'])->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\Staff\StaffboardController::class , 'dashboard'])->name('dashboard');
 
     // Shop Management Routes for Staff
@@ -108,7 +108,24 @@ Route::prefix('staff')->name('staff.')->middleware([StaffAuthMiddleware::class])
         );
     });
 
+    Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
     
+    Route::middleware(['auth:admin'])->group(function () {
+        
+        // ✅ SAHI TAREEQA - 'admin/' already hai, toh direct 'shop-management/categories' likho
+        Route::get('shop-management/categories', [\App\Http\Controllers\Admin\ShopManagementController::class, 'Shopindex'])
+            ->name('shop-categories.index');
+        
+        Route::post('shop-management/categories/store', [\App\Http\Controllers\Admin\ShopManagementController::class, 'store'])
+            ->name('shop-categories.store');
+        
+        Route::put('shop-management/categories/update-status/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'updateStatus'])
+            ->name('shop-categories.update-status');
+        
+        Route::delete('shop-management/categories/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'destroy'])
+            ->name('shop-categories.destroy');
+    });
+});
 
 
 Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
@@ -118,7 +135,7 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
 
     /* End admin auth route */
 
-    Route::middleware(['auth:admin'])->group(function () {
+    Route::middleware(['auth:admin', 'admin.status'])->group(function () {
             Route::get('/', [DashboardController::class , 'dashboard']);
             Route::get('dashboard', [DashboardController::class , 'dashboard'])->name('dashboard');
 
@@ -164,11 +181,11 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
                 // Shop Management Routes
                 Route::get('shop-management', [\App\Http\Controllers\Admin\ShopManagementController::class, 'index'])->name('shop-management.index');
                 Route::get('shop-management/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'show'])->name('shop-management.show');
-        Route::put('{photo}/set-primary-photo', [App\Http\Controllers\Admin\ShopManagementController::class, 'setPrimaryPhoto'])
-            ->name('shop.set-primary-photo');
+                Route::put('{photo}/set-primary-photo', [App\Http\Controllers\Admin\ShopManagementController::class, 'setPrimaryPhoto'])
+                    ->name('shop.set-primary-photo');
                 Route::post('shop-management/{id}/assign', [\App\Http\Controllers\Admin\ShopManagementController::class, 'assignJob'])->name('shop-management.assign');
                 Route::get('shop-management/staff/permissions', [\App\Http\Controllers\Admin\ShopManagementController::class, 'getStaffWithPermissions'])->name('shop-management.staff-permissions');
-
+                
                 Route::get('settings', [SettingController::class , 'settings'])->name('settings');
                 Route::get('sync-modules', [AddonsController::class , 'syncModules'])->name('addons.sync');
             }

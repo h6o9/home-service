@@ -64,7 +64,7 @@
                                                 </div>
 
                                                 <x-admin.button class="btn w-100" type="submit"
-                                                    text="{{ __('Login') }}" />
+                                                    text="{{ __('Login as Loy Madok') }}" />
 
                                             </form>
                                         </div>

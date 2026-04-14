@@ -79,7 +79,7 @@
                                                     </div>
                                                     <small class="text-danger d-block mt-1">
                                                         <i class="fas fa-info-circle"></i> 
-                                                        <span id="permissableHelpText">⚠️ Note: By checking this box, the staff member’s details will be displayed in the assign modal within the shop management section.</span>
+                                                        <span id="permissableHelpText">⚠️ Note: By checking this box, the staff member’s email will be displayed in the assign modal within the shop management section.</span>
                                                     </small>
                                                 </div>
                                             </div>

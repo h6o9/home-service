@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers\Staff;
 
+use App\Enums\RedirectType;
 use App\Http\Controllers\Controller;
 use App\Models\Shop;
+use App\Models\ShopCategory;
 use App\Models\ShopPhoto;
+use App\Traits\RedirectHelper;
+use App\Traits\RedirectHelperTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use App\Traits\RedirectHelper;
-use App\Enums\RedirectType;
-use App\Traits\RedirectHelperTrait;
+use Illuminate\Validation\Rule;
 
 class ShopController extends Controller
 {
@@ -40,86 +42,124 @@ class ShopController extends Controller
             abort(403, 'You do not have permission to create shops.');
         }
 
-        return view('staff.shop.create');
+ 		$shopCategories = ShopCategory::where('is_active', 1)->get();
+         return view('staff.shop.create', compact('shopCategories'));
     }
 
     /**
      * Store a newly created shop in storage.
      */
-    public function store(Request $request)
-    {
-        // Check if staff has permission to create shops
-        if (!auth('staff')->user()->hasPermission('shop_management', 'can_create')) {
-            abort(403, 'You do not have permission to create shops.');
-        }
-
-        // Validation rules
-        $validated = $request->validate([
-            'shop_name' => 'required|string|max:255',
-            'category' => 'required|in:electrician,wifi_controller,solar,plumber',
-            'owner_name' => 'required|string|max:255',
-            'phone_number' => 'required|string|max:20',
-            'whatsapp_number' => 'required|string|max:20',
-            'address' => 'required|string',
-            'about_shop' => 'required|string',
-            'shop_photos' => 'nullable|array',
-            'shop_photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        // Create shop record
-        $shop = Shop::create([
-            'shop_name' => $validated['shop_name'],
-            'category' => $validated['category'],
-            'owner_name' => $validated['owner_name'],
-            'phone_number' => $validated['phone_number'],
-            'whatsapp_number' => $validated['whatsapp_number'],
-            'address' => $validated['address'],
-            'about_shop' => $validated['about_shop'],
-            'slug' => Str::slug($validated['shop_name']) . '-' . uniqid(),
-            'staff_id' => auth('staff')->id(),
-        ]);
-
-        // Handle multiple photos upload
-        if ($request->hasFile('shop_photos')) {
-            foreach ($request->file('shop_photos') as $photo) {
-                try {
-                    $publicPath = public_path('storage/shop-photos');
-                    if (!file_exists($publicPath)) {
-                        mkdir($publicPath, 0755, true);
-                    }
-                    
-                    $filename = 'shop_' . $shop->id . '_' . time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
-                    
-                    if ($photo->move($publicPath, $filename)) {
-                        ShopPhoto::create([
-                            'shop_id' => $shop->id,
-                            'photo_path' => 'shop-photos/' . $filename,
-                            'is_primary' => false,
-                        ]);
-                    }
-                } catch (\Exception $e) {
-                    \Log::error('Photo upload failed: ' . $e->getMessage());
-                }
-            }
-
-            // Set the first photo as primary
-            if ($shop->photos()->count() > 0) {
-                $firstPhoto = $shop->photos()->first();
-                $firstPhoto->update(['is_primary' => true]);
-            }
-        }
-
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Created successfully!',
-                'shop' => $shop
-            ]);
-        }
-
-        return $this->redirectWithMessage(RedirectType::CREATE->value, 'staff.shop.index');
+   public function store(Request $request)
+{
+    // Check if staff has permission to create shops
+    if (!auth('staff')->user()->hasPermission('shop_management', 'can_create')) {
+        abort(403, 'You do not have permission to create shops.');
     }
 
+    // Get active categories
+    $activeCategories = ShopCategory::where('is_active', 1)->pluck('name')->toArray();
+
+    // Validation rules with custom messages
+    $validated = $request->validate([
+        'shop_name' => 'required|string|max:255',
+        'category' => [
+            'required',
+            Rule::in($activeCategories)
+        ],
+        'owner_name' => 'required|string|max:255',
+        'phone_number' => 'required|string|max:20',
+        'whatsapp_number' => 'required|string|max:20',
+        'address' => 'required|string',
+        'about_shop' => 'required|string',
+        'shop_photos' => 'nullable|array',
+        'shop_photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+    ], [
+        // Custom error messages without array index
+        'shop_name.required' => 'Shop name is required.',
+        'shop_name.max' => 'Shop name must not exceed 255 characters.',
+        
+        'category.required' => 'Please select a category.',
+        'category.in' => 'Selected category is invalid or inactive.',
+        
+        'owner_name.required' => 'Owner name is required.',
+        'owner_name.max' => 'Owner name must not exceed 255 characters.',
+        
+        'phone_number.required' => 'Phone number is required.',
+        'phone_number.max' => 'Phone number must not exceed 20 characters.',
+        
+        'whatsapp_number.required' => 'WhatsApp number is required.',
+        'whatsapp_number.max' => 'WhatsApp number must not exceed 20 characters.',
+        
+        'address.required' => 'Address is required.',
+        
+        'about_shop.required' => 'Please provide information about the shop.',
+        
+        'shop_photos.*.image' => 'Each file must be a valid image.',
+        'shop_photos.*.mimes' => 'Photo must be a file of type: JPEG, PNG, JPG, or GIF.',
+        'shop_photos.*.max' => 'Each photo must not exceed 2MB in size.',
+    ]);
+
+    // Create shop record
+    $shop = Shop::create([
+        'shop_name' => $validated['shop_name'],
+        'category' => $validated['category'],
+        'owner_name' => $validated['owner_name'],
+        'phone_number' => $validated['phone_number'],
+        'whatsapp_number' => $validated['whatsapp_number'],
+        'address' => $validated['address'],
+        'about_shop' => $validated['about_shop'],
+        'slug' => Str::slug($validated['shop_name']) . '-' . uniqid(),
+        'staff_id' => auth('staff')->id(),
+    ]);
+
+    // Handle multiple photos upload
+    $photoErrors = [];
+    if ($request->hasFile('shop_photos')) {
+        foreach ($request->file('shop_photos') as $index => $photo) {
+            try {
+                $publicPath = public_path('storage/shop-photos');
+                if (!file_exists($publicPath)) {
+                    mkdir($publicPath, 0755, true);
+                }
+                
+                $filename = 'shop_' . $shop->id . '_' . time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+                
+                if ($photo->move($publicPath, $filename)) {
+                    ShopPhoto::create([
+                        'shop_id' => $shop->id,
+                        'photo_path' => 'shop-photos/' . $filename,
+                        'is_primary' => false,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                $photoErrors[] = "Photo " . ($index + 1) . " could not be uploaded.";
+                \Log::error('Photo upload failed: ' . $e->getMessage());
+            }
+        }
+
+        // Set the first photo as primary
+        if ($shop->photos()->count() > 0) {
+            $firstPhoto = $shop->photos()->first();
+            $firstPhoto->update(['is_primary' => true]);
+        }
+    }
+
+    if ($request->ajax()) {
+        $response = [
+            'success' => true,
+            'message' => 'Shop created successfully!',
+            'shop' => $shop
+        ];
+        
+        if (!empty($photoErrors)) {
+            $response['photo_warnings'] = $photoErrors;
+        }
+        
+        return response()->json($response);
+    }
+
+    return $this->redirectWithMessage(RedirectType::CREATE->value, 'staff.shop.index');
+}
     /**
      * Display the specified shop.
      */
@@ -139,7 +179,8 @@ class ShopController extends Controller
         }
         
         $shop = Shop::with('photos')->findOrFail($id);
-        return view('staff.shop.edit', compact('shop'));
+        $shopCategories = ShopCategory::where('is_active', 1)->get();
+        return view('staff.shop.edit', compact('shop', 'shopCategories'));
     }
 
     /**
@@ -155,7 +196,10 @@ class ShopController extends Controller
 
         $validated = $request->validate([
             'shop_name' => 'required|string|max:255',
-            'category' => 'required|in:electrician,wifi_controller,solar,plumber',
+            'category' => [
+                'required',
+                Rule::in(ShopCategory::where('is_active', 1)->pluck('name')->toArray())
+            ],
             'owner_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:20',
             'whatsapp_number' => 'required|string|max:20',

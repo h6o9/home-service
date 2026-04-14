@@ -54,13 +54,14 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="category">{{ __('Category') }} <span class="text-danger">*</span></label>
-                                                <select id="category" name="category" class="form-control clear-error">
-                                                    <option value="">{{ __('Select Category') }}</option>
-                                                    <option value="electrician" {{ old('category') == 'electrician' ? 'selected' : '' }}>{{ __('Electrician') }}</option>
-                                                    <option value="wifi_controller" {{ old('category') == 'wifi_controller' ? 'selected' : '' }}>{{ __('Wifi Controller') }}</option>
-                                                    <option value="solar" {{ old('category') == 'solar' ? 'selected' : '' }}>{{ __('Solar') }}</option>
-                                                    <option value="plumber" {{ old('category') == 'plumber' ? 'selected' : '' }}>{{ __('Plumber') }}</option>
-                                                </select>
+                                               <select id="category" name="category" class="form-control clear-error">
+    <option value="">{{ __('Select Category') }}</option>
+    @foreach($shopCategories as $category)
+        <option value="{{ $category->name }}" {{ old('category') == $category->name ? 'selected' : '' }}>
+            {{ __($category->name) }}
+        </option>
+    @endforeach
+</select>
                                                 @error('category')
                                                     <span class="text-danger error-message" style="display: inline-block;">{{ $message }}</span>
                                                 @enderror   

@@ -19,7 +19,7 @@ Route::get('clear/cache', function () {
 Route::middleware(['translation', 'maintenance.mode'])->group(
     function () {
         Route::name('website.')->controller(HomeController::class)->group(function () {
-            Route::get('/', 'index')->name('home');
+            // Route::get('/', 'index')->name('home');
             Route::get('/categories', 'categories')->name('categories');
             Route::get('/products', 'products')->name('products');
             Route::get('/products/{product:slug}', 'product')->name('product');

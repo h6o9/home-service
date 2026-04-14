@@ -39,10 +39,11 @@
                                                 <label for="category">{{ __('Category') }} <span class="text-danger">*</span></label>
                                                 <select id="category" name="category" class="form-control">
                                                     <option value="">{{ __('Select Category') }}</option>
-                                                    <option value="electrician" {{ old('category', $shop->category) == 'electrician' ? 'selected' : '' }}>{{ __('Electrician') }}</option>
-                                                    <option value="wifi_controller" {{ old('category', $shop->category) == 'wifi_controller' ? 'selected' : '' }}>{{ __('Wifi Controller') }}</option>
-                                                    <option value="solar" {{ old('category', $shop->category) == 'solar' ? 'selected' : '' }}>{{ __('Solar') }}</option>
-                                                    <option value="plumber" {{ old('category', $shop->category) == 'plumber' ? 'selected' : '' }}>{{ __('Plumber') }}</option>
+                                                    @foreach($shopCategories as $category)
+                                                        <option value="{{ $category->name }}" {{ old('category', $shop->category) == $category->name ? 'selected' : '' }}>
+                                                            {{ __($category->name) }}
+                                                        </option>
+                                                    @endforeach
                                                 </select>
                                                 @error('category')
                                                     <span class="text-danger">{{ $message }}</span>

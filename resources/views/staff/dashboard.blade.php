@@ -2,6 +2,7 @@
 @section('title')
     <title>{{ __('Dashboard') }}</title>
 @endsection
+
 @section('staff-content')
     <!-- Main Content -->
     <div class="main-content">
@@ -48,7 +49,6 @@
                     </div>
                     
                     @if(auth('staff')->user()->hasPermission('shop_management', 'can_create'))
-                    <!-- Shop Management Card -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                         <div class="card quick-action-card" data-action="add-shop" style="border: 1px solid #e3e3e3; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s;">
                             <div style="display: flex; align-items: center;">
@@ -65,7 +65,6 @@
                     @endif
                     
                     @if(auth('staff')->user()->hasPermission('shop_management', 'can_view'))
-                    <!-- Shop List Card -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                         <a href="{{ route('staff.shop.index') }}" class="text-decoration-none">
                             <div class="card" style="border: 1px solid #e3e3e3; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s;">
@@ -88,12 +87,12 @@
     </div>
 
     @if(auth('staff')->user()->hasPermission('shop_management', 'can_create'))
-    <!-- Add Shop Modal (Single Step Form) -->
+    <!-- Add Shop Modal -->
     <div class="modal fade" id="addShopModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Shop</h5>
+                <div class="modal-header" style="background: #f8f9fa;">
+                    <h5 class="modal-title" style="font-weight: 600;">Add New Shop</h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -109,16 +108,15 @@
                                     <span class="text-danger error-message" id="error-shop_name" style="display: none;"></span>
                                 </div>
                             </div>
-
+                         
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="category">Category <span class="text-danger">*</span></label>
                                     <select id="category" name="category" class="form-control clear-error">
-                                        <option value="">Select Category</option>
-                                        <option value="electrician">🔌 Electrician</option>
-                                        <option value="wifi_controller">📶 Wifi Controller</option>
-                                        <option value="solar">☀️ Solar</option>
-                                        <option value="plumber">🚰 Plumber</option>
+                                        <option value="" disabled selected>{{ __('Select Category') }}</option>
+                                        @foreach($shopCategories as $category)
+                                            <option value="{{ $category->name }}">{{ __($category->name) }}</option>
+                                        @endforeach
                                     </select>
                                     <span class="text-danger error-message" id="error-category" style="display: none;"></span>
                                 </div>
@@ -175,7 +173,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="shop_photos">Shop Photos</label>
-                                    <input type="file" id="shop_photos" name="shop_photos[]" class="form-control clear-error" multiple accept="image/*">
+                                    <input type="file" id="shop_photos" name="shop_photos[]" class="form-control clear-error" multiple accept="image/jpeg,image/png,image/jpg,image/gif">
                                     <small class="form-text text-muted">You can select multiple photos. Allowed formats: jpg, jpeg, png, gif (Max 2MB each)</small>
                                     <span class="text-danger error-message" id="error-shop_photos" style="display: none;"></span>
                                 </div>
@@ -185,7 +183,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="submitBtn">Save Shop</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" style="background-color: #0047d9;">Save Shop</button>
                     </div>
                 </form>
             </div>
@@ -196,7 +194,7 @@
 
 @push('css')
     <style>
-        /* Responsive Design for Mobile */
+        /* Responsive Design */
         @media (max-width: 768px) {
             .quick-action-card {
                 margin-bottom: 15px !important;
@@ -312,6 +310,45 @@
             margin: 5px;
             border: 1px solid #ddd;
         }
+        
+        .preview-item {
+            position: relative;
+            display: inline-block;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        
+        .preview-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .remove-photo {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .preview-item:hover .remove-photo {
+            display: block;
+        }
+        
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        
+        .error-message {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #dc3545;
+        }
     </style>
 @endpush
 
@@ -362,18 +399,43 @@
                 $(this).removeClass('is-invalid');
             });
             
-            // Photo preview
+            // Photo preview with remove option
             $('#shop_photos').on('change', function() {
                 const files = this.files;
                 $('#photoPreview').empty();
                 
                 for(let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const fileType = file.type;
+                    const fileSize = file.size / 1024 / 1024;
+                    
+                    if(!fileType.match(/image\/(jpeg|png|jpg|gif)/)) {
+                        toastr.error(`Photo ${i+1}: Invalid file type. Only JPEG, PNG, JPG, GIF allowed.`);
+                        continue;
+                    }
+                    
+                    if(fileSize > 2) {
+                        toastr.error(`Photo ${i+1}: File size must not exceed 2MB.`);
+                        continue;
+                    }
+                    
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        $('#photoPreview').append(`<img src="${e.target.result}" class="img-fluid rounded" style="width: 100px; height: 100px; object-fit: cover; margin: 5px;">`);
+                        $('#photoPreview').append(`
+                            <div class="preview-item">
+                                <img src="${e.target.result}" class="img-fluid rounded" style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ddd;">
+                                <button type="button" class="remove-photo btn btn-danger btn-sm" data-index="${i}">×</button>
+                            </div>
+                        `);
                     }
-                    reader.readAsDataURL(files[i]);
+                    reader.readAsDataURL(file);
                 }
+            });
+            
+            // Remove photo
+            $(document).on('click', '.remove-photo', function() {
+                $(this).closest('.preview-item').remove();
+                $('#shop_photos').val('');
             });
             
             // Form submit with AJAX
@@ -398,62 +460,79 @@
                     contentType: false,
                     success: function(response) {
                         if(response.success) {
-                            // Show success toast
-                            if(typeof toastr !== 'undefined') {
-                                toastr.success('Shop created successfully!', 'Success');
-                            } else {
-                                // Fallback to SweetAlert
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Success!',
-                                    text: 'Shop created successfully!',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                });
-                            }
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.message || 'Shop created successfully!',
+                                confirmButtonColor: '#0047d9',
+                                confirmButtonText: 'OK',
+                                timer: 3000,
+                                showConfirmButton: true
+                            });
                             
                             $('#addShopModal').modal('hide');
                             resetForm();
                             
                             setTimeout(() => {
                                 location.reload();
-                            }, 2000);
+                            }, 3000);
                         }
                     },
                     error: function(xhr) {
                         if(xhr.status === 422) {
                             const errors = xhr.responseJSON.errors;
+                            let errorHtml = '<ul style="text-align: left; margin: 0; padding-left: 20px;">';
                             
-                            // Display each error
                             for(let field in errors) {
-                                const errorMsg = errors[field][0];
-                                const errorId = '#error-' + field.replace('[]', '');
-                                $(errorId).text(errorMsg).show();
+                                let errorText = errors[field][0];
+                                
+                                if(field.includes('shop_photos.')) {
+                                    errorText = errorText.replace(/shop_photos\.\d+ /g, '');
+                                    errorText = errorText.replace(/shop_photos\.\d+/, 'Photo');
+                                }
+                                
+                                let fieldName = field.replace(/\.\d+$/, '');
+                                fieldName = fieldName.replace(/_/g, ' ');
+                                fieldName = fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+                                
+                                if(fieldName === 'Shop photos') {
+                                    fieldName = 'Photo';
+                                }
+                                
+                                errorHtml += `<li><strong>${fieldName}:</strong> ${errorText}</li>`;
+                                
+                                let cleanField = field.replace(/\.\d+$/, '');
+                                let errorId = '#error-' + cleanField;
+                                
+                                if(field.includes('shop_photos.')) {
+                                    errorText = errorText.replace(/shop_photos\.\d+ /g, '');
+                                }
+                                
+                                $(errorId).text(errorText).show();
                                 $(`[name="${field}"]`).addClass('is-invalid');
                             }
+                            errorHtml += '</ul>';
                             
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Validation Error',
-                                text: 'Please check the form for errors.',
-                                timer: 3000,
-                                showConfirmButton: true
+                                title: 'Please fix the following errors:',
+                                html: errorHtml,
+                                confirmButtonColor: '#0047d9',
+                                confirmButtonText: 'OK'
                             });
                         } else if(xhr.status === 403) {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Permission Denied',
                                 text: xhr.responseJSON.message || 'You do not have permission to create shops.',
-                                timer: 3000,
-                                showConfirmButton: true
+                                confirmButtonColor: '#0047d9'
                             });
                         } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error!',
                                 text: xhr.responseJSON?.message || 'Something went wrong. Please try again.',
-                                timer: 3000,
-                                showConfirmButton: true
+                                confirmButtonColor: '#0047d9'
                             });
                         }
                     },

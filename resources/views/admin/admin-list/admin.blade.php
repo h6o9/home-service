@@ -6,7 +6,7 @@
     <!-- Main Content -->
     <div class="main-content">
         <section class="section">
-            <x-admin.breadcrumb title="{{ __('Manage Sub Admin') }}" :list="[
+            <x-admin.breadcrumb title="{{ __('Manage Sub Admins') }}" :list="[
             ]" />
 
             <div class="section-body">
@@ -14,7 +14,7 @@
                     <div class="col">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
-                                <x-admin.form-title :text="__('Manage Sub Admin')" /> 
+                                <x-admin.form-title :text="__('Manage Sub Admins')" /><small class="font-weight-bold text-danger">(The default password for all sub-admins is 12345678. This password is automatically generated when a new sub-admin is created. The Admin Panel will only be accessible to a sub-admin once a role has been assigned to them.)</small>
                                 <div>
                                     @adminCan('admin.create')
                                         <x-admin.add-button :href="route('admin.admin.create')" />
@@ -29,9 +29,9 @@
                                                 <th>{{ __('SN') }}</th>
                                                 <th>{{ __('Name') }}</th>
                                                 <th>{{ __('Email') }}</th>
-                                                @adminCan('admin.update')
+                                            
                                                     <th>{{ __('Status') }}</th>
-                                                @endadminCan
+                                               
                                                 @if (checkAdminHasPermission('admin.edit') || checkAdminHasPermission('admin.delete'))
                                                     <th>{{ __('Action') }}</th>
                                                 @endif
@@ -45,12 +45,14 @@
                                                     <td>{{ $admin->email }}</td>
                                                  
                                                         <td>
+                                                            @adminCan('admin.edit')
                                                             <input onchange="changeAdminStatus({{ $admin->id }})"
                                                                 id="status_toggle" type="checkbox"
                                                                 {{ $admin->status == 'active' ? 'checked' : '' }}
                                                                 data-toggle="toggle" data-onlabel="{{ __('Active') }}"
                                                                 data-offlabel="{{ __('Inactive') }}" data-onstyle="success"
                                                                 data-offstyle="danger">
+                                                                @endadminCan
                                                         </td>
                                               
                                                     @if (checkAdminHasPermission('admin.edit') || checkAdminHasPermission('admin.delete'))

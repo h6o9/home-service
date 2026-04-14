@@ -72,5 +72,7 @@ class Kernel extends HttpKernel
         'verified'         => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'translation'      => \App\Http\Middleware\SetLocaleMiddleware::class,
         'check.vendor'     => \App\Http\Middleware\IsVendorMiddleware::class,
+        'admin.status'     => \App\Http\Middleware\CheckAdminStatus::class,
+        'staff.status'     => \App\Http\Middleware\CheckStaffStatus::class,
     ];
 }

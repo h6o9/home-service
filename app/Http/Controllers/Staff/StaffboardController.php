@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shop;
+use App\Models\ShopCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -82,8 +83,9 @@ class StaffboardController extends Controller
         [$cardData['sellChartLabels'], $cardData['sellChartValues'], $cardData['sellChartAmount']]   = $this->getBalanceData();
         [$cardData['salesChartLabels'], $cardData['salesChartValues'], $cardData['salesChartCount']] = $this->getSalesCountData();
     	$totalShops = Shop::count();
+		 $shopCategories = ShopCategory::where('is_active', 1)->get();
 
-        return view('staff.dashboard', compact( 'totalShops', 'todayOrders', 'totalOrders', 'monthlyOrders', 'yearlyOrders', 'products', 'reviews', 'reports', 'totalWithdraw', 'totalPendingWithdraw', 'cardData'));
+        return view('staff.dashboard', compact( 'totalShops', 'todayOrders', 'totalOrders', 'monthlyOrders', 'yearlyOrders', 'products', 'reviews', 'reports', 'totalWithdraw', 'totalPendingWithdraw', 'cardData' , 'shopCategories'));
     }
 
     public function getBalanceData()
