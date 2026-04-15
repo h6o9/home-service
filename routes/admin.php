@@ -106,6 +106,12 @@ Route::prefix('staff')->name('staff.')->middleware([StaffAuthMiddleware::class, 
             Route::put('update-password', 'update_password')->name('update-password');
         }
         );
+        
+        // Staff Jobs Routes
+        Route::get('jobs', [\App\Http\Controllers\Staff\JobController::class, 'index'])->name('jobs.index');
+        Route::get('jobs/{id}', [\App\Http\Controllers\Staff\JobController::class, 'show'])->name('jobs.show');
+        Route::post('jobs/mark-done/{id}', [\App\Http\Controllers\Staff\JobController::class, 'markAsDone'])->name('jobs.mark-done');
+        Route::post('jobs/mark-undone/{id}', [\App\Http\Controllers\Staff\JobController::class, 'markAsUndone'])->name('jobs.mark-undone');
     });
 
     Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
@@ -180,7 +186,11 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
 
                 // Shop Management Routes
                 Route::get('shop-management', [\App\Http\Controllers\Admin\ShopManagementController::class, 'index'])->name('shop-management.index');
+                Route::get('shop-management/shop-list', [\App\Http\Controllers\Admin\ShopManagementController::class, 'shopList'])->name('shop-management.shop-list');
+                Route::get('shop-management/job-details', [\App\Http\Controllers\Admin\ShopManagementController::class, 'jobDetails'])->name('shop-management.job-details');
+                Route::get('shop-management/job-notes', [\App\Http\Controllers\Admin\ShopManagementController::class, 'jobNotes'])->name('shop-management.job-notes');
                 Route::get('shop-management/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'show'])->name('shop-management.show');
+                Route::post('shop-management/toggle-job-status/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'toggleJobStatus'])->name('shop-management.toggle-job-status');
                 Route::put('{photo}/set-primary-photo', [App\Http\Controllers\Admin\ShopManagementController::class, 'setPrimaryPhoto'])
                     ->name('shop.set-primary-photo');
                 Route::post('shop-management/{id}/assign', [\App\Http\Controllers\Admin\ShopManagementController::class, 'assignJob'])->name('shop-management.assign');

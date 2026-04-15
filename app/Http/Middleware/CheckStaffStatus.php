@@ -20,8 +20,8 @@ class CheckStaffStatus
         if (Auth::guard('staff')->check()) {
             $staff = Auth::guard('staff')->user();
             
-            // Check if staff is inactive
-            if ($staff->status !== 'active') {
+            // Check if staff is inactive (handle both 'active' and '1' as active)
+            if ($staff->status !== 'active' && $staff->status !== '1') {
                 // Logout the staff
                 Auth::guard('staff')->logout();
                 

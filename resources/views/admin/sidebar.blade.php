@@ -172,10 +172,25 @@
                 <li class="menu-header">{{ __('Shop Management') }}</li>
 
                 @can('shop.view')
-                <li class="{{ isRoute('admin.shop-management.index', 'active') }}">
-                    <a href="{{ route('admin.shop-management.index') }}">
+                <li class="{{ isRoute('admin.shop-management.shop-list', 'active') }}">
+                    <a href="{{ route('admin.shop-management.shop-list') }}">
                         <i class="fas fa-store"></i>
                         <span>{{ __('Shop List') }}</span>
+                    </a>
+                </li>
+                @endcan
+                
+                @can('shop.view')
+                <li class="{{ isRoute('admin.shop-management.index', 'active') }}">
+                    <a href="{{ route('admin.shop-management.index') }}">
+                        <i class="fas fa-tasks"></i>
+                        <span>{{ __('Assigned Jobs') }}</span>
+                        @php
+                            $pendingJobsCount = \App\Models\StaffJob::where('status', 'pending')->count();
+                        @endphp
+                        @if($pendingJobsCount > 0)
+                            <span class="badge badge-danger ml-auto">{{ $pendingJobsCount }}</span>
+                        @endif
                     </a>
                 </li>
                 @endcan

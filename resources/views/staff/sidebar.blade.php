@@ -56,6 +56,19 @@
                 </a>
             </li>
 
+            <li class="{{ isRoute('staff.jobs.index', 'active') }}">
+                <a href="{{ route('staff.jobs.index') }}">
+                    <i class="fas fa-tasks"></i>
+                    <span>{{ __('My Jobs') }}</span>
+                    @php
+                        $pendingJobsCount = \App\Models\StaffJob::where('assigned_to', Auth::guard('staff')->id())->where('status', 'pending')->count();
+                    @endphp
+                    @if($pendingJobsCount > 0)
+                        <span class="badge badge-danger ml-auto">{{ $pendingJobsCount }}</span>
+                    @endif
+                </a>
+            </li>
+
         </ul>
     </aside>
 </div>
