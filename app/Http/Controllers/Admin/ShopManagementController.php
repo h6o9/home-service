@@ -17,6 +17,11 @@ class ShopManagementController extends Controller
     
     public function index()
     {
+        // Check if admin has permission to view shop management
+        if (!auth('admin')->user()->hasPermissionTo('view shop-management')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         // Get only staff members who have shop_management permissions with permissable checked
         $allStaff = Staff::where('is_active', true)
             ->whereHas('staffPermissions', function($query) {
@@ -36,6 +41,11 @@ class ShopManagementController extends Controller
 
     public function show($id)
     {
+        // Check if admin has permission to view shop management details
+        if (!auth('admin')->user()->hasPermissionTo('view shop-management')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $shop = Shop::with(['staff', 'jobs.assignedTo', 'jobs.assignedBy'])->findOrFail($id);
         
         // Get only staff members who have shop_management permissions with permissable checked
@@ -53,14 +63,27 @@ class ShopManagementController extends Controller
 
     public function assignJob(Request $request, $shopId)
     {
+        // Check if admin has permission to assign jobs
+        if (!auth('admin')->user()->hasPermissionTo('assign shop-management')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $request->validate([
-            'assigned_to' => 'required|exists:staff,id',
-            'description' => 'nullable|string',
-            'scheduled_date' => 'nullable|date',
-            'scheduled_time' => 'nullable|date_format:H:i',
-            'notes' => 'nullable|string',
-        ]);
-
+        'assigned_to' => 'required|exists:staff,id',
+        'description' => 'required|string|min:5',
+        'scheduled_date' => 'required|date|after_or_equal:today',
+        'scheduled_time' => 'required|date_format:H:i',
+        'notes' => 'nullable|string',
+    ], [
+        'assigned_to.required' => 'Please select a staff member to assign this job.',
+        'assigned_to.exists' => 'Selected staff member does not exist.',
+        'description.required' => 'Job description is required.',
+        'description.min' => 'Job description must be at least 5 characters.',
+        'scheduled_date.required' => 'Please select a scheduled date.',
+        'scheduled_date.after_or_equal' => 'Scheduled date cannot be in the past.',
+        'scheduled_time.required' => 'Please select a scheduled time.',
+        'scheduled_time.date_format' => 'Please enter a valid time format (HH:MM).',
+    ]);
         $shop = Shop::findOrFail($shopId);
         
         StaffJob::create([
@@ -80,6 +103,11 @@ class ShopManagementController extends Controller
 
     public function shopList()
     {
+        // Check if admin has permission to view shop list
+        if (!auth('admin')->user()->hasPermissionTo('view shop-management')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         // Get only staff members who have shop_management permissions with permissable checked
         $allStaff = Staff::where('is_active', true)
             ->whereHas('staffPermissions', function($query) {
@@ -154,6 +182,11 @@ class ShopManagementController extends Controller
 
     public function toggleJobStatus($id)
     {
+        // Check if admin has permission to manage job status
+        if (!auth('admin')->user()->hasPermissionTo('edit shop-management')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $job = StaffJob::findOrFail($id);
         $job->status = $job->status == 'pending' ? 'done' : 'pending';
         $job->save();

@@ -6,8 +6,7 @@
     <!-- Main Content -->
     <div class="main-content">
         <section class="section">
-            <x-admin.breadcrumb title="{{ __('My Jobs') }}" :list="[
-            ]" />
+            <x-admin.breadcrumb title="{{ __('My Jobs') }}" :list="[]" />
 
             <div class="section-body">
                 <div class="mt-4 row">
@@ -23,11 +22,12 @@
                                             <tr>
                                                 <th>{{ __('SN') }}</th>
                                                 <th>{{ __('Shop Name') }}</th>
-                                                <th>{{ __('Description') }}</th>
                                                 <th>{{ __('Assigned By') }}</th>
                                                 <th>{{ __('Scheduled Date') }}</th>
+                                                <th>{{ __('Description') }}</th>
+                                                <th>{{ __('Additional Notes') }}</th>
                                                 <th>{{ __('Status') }}</th>
-                                                <th>{{ __('Actions') }}</th>
+                                                <th>{{ __('Action') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -35,18 +35,49 @@
                                                 <tr>
                                                     <td>{{ ++$index }}</td>
                                                     <td>{{ $job->shop->shop_name ?? 'N/A' }}</td>
-                                                    <td>{{ $job->description ?? 'N/A' }}</td>
                                                     <td>{{ $job->assignedBy->name ?? 'N/A' }}</td>
                                                     <td>
                                                         @if($job->scheduled_date)
                                                             {{ $job->scheduled_date }}
                                                             @if($job->scheduled_time)
-                                                                {{ $job->scheduled_time }}
+                                                                <br><small>{{ $job->scheduled_time }}</small>
                                                             @endif
                                                         @else
                                                             {{ __('Not scheduled') }}
                                                         @endif
                                                     </td>
+                                                    
+                                                    <!-- Description Column with View Button -->
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-info view-description-btn" 
+                                                                data-id="{{ $job->id }}"
+                                                                data-shop="{{ $job->shop->shop_name ?? 'N/A' }}"
+                                                                data-assigned-by="{{ $job->assignedBy->name ?? 'N/A' }}"
+                                                                data-scheduled-date="{{ $job->scheduled_date }}"
+                                                                data-scheduled-time="{{ $job->scheduled_time }}"
+                                                                data-description="{{ addslashes($job->description ?? 'No description available.') }}">
+                                                            <i class="fas fa-eye"></i> {{ __('View Description') }}
+                                                        </button>
+                                                    </td>
+                                                    
+                                                    <!-- Additional Notes Column with View Button -->
+                                                    <td>
+                                                        @if($job->notes && $job->notes != '')
+                                                            <button type="button" class="btn btn-sm btn-secondary view-notes-btn"
+                                                                    data-id="{{ $job->id }}"
+                                                                    data-shop="{{ $job->shop->shop_name ?? 'N/A' }}"
+                                                                    data-assigned-by="{{ $job->assignedBy->name ?? 'N/A' }}"
+                                                                    data-scheduled-date="{{ $job->scheduled_date }}"
+                                                                    data-scheduled-time="{{ $job->scheduled_time }}"
+                                                                    data-notes="{{ addslashes($job->notes) }}">
+                                                                <i class="fas fa-eye"></i> {{ __('View Notes') }}
+                                                            </button>
+                                                        @else
+                                                            <span class="text-muted">{{ __('No notes') }}</span>
+                                                        @endif
+                                                    </td>
+                                                    
+                                                    <!-- Status Column -->
                                                     <td>
                                                         @if($job->status == 'pending')
                                                             <span class="badge badge-warning">{{ __('Pending') }}</span>
@@ -54,24 +85,27 @@
                                                             <span class="badge badge-success">{{ __('Done') }}</span>
                                                         @endif
                                                     </td>
+                                                    
+                                                    <!-- Action Column (Only Done/Undo Button) -->
                                                     <td>
-                                                        <a href="{{ route('staff.jobs.show', $job->id) }}" class="btn btn-sm btn-info">
-                                                            <i class="fas fa-eye"></i> {{ __('View') }}
-                                                        </a>
-                                                        @if($job->status == 'pending')
-                                                            <button type="button" class="btn btn-sm btn-success" onclick="markAsDone({{ $job->id }})">
-                                                                <i class="fas fa-check"></i> {{ __('Done') }}
-                                                            </button>
+                                                        @if(auth('staff')->user()->hasPermission('my_jobs', 'can_edit'))
+                                                            @if($job->status == 'pending')
+                                                                <button type="button" class="btn btn-sm btn-success mark-done-btn" data-id="{{ $job->id }}" data-shop="{{ $job->shop->shop_name ?? 'N/A' }}">
+                                                                    <i class="fas fa-check"></i> {{ __('Done') }}
+                                                                </button>
+                                                            @else
+                                                                <button type="button" class="btn btn-sm btn-warning mark-undone-btn" data-id="{{ $job->id }}" data-shop="{{ $job->shop->shop_name ?? 'N/A' }}">
+                                                                    <i class="fas fa-undo"></i> {{ __('Undo') }}
+                                                                </button>
+                                                            @endif
                                                         @else
-                                                            <button type="button" class="btn btn-sm btn-warning" onclick="markAsUndone({{ $job->id }})">
-                                                                <i class="fas fa-undo"></i> {{ __('Undo') }}
-                                                            </button>
+                                                            <span class="text-muted">{{ __('No permission') }}</span>
                                                         @endif
                                                     </td>
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="7" class="text-center">
+                                                    <td colspan="8" class="text-center">
                                                         <div class="alert alert-info mb-0">
                                                             <i class="fas fa-info-circle"></i> 
                                                             {{ __('No jobs assigned to you yet!') }}
@@ -95,62 +129,205 @@
             </div>
         </section>
     </div>
+
+    <!-- Single Modal for Description (Dynamic Content) -->
+    <div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="descriptionModalLabel">
+                        <i class="fas fa-align-left"></i> {{ __('Job Description') }}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="descriptionModalBody">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single Modal for Notes (Dynamic Content) -->
+    <div class="modal fade" id="notesModal" tabindex="-1" role="dialog" aria-labelledby="notesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notesModalLabel">
+                        <i class="fas fa-sticky-note"></i> {{ __('Additional Notes') }}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="notesModalBody">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal for Done/Undo -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalTitle">{{ __('Confirm Action') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="confirmationModalBody">
+                    {{ __('Are you sure?') }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="button" class="btn btn-primary" id="confirmActionBtn">{{ __('Confirm') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')
     <script>
-        function markAsDone(jobId) {
-            if(!confirm('Are you sure you want to mark this job as done?')) {
-                return;
-            }
-            
-            $.ajax({
-                url: '{{ route("staff.jobs.mark-done", ":id") }}'.replace(':id', jobId),
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    toastr.success(response.message);
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1000);
-                },
-                error: function(xhr) {
-                    if(xhr.responseJSON && xhr.responseJSON.message) {
-                        toastr.error(xhr.responseJSON.message);
-                    } else {
-                        toastr.error('Something went wrong. Please try again.');
-                    }
-                }
-            });
-        }
+        let pendingJobId = null;
+        let pendingAction = null;
+        let pendingButton = null;
 
-        function markAsUndone(jobId) {
-            if(!confirm('Are you sure you want to mark this job as pending?')) {
-                return;
-            }
-            
-            $.ajax({
-                url: '{{ route("staff.jobs.mark-undone", ":id") }}'.replace(':id', jobId),
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    toastr.success(response.message);
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1000);
-                },
-                error: function(xhr) {
-                    if(xhr.responseJSON && xhr.responseJSON.message) {
-                        toastr.error(xhr.responseJSON.message);
-                    } else {
-                        toastr.error('Something went wrong. Please try again.');
-                    }
-                }
+        $(document).ready(function() {
+            // Handle View Description Button Click
+            $(document).on('click', '.view-description-btn', function() {
+                var description = $(this).data('description');
+                
+                var modalContent = `
+                    <div class="row">
+                        <div class="col-md-12">
+                            <hr>
+                            <div class="mb-3">
+                                <div class="mt-2 p-3 bg-light rounded" style="white-space: pre-wrap; word-wrap: break-word;">
+                                    <p class="mb-0">${description}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $('#descriptionModalBody').html(modalContent);
+                $('#descriptionModal').modal('show');
             });
-        }
+            
+            // Handle View Notes Button Click
+            $(document).on('click', '.view-notes-btn', function() {
+                var notes = $(this).data('notes');
+                
+                var modalContent = `
+                    <div class="row">
+                        <div class="col-md-12">
+                            <hr>
+                            <div class="mb-3">
+                                <div class="mt-2 p-3 bg-light rounded" style="white-space: pre-wrap; word-wrap: break-word;">
+                                    <p class="mb-0">${notes}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $('#notesModalBody').html(modalContent);
+                $('#notesModal').modal('show');
+            });
+
+            // Handle Mark as Done button click
+            $(document).on('click', '.mark-done-btn', function() {
+                var jobId = $(this).data('id');
+                var shopName = $(this).data('shop');
+                
+                pendingJobId = jobId;
+                pendingAction = 'done';
+                pendingButton = $(this);
+                
+                $('#confirmationModalTitle').html('{{ __("Mark as Done") }}');
+                $('#confirmationModalBody').html(`{{ __("Are you sure you want to mark this job") }} {{ __("as done?") }}`);
+                $('#confirmActionBtn').removeClass('btn-warning').addClass('btn-success');
+                $('#confirmActionBtn').html('{{ __("Yes, Mark as Done") }}');
+                $('#confirmationModal').modal('show');
+            });
+
+            // Handle Mark as Undone button click
+            $(document).on('click', '.mark-undone-btn', function() {
+                var jobId = $(this).data('id');
+                var shopName = $(this).data('shop');
+                
+                pendingJobId = jobId;
+                pendingAction = 'undone';
+                pendingButton = $(this);
+                
+                $('#confirmationModalTitle').html('{{ __("Mark as Pending") }}');
+                $('#confirmationModalBody').html(`{{ __("Are you sure you want to mark job for shop") }} "${shopName}" {{ __("as pending?") }}`);
+                $('#confirmActionBtn').removeClass('btn-success').addClass('btn-warning');
+                $('#confirmActionBtn').html('{{ __("Yes, Mark as Pending") }}');
+                $('#confirmationModal').modal('show');
+            });
+
+            // Confirm action
+            $('#confirmActionBtn').on('click', function() {
+                if (!pendingJobId || !pendingAction) return;
+                
+                // Disable button and show loading
+                pendingButton.prop('disabled', true);
+                pendingButton.html('<i class="fas fa-spinner fa-spin"></i> {{ __("Processing...") }}');
+                
+                // Close confirmation modal
+                $('#confirmationModal').modal('hide');
+                
+                let url = '';
+                if (pendingAction === 'done') {
+                    url = '{{ route("staff.jobs.mark-done", ":id") }}'.replace(':id', pendingJobId);
+                } else {
+                    url = '{{ route("staff.jobs.mark-undone", ":id") }}'.replace(':id', pendingJobId);
+                }
+                
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        toastr.success(response.message);
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    },
+                    error: function(xhr) {
+                        pendingButton.prop('disabled', false);
+                        if (pendingAction === 'done') {
+                            pendingButton.html('<i class="fas fa-check"></i> {{ __("Done") }}');
+                        } else {
+                            pendingButton.html('<i class="fas fa-undo"></i> {{ __("Undo") }}');
+                        }
+                        
+                        if(xhr.responseJSON && xhr.responseJSON.message) {
+                            toastr.error(xhr.responseJSON.message);
+                        } else {
+                            toastr.error('{{ __("Something went wrong. Please try again.") }}');
+                        }
+                    }
+                });
+                
+                // Reset pending variables
+                pendingJobId = null;
+                pendingAction = null;
+                pendingButton = null;
+            });
+        });
     </script>
 @endpush

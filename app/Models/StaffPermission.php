@@ -24,5 +24,6 @@ class StaffPermission extends Model
     // Available modules
     public static $modules = [
         'shop_management' => 'Shop Management',
+        'my_jobs' => 'My Jobs',
     ];
 }

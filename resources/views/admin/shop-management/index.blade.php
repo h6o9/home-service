@@ -16,9 +16,11 @@
                             <div class="card-header d-flex justify-content-between">
                                 <x-admin.form-title :text="__('Assigned Jobs')" />
                                 <div>
+                                    @if(auth('admin')->user()->hasPermissionTo('view shop-management'))
                                     <a href="{{ route('admin.shop-management.shop-list') }}" class="btn btn-primary">
                                         <i class="fas fa-store"></i> {{ __('Shop List') }}
                                     </a>
+                                    @endif
                                 </div>
                             </div>
                             <div class="card-body">
@@ -41,12 +43,10 @@
                                                 <tr>
                                                     <td>{{ ++$index }}</td>
                                                     <td>{{ $job->shop->shop_name ?? 'N/A' }}</td>
-                                                    <td>{{ $job->assignedTo->name ?? 'N/A' }}</td>
+                                                    <td>{{ $job->assignedTo->email ?? 'N/A' }}</td>
                                                     <td>{{ $job->assignedBy->name ?? 'N/A' }}</td>
                                                     <td>
-                                                        {{ $job->description ?? 'N/A' }}
-                                                        <br>
-                                                        <button type="button" class="btn btn-sm btn-info mt-1" onclick="viewJobDetails({{ $job->id }})">
+                                                        <button type="button" class="btn btn-sm btn-info" onclick="viewDescription({{ $job->id }}, '{{ addslashes($job->description) }}')">
                                                             <i class="fas fa-eye"></i> {{ __('View Details') }}
                                                         </button>
                                                     </td>
@@ -69,7 +69,7 @@
                                                     </td>
                                                     <td>
                                                         @if($job->notes)
-                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="viewNotes({{ $job->id }})">
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="viewNotes({{ $job->id }}, '{{ addslashes($job->notes) }}')">
                                                                 <i class="fas fa-sticky-note"></i> {{ __('View Notes') }}
                                                             </button>
                                                         @else
@@ -104,20 +104,18 @@
         </section>
     </div>
 
-    <!-- Job Details Modal -->
-    <div class="modal fade" id="jobDetailsModal" tabindex="-1" role="dialog">
+    <!-- Description Modal (only for description content) -->
+    <div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ __('Job Details') }}</h5>
+                    <h5 class="modal-title">{{ __('Job Description') }}</h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="jobDetailsContent">
-                    <div class="loading text-center">
-                        <i class="fas fa-spinner fa-spin"></i> {{ __('Loading...') }}
-                    </div>
+                <div class="modal-body" id="descriptionContent">
+                    <!-- Description will be loaded here -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
@@ -126,7 +124,7 @@
         </div>
     </div>
 
-    <!-- Notes Modal -->
+    <!-- Notes Modal (only for notes content) -->
     <div class="modal fade" id="notesModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -137,9 +135,7 @@
                     </button>
                 </div>
                 <div class="modal-body" id="notesContent">
-                    <div class="loading text-center">
-                        <i class="fas fa-spinner fa-spin"></i> {{ __('Loading...') }}
-                    </div>
+                    <!-- Notes will be loaded here -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
@@ -151,40 +147,45 @@
 
 @push('js')
     <script>
-        function viewJobDetails(jobId) {
-            $('#jobDetailsContent').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> {{ __('Loading...') }}</div>');
-            $('#jobDetailsModal').modal('show');
+        function viewDescription(jobId, description) {
+            // Escape HTML special characters to prevent XSS
+            const escapedDescription = description.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            }).replace(/[\r\n]+/g, '<br>');
             
-            $.ajax({
-                url: '{{ route("admin.shop-management.job-details") }}',
-                type: 'GET',
-                data: { id: jobId },
-                success: function(response) {
-                    $('#jobDetailsContent').html(response.html);
-                },
-                error: function(xhr) {
-                    $('#jobDetailsContent').html('<div class="alert alert-danger">{{ __('Error loading job details. Please try again.') }}</div>');
-                    toastr.error('{{ __('Error loading job details') }}');
-                }
-            });
+            // Display the description in modal
+            $('#descriptionContent').html(`
+                <div class="job-description">                    <hr>
+                    <div class="description-text">
+                        ${escapedDescription || '<em>{{ __('No description provided.') }}</em>'}
+                    </div>
+                </div>
+            `);
+            $('#descriptionModal').modal('show');
         }
 
-        function viewNotes(jobId) {
-            $('#notesContent').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> {{ __('Loading...') }}</div>');
-            $('#notesModal').modal('show');
+        function viewNotes(jobId, notes) {
+            // Escape HTML special characters to prevent XSS
+            const escapedNotes = notes.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            }).replace(/[\r\n]+/g, '<br>');
             
-            $.ajax({
-                url: '{{ route("admin.shop-management.job-notes") }}',
-                type: 'GET',
-                data: { id: jobId },
-                success: function(response) {
-                    $('#notesContent').html(response.html);
-                },
-                error: function(xhr) {
-                    $('#notesContent').html('<div class="alert alert-danger">{{ __('Error loading notes. Please try again.') }}</div>');
-                    toastr.error('{{ __('Error loading notes') }}');
-                }
-            });
+            // Display the notes in modal
+            $('#notesContent').html(`
+                <div class="job-notes">
+                    <hr>
+                    <div class="notes-text">
+                        ${escapedNotes}
+                    </div>
+                </div>
+            `);
+            $('#notesModal').modal('show');
         }
     </script>
 @endpush

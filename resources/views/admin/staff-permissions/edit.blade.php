@@ -16,7 +16,7 @@
             <div class="section-body">
                 <div class="card">
                     <div class="card-header">
-                        <h4>Job Assign - {{ $staff->name }}</h4>
+                        <h4>Edit Permissions - {{ $staff->name }}</h4>
                         <small class="text-muted">{{ $staff->email }}</small>
                     </div>
                     <form method="POST" action="{{ route('admin.staff-permissions.update', $staff->id) }}" enctype="multipart/form-data">
@@ -42,6 +42,7 @@
                                                     </label>
                                                 </div>
                                             </div>
+                                            @if($moduleKey != 'my_jobs')
                                             <div class="col-md-3">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="permissions[{{ $moduleKey }}][can_create]" value="1" id="{{ $moduleKey }}_can_create" {{ $permission && $permission->can_create ? 'checked' : '' }}>
@@ -50,6 +51,7 @@
                                                     </label>
                                                 </div>
                                             </div>
+                                            @endif
                                             <div class="col-md-3">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="permissions[{{ $moduleKey }}][can_edit]" value="1" id="{{ $moduleKey }}_can_edit" {{ $permission && $permission->can_edit ? 'checked' : '' }}>
@@ -58,29 +60,13 @@
                                                     </label>
                                                 </div>
                                             </div>
+                                            @if($moduleKey != 'my_jobs')
                                             <div class="col-md-3">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="permissions[{{ $moduleKey }}][can_delete]" value="1" id="{{ $moduleKey }}_can_delete" {{ $permission && $permission->can_delete ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="{{ $moduleKey }}_can_delete">
                                                         Can Delete
                                                     </label>
-                                                </div>
-                                            </div>
-                                            @if($moduleKey == 'shop_management')
-                                            <div class="col-md-12 mt-3">
-                                                <div class="job-assign-section" style="border-left: 3px solid #007bff; padding-left: 15px; background: #f8f9fc; border-radius: 5px;">
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <h6 class="mb-0" style="color: #007bff; font-weight: 600;">📋 Job Assign</h6>                                                    </div>
-                                                    <div class="form-check mb-2">
-                                                        <input class="form-check-input" type="checkbox" name="permissions[{{ $moduleKey }}][permissable]" value="1" id="{{ $moduleKey }}_permissable" {{ $permission && $permission->permissable ? 'checked' : '' }}>
-                                                        <label class="form-check-label font-weight-bold" for="{{ $moduleKey }}_permissable" style="color: #28a745;">
-                                                            Permissable
-                                                        </label>
-                                                    </div>
-                                                    <small class="text-danger d-block mt-1">
-                                                        <i class="fas fa-info-circle"></i> 
-                                                        <span id="permissableHelpText">⚠️ Note: By checking this box, the staff member’s email will be displayed in the assign modal within the shop management section.</span>
-                                                    </small>
                                                 </div>
                                             </div>
                                             @endif
@@ -91,6 +77,49 @@
                                     <hr>
                                 @endif
                             @endforeach
+
+                            <!-- ========================================== -->
+                            <!-- JOB ASSIGN SECTION - COMES AFTER ALL MODULES -->
+                            <!-- ========================================== -->
+                            @if(isset($modules['shop_management']))
+                                <div class="row mt-4">
+                                    <div class="col-md-12">
+                                        <hr class="my-4" style="border-top: 2px solid #007bff;">
+                                        <div class="job-assign-section" style="border-left: 3px solid #007bff; padding-left: 15px; background: #f8f9fc; border-radius: 5px;">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <h6 class="mb-0" style="color: #007bff; font-weight: 600;">
+                                                    <i class="fas fa-tasks"></i> 📋 Job Assign Configuration
+                                                </h6>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    @php
+                                                        $shopPermission = $staff->staffPermissions->where('module', 'shop_management')->first();
+                                                    @endphp
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="checkbox" 
+                                                               name="permissions[shop_management][permissable]" 
+                                                               value="1" 
+                                                               id="shop_management_permissable" 
+                                                               {{ $shopPermission && $shopPermission->permissable ? 'checked' : '' }}>
+                                                        <label class="form-check-label font-weight-bold" for="shop_management_permissable" style="color: #28a745;">
+                                                            <i class="fas fa-user-check"></i> Permissable
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-danger d-block mt-1" id="permissableHelpText">
+                                                        <i class="fas fa-info-circle"></i> 
+                                                        @if($shopPermission && $shopPermission->permissable)
+                                                            ✅ Permissable enabled - Staff member details will appear in assign modal within shop management section
+                                                        @else
+                                                            ⚠️ Note: By checking this box, the staff member's email will be displayed in the assign modal within the shop management section.
+                                                        @endif
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                         <div class="card-footer">
                             <button type="submit" class="btn btn-primary">
@@ -122,13 +151,13 @@
                 $(`input[name^="permissions[${moduleKey}]"]`).prop('checked', false);
             });
 
-            // Optional: Add dynamic behavior for permissable checkbox
+            // Dynamic behavior for permissable checkbox
             $('#shop_management_permissable').on('change', function() {
                 if($(this).is(':checked')) {
-                    $('#permissableHelpText').html('<i class="fas fa-check-circle"></i> ✅ Permissable enabled - Staff member details assign modal will appear in shop management section');
+                    $('#permissableHelpText').html('<i class="fas fa-check-circle"></i> ✅ Permissable enabled - Staff member details will appear in assign modal within shop management section');
                     $('#permissableHelpText').removeClass('text-danger').addClass('text-success');
                 } else {
-                    $('#permissableHelpText').html('<i class="fas fa-info-circle"></i> ⚠️ Note: Is checkbox par click karne se shop management section mein staff member ki details assign modal mein show hogi');
+                    $('#permissableHelpText').html('<i class="fas fa-info-circle"></i> ⚠️ Note: By checking this box, the staff member\'s email will be displayed in the assign modal within the shop management section.');
                     $('#permissableHelpText').removeClass('text-success').addClass('text-danger');
                 }
             });

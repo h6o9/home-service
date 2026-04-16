@@ -11,6 +11,12 @@ class JobController extends Controller
 {
     public function index()
     {
+        // Check if staff has permission to view jobs
+        $staff = Auth::guard('staff')->user();
+        if (!$staff->hasPermission('my_jobs', 'can_view')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $jobs = StaffJob::with(['shop', 'assignedBy'])
             ->where('assigned_to', Auth::guard('staff')->id())
             ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")
@@ -22,6 +28,12 @@ class JobController extends Controller
     
     public function markAsDone($id)
     {
+        // Check if staff has permission to edit jobs
+        $staff = Auth::guard('staff')->user();
+        if (!$staff->hasPermission('my_jobs', 'can_edit')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $job = StaffJob::where('assigned_to', Auth::guard('staff')->id())
             ->findOrFail($id);
             
@@ -36,6 +48,12 @@ class JobController extends Controller
     
     public function markAsUndone($id)
     {
+        // Check if staff has permission to edit jobs
+        $staff = Auth::guard('staff')->user();
+        if (!$staff->hasPermission('my_jobs', 'can_edit')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $job = StaffJob::where('assigned_to', Auth::guard('staff')->id())
             ->findOrFail($id);
             
@@ -50,6 +68,12 @@ class JobController extends Controller
     
     public function show($id)
     {
+        // Check if staff has permission to view jobs
+        $staff = Auth::guard('staff')->user();
+        if (!$staff->hasPermission('my_jobs', 'can_view')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $job = StaffJob::with(['shop', 'assignedBy'])
             ->where('assigned_to', Auth::guard('staff')->id())
             ->findOrFail($id);
