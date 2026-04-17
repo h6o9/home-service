@@ -66,9 +66,15 @@
                                 <h4>Quick Actions</h4>
                             </div>
                             <div class="card-body">
+                                @if(auth('admin')->user()->hasPermissionTo('shop.edit'))
                                 <button class="btn btn-primary btn-block mb-2" onclick="openAssignModal()">
                                     <i class="fa fa-user-plus"></i> Assign Job
                                 </button>
+                                @else
+                                <button class="btn btn-secondary btn-block mb-2" disabled>
+                                    <i class="fa fa-lock"></i> No Permission to Assign
+                                </button>
+                                @endif
                                 <a href="{{ route('admin.shop-management.index') }}" class="btn btn-secondary btn-block">
                                     <i class="fa fa-arrow-left"></i> Back to List
                                 </a>
@@ -83,9 +89,15 @@
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
                                 <h4>Assigned Jobs</h4>
+                                @if(auth('admin')->user()->hasPermissionTo('shop.edit'))
                                 <button class="btn btn-primary btn-sm" onclick="openAssignModal()">
                                     <i class="fa fa-plus"></i> Assign New Job
                                 </button>
+                                @else
+                                <button class="btn btn-secondary btn-sm" disabled>
+                                    <i class="fa fa-lock"></i> No Permission
+                                </button>
+                                @endif
                             </div>
                             <div class="card-body">
                                 @if($shop->jobs->count() > 0)

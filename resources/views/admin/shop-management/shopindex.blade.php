@@ -38,7 +38,7 @@
                                                     <td>{{ $shop->owner_name ?? 'N/A' }}</td>
                                                     <td>{{ $shop->phone ?? $shop->phone_number ?? 'N/A' }}</td>
                                                     <td>
-                                                        @if(auth('admin')->user()->hasPermissionTo('assign shop-management'))
+                                                        @if(auth('admin')->user()->hasPermissionTo('shop.edit'))
                                                         <button type="button" class="btn btn-sm btn-primary" onclick="openAssignModal({{ $shop->id }})" id="assignBtn-{{ $shop->id }}">
                                                             <i class="fas fa-user-plus"></i> <span class="btn-text">{{ __('Assign') }}</span>
                                                         </button>

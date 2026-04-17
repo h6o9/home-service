@@ -3,7 +3,6 @@
     <title>{{ __('Staff List') }}</title>
 @endsection
 @section('admin-content')
-@can('staff.view')
     <div class="main-content">
         <section class="section">
             <div class="section-header">
@@ -17,12 +16,8 @@
                             <div class="card-header d-flex justify-content-between">
                                 <h4>{{ __('Staff List') }} <small class="font-weight-bold text-danger"> (The default password for all staff members is 12345678. This password is automatically generated when a new staff member is created.)</small></h4>
                                 <div>
-                                    @can('staff.create')
                                     <a class="btn btn-primary" href="{{ route('admin.staff.create') }}"><i
                                             class="fa fa-plus"></i> {{ __('Add New') }}</a>
-                                    @endcan
-                                </div>
-                            </div>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -46,28 +41,21 @@
                                                     <td>{{ $staff->email }}</td>
                                                     <td>{{ $staff->phone }}</td>
 													<td>
-                                                        @can('staff.edit')
-														<input onchange="changeStaffStatus({{ $staff->id }})"
-                                                        id="status_toggle_{{ $staff->id }}" type="checkbox"
-                                                        {{ $staff->status == 1 ? 'checked' : '' }}
-                                                        data-toggle="toggle" data-onlabel="{{ __('Active') }}"
-                                                        data-offlabel="{{ __('Inactive') }}" data-onstyle="success"
-                                                        data-offstyle="danger">
-                                                        @endcan
+														@if ($staff->status == 1)
+															<span class="badge badge-success">{{ __('Active') }}</span>
+														@else
+															<span class="badge badge-danger">{{ __('Inactive') }}</span>
+														@endif
                                                     </td>
 
                                                     <td>
-                                                        @can('staff.edit')
-                                                            <a class="btn btn-primary btn-sm"
-                                                                href="{{ route('admin.staff.edit', $staff->id) }}"><i
-                                                                    class="fa fa-edit" aria-hidden="true"></i></a>
-                                                        @endcan  
-                                                        @can('staff.delete')
-                                                            <a class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                                                data-bs-target="#deleteModal" href="javascript:;"
-                                                                onclick="deleteData({{ $staff->id }})"><i
-                                                                    class="fa fa-trash" aria-hidden="true"></i></a>
-                                                        @endcan
+                                                        <a class="btn btn-primary btn-sm"
+                                                            href="{{ route('admin.staff.edit', $staff->id) }}"><i
+                                                                class="fa fa-edit" aria-hidden="true"></i></a>
+                                                        <a class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                                            data-bs-target="#deleteModal" href="javascript:;"
+                                                            onclick="deleteData({{ $staff->id }})"><i
+                                                                class="fa fa-trash" aria-hidden="true"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -84,44 +72,38 @@
             </div>
         </section>
     </div>
-</script>
 @endsection
-@endcan
 @push('js')
     <script>
         "use strict";
 
         function deleteData(id) {
-            @can('staff.delete')
-                let url = '{{ route('admin.staff.destroy', ':id') }}';
-                url = url.replace(':id', id);
-                $("#deleteForm").attr('action', url);
-            @endcan
+            let url = '{{ route('admin.staff.destroy', ':id') }}';
+            url = url.replace(':id', id);
+            $("#deleteForm").attr('action', url);
         }
 
-        function changeStaffStatus(staffId) {
-            @can('staff.edit')
-                let status = $('#status_toggle_' + staffId).prop('checked') ? 1 : 0;
-                
-                $.ajax({
-                    url: '{{ route('staff.change.status', ':id') }}'.replace(':id', staffId),
-                    type: 'POST',
-                    data: {
-                        status: status,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if(response.success) {
-                            toastr.success('Status updated successfully');
-                        } else {
-                            toastr.error('Something went wrong');
-                        }
-                    },
-                    error: function() {
-                        toastr.error('Error updating status');
-                    }
-                });
-            @endcan
+		function changeStaffStatus(staffId) {
+    let status = $('#status_toggle_' + staffId).prop('checked') ? 1 : 0;
+    
+    $.ajax({
+        url: '/admin/staff/change-status/' + staffId,
+        type: 'POST',
+        data: {
+            status: status,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if(response.success) {
+                toastr.success('Status updated successfully');
+            } else {
+                toastr.error('Something went wrong');
+            }
+        },
+        error: function() {
+            toastr.error('Error updating status');
         }
+    });
+}
     </script>
 @endpush

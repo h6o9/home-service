@@ -18,7 +18,7 @@ class ShopManagementController extends Controller
     public function index()
     {
         // Check if admin has permission to view shop management
-        if (!auth('admin')->user()->hasPermissionTo('view shop-management')) {
+        if (!auth('admin')->user()->hasPermissionTo('shop.edit')) {
             abort(403, 'Unauthorized action.');
         }
         
@@ -64,7 +64,7 @@ class ShopManagementController extends Controller
     public function assignJob(Request $request, $shopId)
     {
         // Check if admin has permission to assign jobs
-        if (!auth('admin')->user()->hasPermissionTo('assign shop-management')) {
+        if (!auth('admin')->user()->hasPermissionTo('shop.edit')) {
             abort(403, 'Unauthorized action.');
         }
         
@@ -104,7 +104,7 @@ class ShopManagementController extends Controller
     public function shopList()
     {
         // Check if admin has permission to view shop list
-        if (!auth('admin')->user()->hasPermissionTo('view shop-management')) {
+        if (!auth('admin')->user()->hasPermissionTo('shop.view')) {
             abort(403, 'Unauthorized action.');
         }
         

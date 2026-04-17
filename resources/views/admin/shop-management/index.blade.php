@@ -16,7 +16,7 @@
                             <div class="card-header d-flex justify-content-between">
                                 <x-admin.form-title :text="__('Assigned Jobs')" />
                                 <div>
-                                    @if(auth('admin')->user()->hasPermissionTo('view shop-management'))
+                                    @if(auth('admin')->user()->hasPermissionTo('shop.view'))
                                     <a href="{{ route('admin.shop-management.shop-list') }}" class="btn btn-primary">
                                         <i class="fas fa-store"></i> {{ __('Shop List') }}
                                     </a>
