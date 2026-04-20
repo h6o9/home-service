@@ -20,6 +20,8 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\StateController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CacheController;
+
 
 $adminPrefix = config('custom.admin_login_prefix', 'admin');
 $staffPrefix = config('custom.staff_login_prefix', 'staff');
@@ -29,6 +31,8 @@ Route::post('/shops/save-draft', [\App\Http\Controllers\Admin\StaffDashboardCont
 Route::get('/shops/get-draft', [\App\Http\Controllers\Admin\StaffDashboardController::class , 'getDraft'])->name('staff.shops.get-draft');
 Route::post('/shops/clear-draft', [\App\Http\Controllers\Admin\StaffDashboardController::class , 'clearDraft'])->name('staff.shops.clear-draft');
 Route::post('/shops/direct-save', [\App\Http\Controllers\Admin\StaffDashboardController::class , 'directSave'])->name('staff.shops.direct-save'); // New route
+Route::get('/clear-cache', [CacheController::class, 'clearAllCache'])->name('clear.cache');
+
 // Assign Permissions Direct Routes
 Route::middleware(['auth:admin'])->group(function () {
     Route::get('admin/assign-permissions', [App\Http\Controllers\Admin\RolesController::class, 'assignPermissionsForm'])->name('assign.permissions.form');
@@ -189,6 +193,7 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
                 Route::get('shop-management/shop-list', [\App\Http\Controllers\Admin\ShopManagementController::class, 'shopList'])->name('shop-management.shop-list');
                 Route::get('shop-management/job-details', [\App\Http\Controllers\Admin\ShopManagementController::class, 'jobDetails'])->name('shop-management.job-details');
                 Route::get('shop-management/job-notes', [\App\Http\Controllers\Admin\ShopManagementController::class, 'jobNotes'])->name('shop-management.job-notes');
+                Route::delete('assigned-jobs/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'delete'])->name('assigned-jobs.destroy');
                 Route::get('shop-management/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'show'])->name('shop-management.show');
                 Route::post('shop-management/toggle-job-status/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'toggleJobStatus'])->name('shop-management.toggle-job-status');
                 Route::put('{photo}/set-primary-photo', [App\Http\Controllers\Admin\ShopManagementController::class, 'setPrimaryPhoto'])

@@ -36,12 +36,13 @@
                                                 <th>{{ __('Scheduled Date') }}</th>
                                                 <th>{{ __('Status') }}</th>
                                                 <th>{{ __('Additional Notes') }}</th>
+                                                <th>{{ __('Action') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @forelse ($jobs as $index => $job)
                                                 <tr>
-                                                    <td>{{ ++$index }}</td>
+                                                    <td>{{ $jobs->firstItem() + $index }}</td>
                                                     <td>{{ $job->shop->shop_name ?? 'N/A' }}</td>
                                                     <td>{{ $job->assignedTo->email ?? 'N/A' }}</td>
                                                     <td>{{ $job->assignedBy->name ?? 'N/A' }}</td>
@@ -76,10 +77,18 @@
                                                             <span class="text-muted">{{ __('No notes') }}</span>
                                                         @endif
                                                     </td>
+                                                    <!-- Action Column with Delete Button -->
+                                                    <td>
+                                                        @can('assign.job.delete')
+                                                            <x-admin.delete-button :id="$job->id" onclick="deleteData" />
+                                                        @else
+                                                            <span class="text-muted">No Action</span>
+                                                        @endcan
+                                                    </td>
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="8" class="text-center">
+                                                    <td colspan="9" class="text-center">
                                                         <div class="alert alert-info mb-0">
                                                             <i class="fas fa-info-circle"></i> 
                                                             {{ __('No jobs assigned yet!') }}
@@ -104,7 +113,7 @@
         </section>
     </div>
 
-    <!-- Description Modal (only for description content) -->
+    <!-- Description Modal -->
     <div class="modal fade" id="descriptionModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -114,9 +123,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="descriptionContent">
-                    <!-- Description will be loaded here -->
-                </div>
+                <div class="modal-body" id="descriptionContent"></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
                 </div>
@@ -124,7 +131,7 @@
         </div>
     </div>
 
-    <!-- Notes Modal (only for notes content) -->
+    <!-- Notes Modal -->
     <div class="modal fade" id="notesModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -134,31 +141,35 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="notesContent">
-                    <!-- Notes will be loaded here -->
-                </div>
+                <div class="modal-body" id="notesContent"></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Delete Modal -->
+    @can('assign.job.delete')
+        <x-admin.delete-modal />
+    @endcan
 @endsection
 
 @push('js')
     <script>
         function viewDescription(jobId, description) {
             // Escape HTML special characters to prevent XSS
-            const escapedDescription = description.replace(/[&<>]/g, function(m) {
+            const escapedDescription = description ? description.replace(/[&<>]/g, function(m) {
                 if (m === '&') return '&amp;';
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
                 return m;
-            }).replace(/[\r\n]+/g, '<br>');
+            }).replace(/[\r\n]+/g, '<br>') : '';
             
             // Display the description in modal
             $('#descriptionContent').html(`
-                <div class="job-description">                    <hr>
+                <div class="job-description">
+                    <hr>
                     <div class="description-text">
                         ${escapedDescription || '<em>{{ __('No description provided.') }}</em>'}
                     </div>
@@ -169,23 +180,30 @@
 
         function viewNotes(jobId, notes) {
             // Escape HTML special characters to prevent XSS
-            const escapedNotes = notes.replace(/[&<>]/g, function(m) {
+            const escapedNotes = notes ? notes.replace(/[&<>]/g, function(m) {
                 if (m === '&') return '&amp;';
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
                 return m;
-            }).replace(/[\r\n]+/g, '<br>');
+            }).replace(/[\r\n]+/g, '<br>') : '';
             
             // Display the notes in modal
             $('#notesContent').html(`
                 <div class="job-notes">
                     <hr>
                     <div class="notes-text">
-                        ${escapedNotes}
+                        ${escapedNotes || '<em>{{ __('No notes provided.') }}</em>'}
                     </div>
                 </div>
             `);
             $('#notesModal').modal('show');
         }
+
+        // Delete function for assigned jobs
+        @if(auth('admin')->user()->hasPermissionTo('assign.job.delete'))
+        function deleteData(id) {
+            $("#deleteForm").attr("action", "{{ route('admin.assigned-jobs.destroy', ':id') }}".replace(':id', id));
+        }
+        @endif
     </script>
 @endpush

@@ -251,5 +251,21 @@ public function destroy($id)
     return response()->json(['message' => 'Deleted successfully!']);
 }
 
+public function delete($id)
+{
+    try {
+        $job = StaffJob::findOrFail($id);
+        $job->delete();
+        
+    return $this->redirectWithMessage(RedirectType::DELETE->value, 'admin.shop-management.index');
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error deleting job'
+        ]);
+    }
+}
+
     
 }
