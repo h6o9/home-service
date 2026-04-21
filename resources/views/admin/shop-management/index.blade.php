@@ -37,6 +37,7 @@
                                                 <th>{{ __('Status') }}</th>
                                                 <th>{{ __('Additional Notes') }}</th>
                                                 <th>{{ __('Action') }}</th>
+                                                <th>{{ __('Action') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -75,6 +76,14 @@
                                                             </button>
                                                         @else
                                                             <span class="text-muted">{{ __('No notes') }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <!-- Action Column with Delete Button -->
+                                                    <td>
+                                                        @if(auth('admin')->user()->hasPermissionTo('assign.job.delete'))
+                                                            <x-admin.delete-button :id="$job->id" onclick="deleteData" />
+                                                        @else
+                                                            <span class="text-muted">No Action</span>
                                                         @endif
                                                     </td>
                                                     <!-- Action Column with Delete Button -->
@@ -150,6 +159,11 @@
     </div>
 
     <!-- Delete Modal -->
+    @if(auth('admin')->user()->hasPermissionTo('assign.job.delete'))
+        <x-admin.delete-modal />
+    @endif
+
+    <!-- Delete Modal -->
     @can('assign.job.delete')
         <x-admin.delete-modal />
     @endcan
@@ -198,6 +212,13 @@
             `);
             $('#notesModal').modal('show');
         }
+
+        // Delete function for assigned jobs
+        @if(auth('admin')->user()->hasPermissionTo('assign.job.delete'))
+        function deleteData(id) {
+            $("#deleteForm").attr("action", "{{ route('admin.assigned-jobs.destroy', ':id') }}".replace(':id', id));
+        }
+        @endif
 
         // Delete function for assigned jobs
         @if(auth('admin')->user()->hasPermissionTo('assign.job.delete'))

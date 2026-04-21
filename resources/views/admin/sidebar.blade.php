@@ -300,6 +300,14 @@
                         <i class="fas fa-chevron-right dropdown-arrow"></i>
                     </a>
                     <ul class="submenu">
+                          @can('shop.category.view')
+                        <li class="{{ isRoute('admin.shop-categories.index', 'active') }}">
+                            <a href="{{ route('admin.shop-categories.index') }}">
+                                <i class="fas fa-tags"></i>
+                                <span>{{ __('Shop Categories') }}</span>
+                            </a>
+                        </li>
+                        @endcan
                         @can('shop.view')
                         <li class="{{ isRoute('admin.shop-management.shop-list', 'active') }}">
                             <a href="{{ route('admin.shop-management.shop-list') }}">
@@ -316,14 +324,6 @@
                                 @if($pendingJobsCount > 0)
                                     <span class="badge-pending">{{ $pendingJobsCount }}</span>
                                 @endif
-                            </a>
-                        </li>
-                        @endcan
-                        @can('shop.category.view')
-                        <li class="{{ isRoute('admin.shop-categories.index', 'active') }}">
-                            <a href="{{ route('admin.shop-categories.index') }}">
-                                <i class="fas fa-tags"></i>
-                                <span>{{ __('Shop Categories') }}</span>
                             </a>
                         </li>
                         @endcan

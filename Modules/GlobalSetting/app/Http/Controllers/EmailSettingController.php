@@ -17,7 +17,6 @@ class EmailSettingController extends Controller
 
     public function email_config()
     {
-        checkAdminHasPermissionAndThrowException('setting.view');
         $templates = EmailTemplate::all();
 
         return view('globalsetting::email.email_config', compact('templates'));
@@ -28,7 +27,6 @@ class EmailSettingController extends Controller
      */
     public function update_email_config(Request $request)
     {
-        checkAdminHasPermissionAndThrowException('setting.update');
         $request->validate([
             'mail_sender_name'  => 'required',
             'mail_host'         => 'required',
@@ -69,7 +67,6 @@ class EmailSettingController extends Controller
      */
     public function edit_email_template($id)
     {
-        checkAdminHasPermissionAndThrowException('setting.view');
 
         $template = EmailTemplate::where('id', $id)->firstOrFail();
 
@@ -102,7 +99,6 @@ class EmailSettingController extends Controller
      */
     public function update_email_template(Request $request, $id)
     {
-        checkAdminHasPermissionAndThrowException('setting.update');
         $rules = [
             'subject' => 'required',
             'message' => 'required',
@@ -136,7 +132,6 @@ class EmailSettingController extends Controller
      */
     public function test_mail_credentials()
     {
-        checkAdminHasPermissionAndThrowException('setting.view');
         try {
             $this->sendMail('example@gmail.com', 'Test Email', 'This is a test email');
             $notification = __('Mail Sent Successfully');

@@ -22,10 +22,7 @@ class NewPasswordController extends Controller
         $staff = Staff::select('id', 'name', 'email', 'forget_password_token')->where('forget_password_token', $token)->first();
 
         if (!$staff) {
-            $notification = __('Invalid token, please try again');
-            $notification = ['message' => $notification, 'alert-type' => 'error'];
-
-            return redirect()->route('staff.password.request')->with($notification);
+            return view('auth.expired-token');
         }
 
         return view('staff.auth.reset-password', ['staff' => $staff, 'token' => $token]);
@@ -53,10 +50,7 @@ class NewPasswordController extends Controller
         $staff = Staff::select('id', 'name', 'email', 'forget_password_token')->where('forget_password_token', $token)->where('email', $request->email)->first();
 
         if (!$staff) {
-            $notification = __('Invalid token, please try again');
-            $notification = ['message' => $notification, 'alert-type' => 'error'];
-
-            return redirect()->back()->with($notification);
+            return view('auth.expired-token');
         }
 
         $staff->password              = Hash::make($request->password);

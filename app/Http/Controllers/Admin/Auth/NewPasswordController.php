@@ -21,10 +21,7 @@ class NewPasswordController extends Controller
         $admin = Admin::select('id', 'name', 'email', 'forget_password_token')->where('forget_password_token', $token)->first();
 
         if (!$admin) {
-            $notification = __('Invalid token, please try again');
-            $notification = ['message' => $notification, 'alert-type' => 'error'];
-
-            return redirect()->route('password.request')->with($notification);
+            return view('auth.expired-token');
         }
 
         return view('admin.auth.reset-password', ['admin' => $admin, 'token' => $token]);
@@ -52,10 +49,7 @@ class NewPasswordController extends Controller
         $admin = Admin::select('id', 'name', 'email', 'forget_password_token')->where('forget_password_token', $token)->where('email', $request->email)->first();
 
         if (!$admin) {
-            $notification = __('Invalid token, please try again');
-            $notification = ['message' => $notification, 'alert-type' => 'error'];
-
-            return redirect()->back()->with($notification);
+            return view('auth.expired-token');
         }
 
         $admin->password              = Hash::make($request->password);
