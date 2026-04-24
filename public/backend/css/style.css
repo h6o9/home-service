@@ -2624,6 +2624,10 @@ body.layout-2 .main-sidebar {
     padding: 0; }
   body.layout-2 .main-sidebar .sidebar-menu li a {
     padding: 0; }
+
+.menu-header + .dropdown-parent .dropdown-toggle::after {
+    display: none;
+}
     body.layout-2 .main-sidebar .sidebar-menu li a i {
       width: 10px; }
     body.layout-2 .main-sidebar .sidebar-menu li a.has-dropdown:after {
@@ -2798,7 +2802,7 @@ body.layout-3 .main-footer {
       display: flex;
       align-items: center;
       height: 50px;
-      padding: 0 20px;
+      padding: 0 12px;
       width: 100%;
       letter-spacing: .3px;
       color: #78828a;
@@ -2809,7 +2813,7 @@ body.layout-3 .main-footer {
         margin-top: 2px; }
       .main-sidebar .sidebar-menu li a i {
         width: 28px;
-        margin-right: 20px;
+        margin-right: 0px;
         text-align: center; }
       .main-sidebar .sidebar-menu li a span {
         margin-top: 3px;
