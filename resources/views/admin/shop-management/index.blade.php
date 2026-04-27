@@ -29,14 +29,13 @@
                                         <thead>
                                             <tr>
                                                 <th>{{ __('SN') }}</th>
+                                                <th>{{ __('Scheduled Date & Time') }}</th>
                                                 <th>{{ __('Shop Name') }}</th>
                                                 <th>{{ __('Assigned To') }}</th>
                                                 <th>{{ __('Assigned By') }}</th>
                                                 <th>{{ __('Description') }}</th>
-                                                <th>{{ __('Scheduled Date') }}</th>
-                                                <th>{{ __('Status') }}</th>
                                                 <th>{{ __('Additional Notes') }}</th>
-                                                <th>{{ __('Action') }}</th>
+                                                <th>{{ __('Status') }}</th>
                                                 <th>{{ __('Action') }}</th>
                                             </tr>
                                         </thead>
@@ -44,6 +43,16 @@
                                             @forelse ($jobs as $index => $job)
                                                 <tr>
                                                     <td>{{ $jobs->firstItem() + $index }}</td>
+                                                    <td>
+                                                       @if($job->scheduled_date)
+                                                            {{ \Carbon\Carbon::parse($job->scheduled_date)->format('M d, Y') }}
+                                                            @if($job->scheduled_time)
+                                                                <br><small>{{ \Carbon\Carbon::parse($job->scheduled_time)->format('h:i A') }}</small>
+                                                            @endif
+                                                        @else
+                                                            {{ __('Not scheduled') }}
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $job->shop->shop_name ?? 'N/A' }}</td>
                                                     <td>{{ $job->assignedTo->email ?? 'N/A' }}</td>
                                                     <td>{{ $job->assignedBy->name ?? 'N/A' }}</td>
@@ -51,23 +60,6 @@
                                                         <button type="button" class="btn btn-sm btn-info" onclick="viewDescription({{ $job->id }}, '{{ addslashes($job->description) }}')">
                                                             <i class="fas fa-eye"></i> {{ __('View Details') }}
                                                         </button>
-                                                    </td>
-                                                    <td>
-                                                        @if($job->scheduled_date)
-                                                            {{ $job->scheduled_date }}
-                                                            @if($job->scheduled_time)
-                                                                <br><small>{{ $job->scheduled_time }}</small>
-                                                            @endif
-                                                        @else
-                                                            {{ __('Not scheduled') }}
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if($job->status == 'pending')
-                                                            <span class="badge badge-warning">{{ __('Pending') }}</span>
-                                                        @else
-                                                            <span class="badge badge-success">{{ __('Done') }}</span>
-                                                        @endif
                                                     </td>
                                                     <td>
                                                         @if($job->notes)
@@ -78,6 +70,14 @@
                                                             <span class="text-muted">{{ __('No notes') }}</span>
                                                         @endif
                                                     </td>
+                                                     
+                                                    <td>
+                                                        @if($job->status == 'pending')
+                                                            <span class="badge badge-warning">{{ __('Pending') }}</span>
+                                                        @else
+                                                            <span class="badge badge-success">{{ __('Done') }}</span>
+                                                        @endif
+                                                    </td>
                                                     <!-- Action Column with Delete Button -->
                                                     <td>
                                                         @if(auth('admin')->user()->hasPermissionTo('assign.job.delete'))
@@ -85,14 +85,6 @@
                                                         @else
                                                             <span class="text-muted">No Action</span>
                                                         @endif
-                                                    </td>
-                                                    <!-- Action Column with Delete Button -->
-                                                    <td>
-                                                        @can('assign.job.delete')
-                                                            <x-admin.delete-button :id="$job->id" onclick="deleteData" />
-                                                        @else
-                                                            <span class="text-muted">No Action</span>
-                                                        @endcan
                                                     </td>
                                                 </tr>
                                             @empty

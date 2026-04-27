@@ -26,6 +26,7 @@
                                                 <th>{{ __('Category') }}</th>
                                                 <th>{{ __('Owner Name') }}</th>
                                                 <th>{{ __('Phone') }}</th>
+                                                <th>{{ __('Created By') }}</th>
                                                 <th>{{ __('Action') }}</th>
                                             </tr>
                                         </thead>
@@ -38,6 +39,13 @@
                                                     <td>{{ $shop->owner_name ?? 'N/A' }}</td>
                                                     <td>{{ $shop->phone ?? $shop->phone_number ?? 'N/A' }}</td>
                                                     <td>
+                                                        @if($shop->staff && $shop->staff->name)
+                                                            <span class="badge badge-info">{{ $shop->staff->name }}</span>
+                                                        @else
+                                                            <span class="text-muted">{{ __('Unassigned') }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
                                                         @if(auth('admin')->user()->hasPermissionTo('shop.edit'))
                                                         <button type="button" class="btn btn-sm btn-primary" onclick="openAssignModal({{ $shop->id }})" id="assignBtn-{{ $shop->id }}">
                                                             <i class="fas fa-user-plus"></i> <span class="btn-text">{{ __('Assign') }}</span>
@@ -49,7 +57,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="6" class="text-center">
+                                                    <td colspan="7" class="text-center">
                                                         <div class="alert alert-info mb-0">
                                                             <i class="fas fa-info-circle"></i> 
                                                             {{ __('No shops found!') }}
@@ -126,7 +134,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="description">{{ __('Description') }} <span class="text-danger">*</span></label>
+                                    <label for="description">{{ __('Description') }}<span>(Optional)</span></label>
                                     <textarea id="description" name="description" class="form-control" rows="10" placeholder="{{ __('Enter job description...') }}" style="height: 120px;"></textarea>
                                     <div class="invalid-feedback">{{ __('Please enter a job description') }}</div>
                                 </div>

@@ -33,6 +33,12 @@ class RolesController extends Controller
 
     public function store(RoleFormRequest $request)
     {
+		 $request->validate([
+        'name' => 'required|string|unique:roles,name',
+    ], [
+        'name.required' => 'Role name is required.',
+        'name.unique'   => 'This role name is already exist.',
+    ]);
         // checkAdminHasPermissionAndThrowException('role.store');
         $role = Role::create(['name' => $request->name]);
 
@@ -151,21 +157,30 @@ class RolesController extends Controller
         checkAdminHasPermissionAndThrowException('role.edit');
         $role = Role::where('name', '!=', 'Super Admin')->where('id', $id)->first();
         abort_if(! $role, 403);
+        $permissions = Permission::all();
+        $permission_groups = Admin::getPermissionGroupsWithPermissions();
 
-        return view('admin.roles.edit', compact('role'));
+        return view('admin.roles.edit', compact('permissions', 'permission_groups', 'role'));
     }
 
-    public function update(RoleFormRequest $request, $id)
+   public function update(RoleFormRequest $request, $id)
     { 
-        checkAdminHasPermissionAndThrowException('role.update');
-        $role = Role::where('name', '!=', 'Super Admin')->where('id', $id)->first();
-        abort_if(! $role, 403);
-        
+		$role = Role::findOrFail($id);
+
+    $request->validate([
+        'name' => 'required|string|max:255|unique:roles,name,' . $id,
+    ], [
+        'name.required' => 'Role name is required.',
+        'name.unique'   => 'This role name already exists.',
+    ]);
+
+      
         $role->name = $request->name;
         $role->save();
 
         return $this->redirectWithMessage(RedirectType::UPDATE->value, 'admin.role.index');
     }
+
 
     public function show($id)
     {

@@ -13,6 +13,11 @@ class Shop extends Model
         return $this->belongsTo(Staff::class, 'staff_id');
     }
 
+    public function createdBy()
+    {
+        return $this->belongsTo(Staff::class, 'created_by');
+    }
+
     public function photos()
     {
         return $this->hasMany(ShopPhoto::class);

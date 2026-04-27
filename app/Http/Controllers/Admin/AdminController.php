@@ -45,7 +45,6 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        checkAdminHasPermissionAndThrowException('admin.store');
         $rules = [
             'name' => 'required',
             'email' => 'required|unique:admins',
@@ -56,7 +55,6 @@ class AdminController extends Controller
             'email.required' => __('Email is required'),
             'status.required' => __('Status is required'),
             'email.unique' => __('Email already exist'),
-            'password.required' => __('Password is required'),
             'role.array' => __('You must select role'),
         ];
         $this->validate($request, $rules, $customMessages);
@@ -89,19 +87,16 @@ class AdminController extends Controller
      */
     public function update(Request $request, $id)
     {
-        checkAdminHasPermissionAndThrowException('admin.update');
         $admin = Admin::notSuperAdmin()->find($id);
         $rules = [
             'name' => 'required',
             'email' => 'required|unique:admins,email,' . $admin->id,
-            'password' => 'nullable|min:4',
             'status' => 'required',
         ];
         $customMessages = [
             'name.required' => __('Name is required'),
             'email.required' => __('Email is required'),
             'email.unique' => __('Email already exist'),
-            'password.min' => __('Password Must be 4 characters'),
             'role.array' => __('You must select role'),
         ];
         $this->validate($request, $rules, $customMessages);
@@ -135,7 +130,7 @@ class AdminController extends Controller
 
     public function changeStatus($id)
     {
-        checkAdminHasPermissionAndThrowException('admin.update');
+        
         $admin = Admin::notSuperAdmin()->find($id);
         $status = $admin->status == 'active' ? 'inactive' : 'active';
         $admin->status = $status;

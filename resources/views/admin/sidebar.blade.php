@@ -266,14 +266,6 @@
                             </a>
                         </li>
                         @endcan
-                        @can('staff.create')
-                        <li class="{{ isRoute('admin.staff.create', 'active') }}">
-                            <a href="{{ route('admin.staff.create') }}">
-                                <i class="fas fa-user-plus"></i>
-                                <span>{{ __('Add Staff') }}</span>
-                            </a>
-                        </li>
-                        @endcan
                         @can('staff.permission.view')
                         <li class="{{ isRoute('admin.staff-permissions.index', 'active') }}">
                             <a href="{{ route('admin.staff-permissions.index') }}">
