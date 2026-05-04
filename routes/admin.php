@@ -177,6 +177,13 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
 
                 Route::resource('staff', \App\Http\Controllers\Admin\StaffController::class);
 
+                // District Routes
+                Route::resource('districts', \App\Http\Controllers\Admin\DistrictController::class);
+                Route::post('districts/change-status/{id}', [\App\Http\Controllers\Admin\DistrictController::class, 'changeStatus'])->name('districts.change-status');
+                Route::post('districts/bulk-delete', [\App\Http\Controllers\Admin\DistrictController::class, 'bulkDelete'])->name('districts.bulk-delete');
+                Route::get('districts/active', [\App\Http\Controllers\Admin\DistrictController::class, 'getActiveDistricts'])->name('districts.active');
+                Route::get('districts/search', [\App\Http\Controllers\Admin\DistrictController::class, 'search'])->name('districts.search');
+
                 // Staff Permissions Routes
                 Route::get('staff-permissions', [\App\Http\Controllers\Admin\StaffPermissionController::class, 'index'])->name('staff-permissions.index');
                 Route::get('staff-permissions/{id}', [\App\Http\Controllers\Admin\StaffPermissionController::class, 'show'])->name('staff-permissions.show');
@@ -199,7 +206,9 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
                 Route::put('{photo}/set-primary-photo', [App\Http\Controllers\Admin\ShopManagementController::class, 'setPrimaryPhoto'])
                     ->name('shop.set-primary-photo');
                 Route::post('shop-management/{id}/assign', [\App\Http\Controllers\Admin\ShopManagementController::class, 'assignJob'])->name('shop-management.assign');
+                Route::get('shop-management/{id}/district', [\App\Http\Controllers\Admin\ShopManagementController::class, 'getShopDistrict'])->name('shop-management.get-shop-district');
                 Route::get('shop-management/staff/permissions', [\App\Http\Controllers\Admin\ShopManagementController::class, 'getStaffWithPermissions'])->name('shop-management.staff-permissions');
+                Route::post('shop-management/bulk-assign', [\App\Http\Controllers\Admin\ShopManagementController::class, 'bulkAssign'])->name('shop-management.bulk-assign');
                 
                 Route::get('settings', [SettingController::class , 'settings'])->name('settings');
                 Route::get('sync-modules', [AddonsController::class , 'syncModules'])->name('addons.sync');

@@ -1,6 +1,6 @@
 @extends('admin.master_layout')
 @section('title')
-    <title>{{ __('Edit Staff') }}</title>
+    <title>{{ __('Edit Agent') }}</title>
 @endsection
 @section('admin-content')
 @can('staff.edit')
@@ -10,7 +10,7 @@
                 <div class="section-header-back">
                     <a href="{{ route('admin.staff.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
                 </div>
-                <h1>{{ __('Edit Staff') }}</h1>
+                <h1>{{ __('Edit Agent') }}</h1>
             </div>
 
             <div class="section-body">
@@ -18,7 +18,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>{{ __('Edit Staff') }}</h4>
+                                <h4>{{ __('Edit Agent') }}</h4>
                             </div>
                             <div class="card-body">
                                 <form action="{{ route('admin.staff.update', $staff->id) }}" method="POST" enctype="multipart/form-data">
@@ -67,6 +67,23 @@
                                                     <option value="0" {{ $staff->status == 0 ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                                                 </select>
                                                 @error('status')
+                                                    <span class="text-danger error-message">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="district_id">{{ __('District') }} <span class="text-danger">*</span></label>
+                                                <select name="district_id" id="district_id" class="form-control" required>
+                                                    <option value="">{{ __('Select District') }}</option>
+                                                    @if(isset($districts))
+                                                        @foreach($districts as $district)
+                                                            <option value="{{ $district->id }}" {{ $staff->district_id == $district->id ? 'selected' : '' }}>{{ $district->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                                @error('district_id')
                                                     <span class="text-danger error-message">{{ $message }}</span>
                                                 @enderror
                                             </div>

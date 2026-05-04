@@ -104,6 +104,16 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
+                                                <label for="district">{{ __('District') }} <span class="text-danger">*</span></label>
+                                                <input type="text" id="district" name="district" class="form-control" value="{{ $staffDistrict ? $staffDistrict->name : 'N/A' }}" readonly>
+                                                <small class="form-text text-muted">{{ __('District is auto-assigned based on your assigned district') }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
                                                 <label for="address">{{ __('Address') }} <span class="text-danger">*</span></label>
                                                 <textarea id="address" name="address" class="form-control clear-error" rows="3" placeholder="Enter Shop Address">{{ old('address') }}</textarea>
                                                 @error('address')

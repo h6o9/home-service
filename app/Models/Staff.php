@@ -26,6 +26,11 @@ class Staff extends Authenticatable
         return $this->hasMany(StaffPermission::class);
     }
 
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_id');
+    }
+
     public function assignedJobs()
     {
         return $this->hasMany(StaffJob::class, 'assigned_to');

@@ -240,7 +240,21 @@
                 @endphp
 
                 @if($pendingJobsCount > 0)
-                    <span class="badge-danger ml-auto">{{ $pendingJobsCount }}</span>
+                    <span class="badge-danger"  style="
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;
+    height:26px;
+    background-color:#dc3545;
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    border-radius:50%;
+    margin-left:auto;
+    flex:0 0 36px;
+    align-self:center;
+  ">{{ $pendingJobsCount }}</span>
                 @endif
             </a>
         </li>

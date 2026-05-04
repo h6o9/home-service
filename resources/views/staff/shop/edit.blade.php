@@ -63,7 +63,7 @@
                                     </div>
 
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="phone_number">{{ __('Phone Number') }} <span class="text-danger">*</span></label>
                                                 <input type="text" id="phone_number" name="phone_number" value="{{ old('phone_number', $shop->phone_number) }}" class="form-control" placeholder="Enter Phone Number">
@@ -73,11 +73,35 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="whatsapp_number">{{ __('WhatsApp Number') }} <span class="text-danger">*</span></label>
                                                 <input type="text" id="whatsapp_number" name="whatsapp_number" value="{{ old('whatsapp_number', $shop->whatsapp_number) }}" class="form-control" placeholder="Enter WhatsApp Number">
                                                 @error('whatsapp_number')
+                                                    <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="district_id">{{ __('District') }} <span class="text-danger">*</span></label>
+                                                @if($staffDistrict)
+                                                    <input type="text" class="form-control" value="{{ $staffDistrict->name }}" readonly>
+                                                    <input type="hidden" name="district_id" value="{{ $staffDistrict->id }}">
+                                                @else
+                                                    <select id="district_id" name="district_id" class="form-control" required>
+                                                        <option value="">{{ __('Select District') }}</option>
+                                                        @if(isset($districts))
+                                                            @foreach($districts as $district)
+                                                                <option value="{{ $district->id }}" {{ old('district_id', $shop->district_id) == $district->id ? 'selected' : '' }}>
+                                                                    {{ $district->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
+                                                @endif
+                                                @error('district_id')
                                                     <span class="text-danger">{{ $message }}</span>
                                                 @enderror
                                             </div>

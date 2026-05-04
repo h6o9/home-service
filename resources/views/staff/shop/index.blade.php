@@ -42,7 +42,7 @@
                                     </div>
                                 @endif
 
-                                <div class="table-responsive table-invoice">
+                                                                <div class="table-responsive table-invoice">
                                     <table class="table table-striped" id="shopTable">
                                         <thead>
                                             <tr>
@@ -52,6 +52,7 @@
                                                 <th>{{ __('Category') }}</th>
                                                 <th>{{ __('Phone') }}</th>
                                                 <th>{{ __('WhatsApp') }}</th>
+                                                <th>{{ __('District') }}</th>
                                                 <th>{{ __('Action') }}</th>
                                             </tr>
                                         </thead>
@@ -76,6 +77,13 @@
                                                 </td>
                                                 <td>{{ $shop->phone_number }}</td>
                                                 <td>{{ $shop->whatsapp_number }}</td>
+                                                <td data-district-id="{{ $shop->district_id ?? '' }}">
+                                                    @if($shop->district)
+                                                        <span class="badge badge-info">{{ $shop->district->name }}</span>
+                                                    @else
+                                                        <span class="text-muted">{{ __('N/A') }}</span>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <a href="{{ route('staff.shop.show', $shop->id) }}" class="btn btn-info btn-sm" title="View">
                                                         <i class="fa fa-eye"></i>
@@ -101,7 +109,7 @@
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="7" class="text-center">No Shops Found</td>
+                                                <td colspan="8" class="text-center">No Shops Found</td>
                                             </tr>
                                             @endforelse
                                         </tbody>
@@ -132,13 +140,7 @@
         "use strict";
         
         $(document).ready(function() {
-            // Configure Toastr
-            if(typeof toastr !== 'undefined') {
-                toastr.options = {
-                    "closeButton": true,
-                    "debug": false,
-                    "newestOnTop": true,
-                    "progressBar": true,
+
                     "positionClass": "toast-top-right",
                     "preventDuplicates": false,
                     "onclick": null,

@@ -1,13 +1,13 @@
 @extends('admin.master_layout')
 @section('title')
-    <title>{{ __('Staff List') }}</title>
+    <title>{{ __('Agent List') }}</title>
 @endsection
 @section('admin-content')
     @can('staff.view')
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>{{ __('Staff List') }}</h1>
+                <h1>{{ __('Agent List') }}</h1>
             </div>
 
             <div class="section-body">
@@ -15,7 +15,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
-                                <h4>{{ __('Staff List') }} <small class="font-weight-bold text-danger"> (The default password for all staff members is 12345678. This password is automatically generated when a new staff member is created.)</small></h4>
+                                <h4>{{ __('Agent List') }} <small class="font-weight-bold text-danger"> (The default password for all agent members is 12345678. This password is automatically generated when a new agent member is created.)</small></h4>
                                 @can('staff.create')
                                 <div>
                                     <a class="btn btn-primary" href="{{ route('admin.staff.create') }}"><i
@@ -24,14 +24,30 @@
                                 @endcan
                             </div>
                             <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="district_filter">{{ __('Filter by District') }}</label>
+                                            <select id="district_filter" class="form-control">
+                                                <option value="">{{ __('All Districts') }}</option>
+                                                @if(isset($districts))
+                                                    @foreach($districts as $district)
+                                                        <option value="{{ $district->id }}">{{ $district->name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="table-responsive table-invoice">
                                     <table class="table table-striped" id="staffTable">
                                         <thead>
-                                            <tr>
+                    <tr>
                                                 <th>{{ __('SN') }}</th>
                                                 <th>{{ __('Name') }}</th>
                                                 <th>{{ __('Email') }}</th>
                                                 <th>{{ __('Phone') }}</th>
+                                                <th>{{ __('District') }}</th>
                                                 <th>{{ __('Status') }}</th>
                                                 <th>{{ __('Action') }}</th>
                                             </tr>
@@ -43,6 +59,13 @@
                                                     <td>{{ $staff->name }}</td>
                                                     <td>{{ $staff->email }}</td>
                                                     <td>{{ $staff->phone }}</td>
+                                                    <td data-district-id="{{ $staff->district_id ?? '' }}">
+                                                        @if($staff->district)
+                                                            <span class="badge badge-info">{{ $staff->district->name }}</span>
+                                                        @else
+                                                            <span class="text-muted">{{ __('N/A') }}</span>
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         <!-- Toggle Button -->
                                                          @can('staff.edit')
@@ -116,6 +139,30 @@
 @push('js')
     <script>
         "use strict";
+
+        // District filtering functionality
+        $(document).ready(function() {
+            $('#district_filter').on('change', function() {
+                var districtId = $(this).val();
+                
+                if(districtId === '') {
+                    // Show all rows
+                    $('#staffTable tbody tr').show();
+                } else {
+                    // Filter by district
+                    $('#staffTable tbody tr').each(function() {
+                        var row = $(this);
+                        var staffDistrictId = row.find('td:eq(4)').data('district-id');
+                        
+                        if(staffDistrictId == districtId) {
+                            row.show();
+                        } else {
+                            row.hide();
+                        }
+                    });
+                }
+            });
+        });
 
         function deleteData(id) {
             let url = '{{ route('admin.staff.destroy', ':id') }}';

@@ -244,17 +244,18 @@
                 </li>
             @endif
 
-            <!-- STAFF MANAGEMENT DROPDOWN -->
+            <!-- AGENT MANAGEMENT DROPDOWN -->
             @if(
                 $admin->can('staff.view') ||
                 $admin->can('staff.create') ||
-                $admin->can('staff.permission.view')
+                $admin->can('staff.permission.view') ||
+                $admin->can('district.view')
             )
-                <li class="menu-header">{{ __('Staff Management') }}</li>
+                <li class="menu-header">{{ __('Agent Management') }}</li>
                 <li class="dropdown-parent">
                     <a href="javascript:void(0);" class="dropdown-toggle" aria-expanded="false">
                         <i class="fas fa-users"></i>
-                        <span>{{ __('Staff Controls') }}</span>
+                        <span>{{ __('Agent Controls') }}</span>
                         <i class="fas fa-chevron-right dropdown-arrow"></i>
                     </a>
                     <ul class="submenu">
@@ -262,7 +263,15 @@
                         <li class="{{ isRoute('admin.staff.index', 'active') }}">
                             <a href="{{ route('admin.staff.index') }}">
                                 <i class="fas fa-users"></i>
-                                <span>{{ __('Staff List') }}</span>
+                                <span>{{ __('Agent List') }}</span>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('district.view')
+                        <li class="{{ isRoute('admin.districts.index', 'active') }}">
+                            <a href="{{ route('admin.districts.index') }}">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ __('Districts') }}</span>
                             </a>
                         </li>
                         @endcan
@@ -270,7 +279,7 @@
                         <li class="{{ isRoute('admin.staff-permissions.index', 'active') }}">
                             <a href="{{ route('admin.staff-permissions.index') }}">
                                 <i class="fas fa-shield-alt"></i>
-                                <span>{{ __('Staff Permissions') }}</span>
+                                <span>{{ __('Agent Permissions') }}</span>
                             </a>
                         </li>
                         @endcan
@@ -314,7 +323,20 @@
                                 <i class="fas fa-tasks"></i>
                                 <span>{{ __('Assigned Jobs') }}</span>
                                 @if($pendingJobsCount > 0)
-                                    <span class="badge-pending">{{ $pendingJobsCount }}</span>
+                                    <span class="btn-danger" style="
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:36px;
+    height:26px;
+    background-color:#dc3545;
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    border-radius:50%;
+    margin-left:auto;
+    flex:0 0 36px;
+    align-self:center;">{{ $pendingJobsCount }}</span>
                                 @endif
                             </a>
                         </li>

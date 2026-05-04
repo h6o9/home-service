@@ -28,7 +28,15 @@ class ShopController extends Controller
             abort(403, 'You do not have permission to view shop list.');
         }
 
-        $shops = Shop::with('photos')->latest()->paginate(10);
+        // Get staff member's district
+        $staffDistrict = auth('staff')->user()->district_id;
+        
+        // Filter shops by staff's district
+        $shops = Shop::with('photos')
+            ->where('district_id', $staffDistrict)
+            ->latest()
+            ->paginate(10);
+            
         return view('staff.shop.index', compact('shops'));
     }
 
@@ -42,8 +50,9 @@ class ShopController extends Controller
             abort(403, 'You do not have permission to create shops.');
         }
 
- 		$shopCategories = ShopCategory::where('is_active', 1)->get();
-         return view('staff.shop.create', compact('shopCategories'));
+        $shopCategories = ShopCategory::where('is_active', 1)->get();
+        $staffDistrict = auth('staff')->user()->district;
+        return view('staff.shop.create', compact('shopCategories', 'staffDistrict'));
     }
 
     /**
@@ -110,6 +119,7 @@ class ShopController extends Controller
         'about_shop' => $validated['about_shop'],
         'slug' => Str::slug($validated['shop_name']) . '-' . uniqid(),
         'staff_id' => auth('staff')->id(),
+        'district_id' => auth('staff')->user()->district_id,
     ]);
 
     // Handle multiple photos upload
@@ -180,7 +190,8 @@ class ShopController extends Controller
         
         $shop = Shop::with('photos')->findOrFail($id);
         $shopCategories = ShopCategory::where('is_active', 1)->get();
-        return view('staff.shop.edit', compact('shop', 'shopCategories'));
+        $staffDistrict = auth('staff')->user()->district;
+        return view('staff.shop.edit', compact('shop', 'shopCategories', 'staffDistrict'));
     }
 
     /**
@@ -205,6 +216,7 @@ class ShopController extends Controller
             'whatsapp_number' => 'required|string|max:20',
             'address' => 'required|string',
             'about_shop' => 'required|string',
+            'district_id' => 'required|exists:districts,id',
             'shop_photos' => 'nullable|array',
             'shop_photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
@@ -217,6 +229,7 @@ class ShopController extends Controller
             'whatsapp_number' => $validated['whatsapp_number'],
             'address' => $validated['address'],
             'about_shop' => $validated['about_shop'],
+            'district_id' => $validated['district_id'],
             'slug' => Str::slug($validated['shop_name']) . '-' . uniqid(),
         ]);
 

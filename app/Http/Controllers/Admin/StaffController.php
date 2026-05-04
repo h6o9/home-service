@@ -18,8 +18,9 @@ class StaffController extends Controller
     //
     public function index()
     {
-        $staffs = \App\Models\Staff::latest()->paginate(15);
-        return view('admin.staff.index', compact('staffs'));
+        $districts = \App\Models\District::all();
+        $staffs = \App\Models\Staff::with('district')->latest()->paginate(15);
+        return view('admin.staff.index', compact('staffs', 'districts'));
     }
 
     public function create()
@@ -31,7 +32,8 @@ class StaffController extends Controller
         foreach ($permissions as $key => $name) {
             \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $key, 'guard_name' => 'staff']);
         }
-        return view('admin.staff.create', compact('permissions'));
+        $districts = \App\Models\District::all();
+        return view('admin.staff.create', compact('permissions', 'districts'));
     }
     public function store(Request $request)
     {
@@ -39,7 +41,8 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:staff,email',
             'phone' => 'required|string|max:20',
-            'status' => 'required|boolean'
+            'status' => 'required|boolean',
+            'district_id' => 'required|exists:districts,id'
         ]);
 
         $password = 12345678;
@@ -48,6 +51,7 @@ class StaffController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'status' => $request->status,
+            'district_id' => $request->district_id,
             'password' => bcrypt($password),
         ]);
 
@@ -70,7 +74,8 @@ class StaffController extends Controller
             \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $key, 'guard_name' => 'staff']);
         }
         $staffPermissions = $staff->permissions->pluck('name')->toArray();
-        return view('admin.staff.edit', compact('staff', 'permissions', 'staffPermissions'));
+        $districts = \App\Models\District::all();
+        return view('admin.staff.edit', compact('staff', 'permissions', 'staffPermissions', 'districts'));
     }
     public function update(Request $request, $id)
     {
@@ -78,7 +83,8 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:staff,email,' . $id,
             'phone' => 'required|string|max:20',
-            'status' => 'required|boolean'
+            'status' => 'required|boolean',
+            'district_id' => 'required|exists:districts,id'
         ]);
 
         $password = 12345678;
@@ -88,6 +94,7 @@ class StaffController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'status' => $request->status,
+            'district_id' => $request->district_id,
             'password' => bcrypt($password),
         ]);
 

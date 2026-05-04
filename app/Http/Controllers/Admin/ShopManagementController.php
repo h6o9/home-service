@@ -69,22 +69,28 @@ class ShopManagementController extends Controller
         }
         
         $request->validate([
-        'assigned_to' => 'required|exists:staff,id',
-        'description' => 'required|string|min:5',
-        'scheduled_date' => 'required|date|after_or_equal:today',
-        'scheduled_time' => 'required|date_format:H:i',
-        'notes' => 'nullable|string',
-    ], [
-        'assigned_to.required' => 'Please select a staff member to assign this job.',
-        'assigned_to.exists' => 'Selected staff member does not exist.',
-        'description.required' => 'Job description is required.',
-        'description.min' => 'Job description must be at least 5 characters.',
-        'scheduled_date.required' => 'Please select a scheduled date.',
-        'scheduled_date.after_or_equal' => 'Scheduled date cannot be in the past.',
-        'scheduled_time.required' => 'Please select a scheduled time.',
-        'scheduled_time.date_format' => 'Please enter a valid time format (HH:MM).',
-    ]);
-        $shop = Shop::findOrFail($shopId);
+            'assigned_to' => 'required|exists:staff,id',
+            'description' => 'required|min:5',
+            'scheduled_date' => 'required|date|after_or_equal:today',
+            'scheduled_time' => 'required|date_format:H:i',
+            'notes' => 'nullable|string',
+        ], [
+            'assigned_to.required' => 'Please select a staff member.',
+            'assigned_to.exists' => 'Selected staff member does not exist.',
+            'description.required' => 'Job description is required.',
+            'description.min' => 'Job description must be at least 5 characters.',
+            'scheduled_date.required' => 'Please select a scheduled date.',
+            'scheduled_date.after_or_equal' => 'Scheduled date cannot be in the past.',
+            'scheduled_time.required' => 'Please select a scheduled time.',
+            'scheduled_time.date_format' => 'Please enter a valid time format (HH:MM).',
+        ]);
+        $shop = Shop::with('district')->findOrFail($shopId);
+        
+        // Verify staff district matches shop district
+        $staff = Staff::findOrFail($request->assigned_to);
+        if ($shop->district_id && $staff->district_id != $shop->district_id) {
+            return response()->json(['message' => 'Staff district does not match shop district!'], 422);
+        }
         
         StaffJob::create([
             'shop_id' => $shop->id,
@@ -115,11 +121,14 @@ class ShopManagementController extends Controller
                       ->where('permissable', true);
             })
             ->get();
+        
+        // Get all districts
+        $districts = \App\Models\District::all();
             
         // Get all shops with their relationships
-        $shops = Shop::with(['staff', 'jobs.assignedTo'])->latest()->paginate(10);
+        $shops = Shop::with(['staff', 'jobs.assignedTo', 'district'])->latest()->paginate(10);
             
-        return view('admin.shop-management.shopindex', compact('shops', 'allStaff'));
+        return view('admin.shop-management.shopindex', compact('shops', 'allStaff', 'districts'));
     }
 
     public function jobDetails(Request $request)
@@ -197,6 +206,12 @@ class ShopManagementController extends Controller
         ]);
     }
 
+    public function getShopDistrict($id)
+    {
+        $shop = Shop::findOrFail($id);
+        return response()->json(['district_id' => $shop->district_id]);
+    }
+
     public function getStaffWithPermissions(Request $request)
     {
         $module = $request->module;
@@ -265,6 +280,70 @@ public function delete($id)
             'message' => 'Error deleting job'
         ]);
     }
+}
+
+public function bulkAssign(Request $request)
+{
+    // Check if admin has permission to assign jobs
+    if (!auth('admin')->user()->hasPermissionTo('shop.edit')) {
+        abort(403, 'Unauthorized action.');
+    }
+    
+    $request->validate([
+        'shop_ids' => 'required|array',
+        'shop_ids.*' => 'exists:shops,id',
+        'assigned_to' => 'required|exists:staff,id',
+        'description' => 'required|min:5',
+        'scheduled_date' => 'required|date|after_or_equal:today',
+        'scheduled_time' => 'required|date_format:H:i',
+        'notes' => 'nullable|string',
+    ], [
+        'shop_ids.required' => 'Please select at least one shop.',
+        'shop_ids.*.exists' => 'One or more selected shops do not exist.',
+        'assigned_to.required' => 'Please select a staff member.',
+        'assigned_to.exists' => 'Selected staff member does not exist.',
+        'description.required' => 'Job description is required.',
+        'description.min' => 'Job description must be at least 5 characters.',
+        'scheduled_date.required' => 'Please select a scheduled date.',
+        'scheduled_date.after_or_equal' => 'Scheduled date cannot be in the past.',
+        'scheduled_time.required' => 'Please select a scheduled time.',
+        'scheduled_time.date_format' => 'Please enter a valid time format (HH:MM).',
+    ]);
+    
+    $staff = Staff::findOrFail($request->assigned_to);
+    $assignedCount = 0;
+    $skippedCount = 0;
+    
+    foreach ($request->shop_ids as $shopId) {
+        $shop = Shop::findOrFail($shopId);
+        
+        // Verify staff district matches shop district
+        if ($shop->district_id && $staff->district_id != $shop->district_id) {
+            $skippedCount++;
+            continue;
+        }
+        
+        StaffJob::create([
+            'shop_id' => $shop->id,
+            'assigned_by' => auth('admin')->id(),
+            'assigned_to' => $request->assigned_to,
+            'job_type' => 'general', // Default job type
+            'description' => $request->description,
+            'scheduled_date' => $request->scheduled_date,
+            'scheduled_time' => $request->scheduled_time,
+            'notes' => $request->notes,
+            'status' => 'pending',
+        ]);
+        
+        $assignedCount++;
+    }
+    
+    $message = "Successfully assigned jobs to {$assignedCount} shops.";
+    if ($skippedCount > 0) {
+        $message .= " Skipped {$skippedCount} shops due to district mismatch.";
+    }
+    
+    return response()->json(['message' => $message]);
 }
 
     
