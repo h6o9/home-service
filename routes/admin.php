@@ -198,8 +198,9 @@ Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
                 // Shop Management Routes
                 Route::get('shop-management', [\App\Http\Controllers\Admin\ShopManagementController::class, 'index'])->name('shop-management.index');
                 Route::get('shop-management/shop-list', [\App\Http\Controllers\Admin\ShopManagementController::class, 'shopList'])->name('shop-management.shop-list');
-                Route::get('shop-massigned-jobs.destroyanagement/job-details', [\App\Http\Controllers\Admin\ShopManagementController::class, 'jobDetails'])->name('shop-management.job-details');
+                Route::get('shop-management/job-details', [\App\Http\Controllers\Admin\ShopManagementController::class, 'jobDetails'])->name('shop-management.job-details');
                 Route::get('shop-management/job-notes', [\App\Http\Controllers\Admin\ShopManagementController::class, 'jobNotes'])->name('shop-management.job-notes');
+                Route::get('shop-management/job/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'showJobDetails'])->name('shop-management.job-details.show');
                 Route::delete('assigned-jobs/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'delete'])->name('assigned-jobs.destroy');
                 Route::get('shop-management/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'show'])->name('shop-management.show');
                 Route::post('shop-management/toggle-job-status/{id}', [\App\Http\Controllers\Admin\ShopManagementController::class, 'toggleJobStatus'])->name('shop-management.toggle-job-status');

@@ -13,6 +13,9 @@ class DistrictController extends Controller
      */
     public function index()
     {
+        if (!auth('admin')->user()->hasPermissionTo('district.view')) {
+        abort(403, 'Access Denied. You do not have permission.');
+    }
         $districts = District::latest()->paginate(10);
         return view('admin.districts.index', compact('districts'));
     }

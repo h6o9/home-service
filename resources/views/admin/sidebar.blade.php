@@ -232,14 +232,7 @@
                             </a>
                         </li>
                         @endcan
-                        @can('activity.logs.view')
-                        <li class="{{ isRoute('admin.activity-logs.index', 'active') }}">
-                            <a href="{{ route('admin.activity-logs.index') }}">
-                                <i class="fas fa-history"></i>
-                                <span>{{ __('Activity Logs') }}</span>
-                            </a>
-                        </li>
-                        @endcan
+                        
                     </ul>
                 </li>
             @endif
@@ -324,19 +317,19 @@
                                 <span>{{ __('Assigned Jobs') }}</span>
                                 @if($pendingJobsCount > 0)
                                     <span class="btn-danger" style="
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:36px;
-    height:26px;
-    background-color:#dc3545;
-    color:#fff;
-    font-size:12px;
-    font-weight:600;
-    border-radius:50%;
-    margin-left:auto;
-    flex:0 0 36px;
-    align-self:center;">{{ $pendingJobsCount }}</span>
+                                                display:flex;
+                                                align-items:center;
+                                                justify-content:center;
+                                                width:26px;
+                                                height:26px;
+                                                background-color:#dc3545;
+                                                color:#fff; 
+                                                font-size:12px;
+                                                font-weight:600;
+                                                border-radius:50%;
+                                                margin-left:auto;
+                                                flex:0 0 36px;
+                                                align-self:center;">{{ $pendingJobsCount }}</span>
                                 @endif
                             </a>
                         </li>

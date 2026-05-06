@@ -14,7 +14,7 @@
                             <div class="card-header d-flex justify-content-between">
                                 <x-admin.form-title :text="__('Shop List')" />
                                 <div>
-                                    <button type="button" class="btn btn-primary" id="bulkAssignBtn" disabled>
+                                    <button type="button" class="btn btn-primary" id="bulkAssignBtn">
                                         <i class="fas fa-user-plus"></i> {{ __('Bulk Assign Jobs') }}
                                     </button>
                                 </div>
@@ -39,14 +39,11 @@
                                     <table class="table table-striped" id="shopsTable">
                                         <thead>
                                             <tr>
-                                                <th style="width:40px;">
-                                                    <input type="checkbox" id="selectAllShops" class="form-check-input">
-                                                </th>
                                                 <th>#</th>
                                                 <th>{{ __('Shop Name') }}</th>
                                                 <th>{{ __('Category') }}</th>
                                                 <th>{{ __('Owner Name') }}</th>
-                                                <th>{{ __('Phone') }}</th>
+                                                <th>{{ __('Address') }}</th>
                                                 <th>{{ __('District') }}</th>
                                                 <th>{{ __('Created By') }}</th>
                                                 <th>{{ __('Action') }}</th>
@@ -54,26 +51,14 @@
                                         </thead>
                                         <tbody>
                                             @forelse ($shops as $index => $shop)
-                                                <tr data-district-id="{{ $shop->district_id ?? '' }}">
-                                                    {{-- col 0: Checkbox --}}
-                                                    <td>
-                                                        <input type="checkbox"
-                                                               class="shop-checkbox form-check-input"
-                                                               value="{{ $shop->id }}"
-                                                               data-shop-name="{{ $shop->name ?? $shop->shop_name ?? 'N/A' }}"
-                                                               data-district-id="{{ $shop->district_id ?? '' }}">
-                                                    </td>
-                                                    {{-- col 1: # --}}
+                                                <tr data-district-id="{{ $shop->district_id ?? '' }}"
+                                                    data-shop-id="{{ $shop->id }}"
+                                                    data-shop-name="{{ $shop->name ?? $shop->shop_name ?? 'N/A' }}">
                                                     <td>{{ ++$index }}</td>
-                                                    {{-- col 2: Shop Name --}}
                                                     <td>{{ $shop->name ?? $shop->shop_name ?? 'N/A' }}</td>
-                                                    {{-- col 3: Category --}}
                                                     <td>{{ $shop->category ?? 'N/A' }}</td>
-                                                    {{-- col 4: Owner Name --}}
                                                     <td>{{ $shop->owner_name ?? 'N/A' }}</td>
-                                                    {{-- col 5: Phone --}}
-                                                    <td>{{ $shop->phone ?? $shop->phone_number ?? 'N/A' }}</td>
-                                                    {{-- col 6: District --}}
+                                                    <td>{{ $shop->address ?? $shop->address ?? 'N/A' }}</td>
                                                     <td>
                                                         @if($shop->district)
                                                             <span class="badge badge-info">{{ $shop->district->name }}</span>
@@ -81,7 +66,6 @@
                                                             <span class="text-muted">{{ __('N/A') }}</span>
                                                         @endif
                                                     </td>
-                                                    {{-- col 7: Created By / Staff --}}
                                                     <td>
                                                         @if($shop->staff && $shop->staff->name)
                                                             <span class="badge badge-info">{{ $shop->staff->name }}</span>
@@ -89,7 +73,6 @@
                                                             <span class="text-muted">{{ __('Unassigned') }}</span>
                                                         @endif
                                                     </td>
-                                                    {{-- col 8: Action --}}
                                                     <td>
                                                         @if(auth('admin')->user()->hasPermissionTo('shop.edit'))
                                                             <button type="button"
@@ -106,7 +89,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="9" class="text-center">
+                                                    <td colspan="8" class="text-center">
                                                         <div class="alert alert-info mb-0">
                                                             <i class="fas fa-info-circle"></i>
                                                             {{ __('No shops found!') }}
@@ -131,7 +114,7 @@
         </section>
     </div>
 
-    <!-- Assign Job Modal -->
+    <!-- Single Assign Job Modal -->
     <div class="modal fade" id="assignJobModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -181,7 +164,6 @@
                                     <textarea id="description" name="description" class="form-control"
                                               rows="4" placeholder="{{ __('Enter job description...') }}"
                                               style="height:120px;"></textarea>
-                                    <div class="invalid-feedback">{{ __('Please enter a job description') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -219,93 +201,124 @@
                 </div>
                 <form id="bulkAssignForm" action="{{ route('admin.shop-management.bulk-assign') }}" method="POST">
                     @csrf
-                    <!-- Shops Selection -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <label>{{ __('Select Shops') }}</label>
-                                    <div>
-                                        <small class="text-muted">
-                                            <input type="checkbox" id="modalSelectAllShops" class="form-check-input mr-1">
-                                            <label for="modalSelectAllShops" class="form-check-label mb-0">
+                    <div class="modal-body">
+
+                        <!-- Shop Selection -->
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <div class="form-group mb-0">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="mb-0 font-weight-bold">
+                                            {{ __('Select Shops') }} <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="d-flex align-items-center">
+                                            <span id="selectedCountBadge" class="badge badge-primary mr-2">
+                                                0 {{ __('selected') }}
+                                            </span>
+                                            <input type="checkbox" id="modalSelectAllShops"
+                                                   class="form-check-input mr-1" style="margin-top:0;">
+                                            <label for="modalSelectAllShops" class="form-check-label mb-0 small">
                                                 {{ __('Select All') }}
                                             </label>
-                                        </small>
+                                        </div>
                                     </div>
+                                    <input type="text" id="modalShopSearch"
+                                           class="form-control form-control-sm mb-2"
+                                           placeholder="{{ __('Search shops...') }}">
+                                    <div id="selectedShopsList"
+                                         class="border rounded p-2"
+                                         style="max-height:220px; overflow-y:auto;">
+                                        <p class="text-muted mb-0">{{ __('Loading shops...') }}</p>
+                                    </div>
+                                    <small class="text-danger d-none" id="shopSelectionError">
+                                        {{ __('Please select at least one shop') }}
+                                    </small>
                                 </div>
-                                <div id="selectedShopsList" class="border rounded p-2"
-                                     style="max-height:200px; overflow-y:auto;">
-                                    <p class="text-muted mb-0">{{ __('Loading shops...') }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Assign To -->
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="bulk_assigned_to">
+                                        {{ __('Assign To') }} <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="bulk_assigned_to" name="assigned_to"
+                                            class="form-control" required>
+                                        <option value="">{{ __('Select Agent') }}</option>
+                                        @foreach($allStaff as $staff)
+                                            <option value="{{ $staff->id }}"
+                                                    data-district-id="{{ $staff->district_id ?? '' }}">
+                                                {{ $staff->email }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="invalid-feedback">{{ __('Please select an agent') }}</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Assign To - Required -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="bulk_assigned_to">{{ __('Assign To') }} <span class="text-danger">*</span></label>
-                                <select id="bulk_assigned_to" name="assigned_to" class="form-control" required>
-                                    <option value="">{{ __('Select Agent') }}</option>
-                                    @foreach($allStaff as $staff)
-                                        <option value="{{ $staff->id }}"
-                                                data-district-id="{{ $staff->district_id ?? '' }}">
-                                            {{ $staff->email }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback">{{ __('Please select an agent') }}</div>
+
+                        <!-- Date & Time -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="bulk_scheduled_date">
+                                        {{ __('Scheduled Date') }} <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" id="bulk_scheduled_date"
+                                           name="scheduled_date" class="form-control">
+                                    <div class="invalid-feedback">{{ __('Please select a scheduled date') }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="bulk_scheduled_time">
+                                        {{ __('Scheduled Time') }} <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="time" id="bulk_scheduled_time"
+                                           name="scheduled_time" class="form-control">
+                                    <div class="invalid-feedback">{{ __('Please select a scheduled time') }}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Scheduled Date and Time - Both Required -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="bulk_scheduled_date">{{ __('Scheduled Date') }} <span class="text-danger">*</span></label>
-                                <input type="date" id="bulk_scheduled_date" name="scheduled_date" class="form-control">
-                                <div class="invalid-feedback">{{ __('Please select a scheduled date') }}</div>
+
+                        <!-- Description -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="bulk_description">
+                                        {{ __('Job Description') }}
+                                        <span class="text-muted">({{ __('Optional') }})</span>
+                                    </label>
+                                    <textarea id="bulk_description" name="description"
+                                              class="form-control" rows="3"
+                                              placeholder="{{ __('Enter job description') }}"></textarea>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="bulk_scheduled_time">{{ __('Scheduled Time') }} <span class="text-danger">*</span></label>
-                                <input type="time" id="bulk_scheduled_time" name="scheduled_time" class="form-control">
-                                <div class="invalid-feedback">{{ __('Please select a scheduled time') }}</div>
+
+                        <!-- Notes -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-0">
+                                    <label for="bulk_notes">
+                                        {{ __('Notes') }}
+                                        <span class="text-muted">({{ __('Optional') }})</span>
+                                    </label>
+                                    <textarea id="bulk_notes" name="notes" class="form-control"
+                                              rows="2"
+                                              placeholder="{{ __('Enter any additional notes (optional)') }}"></textarea>
+                                </div>
                             </div>
                         </div>
+
                     </div>
-                    
-                    <!-- Description - Required -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="bulk_description">{{ __('Job Description') }} <span class="text-danger">*</span></label>
-                                <textarea id="bulk_description" name="description" class="form-control"
-                                          rows="3" placeholder="{{ __('Enter job description') }}"></textarea>
-                                <div class="invalid-feedback">{{ __('Please enter a job description') }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Notes - Optional -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="bulk_notes">{{ __('Notes') }}
-                                    <span class="text-muted">({{ __('Optional') }})</span>
-                                </label>
-                                <textarea id="bulk_notes" name="notes" class="form-control"
-                                          rows="2" placeholder="{{ __('Enter any additional notes (optional)') }}"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    
+
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            {{ __('Cancel') }}
+                        </button>
                         <button type="submit" class="btn btn-primary" id="submitBulkAssignBtn">
                             {{ __('Bulk Assign Jobs') }}
                         </button>
@@ -319,26 +332,28 @@
 @push('js')
 <script>
 // ============================================================
-// Staff data: PHP → JavaScript (global scope)
+// Staff data: PHP → JavaScript
 // ============================================================
 var allStaffData = [];
 @foreach($allStaff as $staff)
 allStaffData.push({
-    id: {{ $staff->id }},
-    email: '{{ addslashes($staff->email) }}',
-    district_id: {{ $staff->district_id ?? 'null' }}
+    id          : {{ $staff->id }},
+    email       : '{{ addslashes($staff->email) }}',
+    district_id : {{ $staff->district_id ?? 'null' }}
 });
 @endforeach
 
+// All shops data (populated on DOM ready from table rows)
+var allShopsData = [];
+
 // ============================================================
-// openAssignModal — MUST be global (used in onclick="")
+// openAssignModal — global (used in onclick="")
 // ============================================================
 function openAssignModal(shopId) {
     var $btn = $('#assignBtn-' + shopId);
     $btn.prop('disabled', true);
     $btn.find('.btn-text').text('{{ __("Loading...") }}');
 
-    // Set form action & reset
     $('#shop_id').val(shopId);
     $('#assignJobForm').attr('action',
         '{{ route("admin.shop-management.assign", ":id") }}'.replace(':id', shopId)
@@ -350,7 +365,6 @@ function openAssignModal(shopId) {
     var $staffSelect = $('#assigned_to');
     $staffSelect.html('<option value="">{{ __("Loading agents...") }}</option>');
 
-    // Fetch shop district then populate agents
     $.ajax({
         url: '{{ route("admin.shop-management.get-shop-district", ":id") }}'.replace(':id', shopId),
         type: 'GET',
@@ -358,8 +372,13 @@ function openAssignModal(shopId) {
             var shopDistrictId = response.district_id;
             $staffSelect.html('<option value="">{{ __("Select Agent") }}</option>');
 
+            // KEY FIX: Only show agents whose district matches the shop's district.
+            // If shop has no district, show all agents.
+            // Never show agents from different districts — no fallback.
             var filtered = allStaffData.filter(function(s) {
-                return !shopDistrictId || s.district_id == shopDistrictId;
+                return shopDistrictId
+                    ? s.district_id == shopDistrictId
+                    : true;
             });
 
             if (filtered.length > 0) {
@@ -369,20 +388,20 @@ function openAssignModal(shopId) {
                     );
                 });
             } else {
-                // Fallback: show all with note
-                allStaffData.forEach(function(s) {
-                    $staffSelect.append(
-                        '<option value="' + s.id + '">' + s.email +
-                        ' ({{ __("Different District") }})</option>'
-                    );
-                });
+                // No matching agents — show disabled message, no fallback
+                $staffSelect.append(
+                    '<option value="" disabled>' +
+                    '{{ __("No agents available for this district") }}' +
+                    '</option>'
+                );
             }
         },
         error: function() {
+            // On error: show message only, no fallback list
             $staffSelect.html('<option value="">{{ __("Select Agent") }}</option>');
-            allStaffData.forEach(function(s) {
-                $staffSelect.append('<option value="' + s.id + '">' + s.email + '</option>');
-            });
+            $staffSelect.append(
+                '<option value="" disabled>{{ __("Could not load agents. Please try again.") }}</option>'
+            );
         },
         complete: function() {
             $btn.prop('disabled', false);
@@ -392,7 +411,6 @@ function openAssignModal(shopId) {
 
     $('#assignJobModal').modal('show');
 
-    // Cleanup on close
     $('#assignJobModal').off('hidden.bs.modal').on('hidden.bs.modal', function() {
         $btn.prop('disabled', false);
         $btn.find('.btn-text').text('{{ __("Assign") }}');
@@ -407,13 +425,25 @@ function openAssignModal(shopId) {
 // ============================================================
 $(document).ready(function() {
 
+    // Build allShopsData from table rows once on page load
+    $('#shopsTable tbody tr').each(function() {
+        var shopId   = $(this).data('shop-id');
+        var shopName = $(this).data('shop-name');
+        var distId   = $(this).data('district-id');
+        if (shopId) {
+            allShopsData.push({
+                id         : shopId,
+                name       : shopName || 'N/A',
+                districtId : distId || ''
+            });
+        }
+    });
+
     // ----------------------------------------------------------
     // District Filter
-    // Key fix: filter using data-district-id on <tr> directly
     // ----------------------------------------------------------
     $('#district_filter').on('change', function() {
         var selected = $(this).val();
-
         $('#shopsTable tbody tr').each(function() {
             if (selected === '') {
                 $(this).show();
@@ -422,40 +452,53 @@ $(document).ready(function() {
                 $(this).toggle(rowDistrict === String(selected));
             }
         });
-
-        // Reset select-all after filtering
-        syncSelectAllState();
     });
 
     // ----------------------------------------------------------
-    // Select All Checkbox (only visible rows)
-    // ----------------------------------------------------------
-    $('#selectAllShops').on('change', function() {
-        var checked = $(this).prop('checked');
-        $('#shopsTable tbody tr:visible .shop-checkbox').prop('checked', checked);
-        updateBulkAssignButton();
-        updateSelectedShopsList();
-    });
-
-    // ----------------------------------------------------------
-    // Individual Checkbox
-    // ----------------------------------------------------------
-    $(document).on('change', '.shop-checkbox', function() {
-        syncSelectAllState();
-        updateBulkAssignButton();
-        updateSelectedShopsList();
-    });
-
-    // ----------------------------------------------------------
-    // Bulk Assign Button → open modal (no validation needed)
+    // Bulk Assign Button — always enabled, opens modal
     // ----------------------------------------------------------
     $('#bulkAssignBtn').on('click', function() {
-        updateSelectedShopsList();
+        $('#bulkAssignForm')[0].reset();
+        $('#bulkAssignForm .is-invalid').removeClass('is-invalid');
+        $('#bulkAssignForm .invalid-feedback').hide();
+        $('#shopSelectionError').addClass('d-none');
+        $('#modalShopSearch').val('');
+        renderModalShopList('');
         $('#bulkAssignModal').modal('show');
     });
 
     // ----------------------------------------------------------
-    // Assign Job Form Submit (single shop)
+    // Modal Shop Search
+    // ----------------------------------------------------------
+    $('#modalShopSearch').on('input', function() {
+        renderModalShopList($(this).val().toLowerCase().trim());
+    });
+
+    // ----------------------------------------------------------
+    // Modal Select All
+    // ----------------------------------------------------------
+    $('#modalSelectAllShops').on('change', function() {
+        var isChecked = $(this).prop('checked');
+        $('#selectedShopsList .modal-shop-checkbox').prop('checked', isChecked);
+        updateSelectedCount();
+        if (isChecked) {
+            $('#shopSelectionError').addClass('d-none');
+        }
+    });
+
+    // ----------------------------------------------------------
+    // Modal Individual Checkbox
+    // ----------------------------------------------------------
+    $(document).on('change', '.modal-shop-checkbox', function() {
+        updateModalSelectAllState();
+        updateSelectedCount();
+        if ($('.modal-shop-checkbox:checked').length > 0) {
+            $('#shopSelectionError').addClass('d-none');
+        }
+    });
+
+    // ----------------------------------------------------------
+    // Single Assign Form Submit
     // ----------------------------------------------------------
     $('#assignJobForm').on('submit', function(e) {
         e.preventDefault();
@@ -470,11 +513,11 @@ $(document).ready(function() {
             .html('<i class="fas fa-spinner fa-spin"></i> {{ __("Assigning...") }}');
 
         $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: new FormData(this),
-            processData: false,
-            contentType: false,
+            url         : $(this).attr('action'),
+            type        : 'POST',
+            data        : new FormData(this),
+            processData : false,
+            contentType : false,
             success: function(response) {
                 $('#assignJobModal').modal('hide');
                 toastr.success(response.message || '{{ __("Job assigned successfully!") }}');
@@ -501,8 +544,8 @@ $(document).ready(function() {
         }
 
         var formData = new FormData(this);
-        formData.delete('shop_ids');
-        $('.shop-checkbox:checked').each(function() {
+        formData.delete('shop_ids[]');
+        $('.modal-shop-checkbox:checked').each(function() {
             formData.append('shop_ids[]', $(this).val());
         });
 
@@ -510,25 +553,28 @@ $(document).ready(function() {
         $btn.prop('disabled', true)
             .html('<i class="fas fa-spinner fa-spin"></i> {{ __("Bulk Assigning...") }}');
 
+        var ajaxTimeout = setTimeout(function() {
+            $btn.prop('disabled', false).html('{{ __("Bulk Assign Jobs") }}');
+            toastr.error('{{ __("Request timed out. Please try again.") }}');
+        }, 30000);
+
         $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
+            url         : $(this).attr('action'),
+            type        : 'POST',
+            data        : formData,
+            processData : false,
+            contentType : false,
+            timeout     : 25000,
             success: function(response) {
+                clearTimeout(ajaxTimeout);
                 $('#bulkAssignModal').modal('hide');
                 toastr.success(response.message || '{{ __("Jobs assigned successfully!") }}');
-                // Reset all
-                $('.shop-checkbox, #selectAllShops').prop('checked', false);
-                $('#bulkAssignForm')[0].reset();
-                updateBulkAssignButton();
-                updateSelectedShopsList();
                 setTimeout(function() {
                     window.location.href = '{{ route("admin.shop-management.index") }}';
-                }, 2000);
+                }, 1500);
             },
             error: function(xhr) {
+                clearTimeout(ajaxTimeout);
                 $btn.prop('disabled', false).html('{{ __("Bulk Assign Jobs") }}');
                 handleAjaxErrors(xhr);
             }
@@ -539,131 +585,95 @@ $(document).ready(function() {
     // Live validation removal on input
     // ----------------------------------------------------------
     $(document).on('change input keyup',
-        '#assigned_to, #scheduled_date, #scheduled_time, #description, ' +
-        '#bulk_assigned_to, #bulk_scheduled_date, #bulk_scheduled_time, #bulk_description',
+        '#assigned_to, #scheduled_date, #scheduled_time, ' +
+        '#bulk_assigned_to, #bulk_scheduled_date, #bulk_scheduled_time',
         function() {
             $(this).removeClass('is-invalid');
             $(this).siblings('.invalid-feedback').hide();
         }
     );
 
-    // ----------------------------------------------------------
-    // Modal shop checkboxes
-    // ----------------------------------------------------------
-    $(document).on('change', '.modal-shop-checkbox', function() {
-        var shopId = $(this).val();
-        var isChecked = $(this).prop('checked');
-        
-        // Sync with main table checkbox
-        $('.shop-checkbox[value="' + shopId + '"]').prop('checked', isChecked);
-        
-        // Update UI
-        if (isChecked) {
-            $(this).closest('.border').addClass('bg-light');
-        } else {
-            $(this).closest('.border').removeClass('bg-light');
-        }
-        
-        // Update states
-        syncSelectAllState();
-        updateBulkAssignButton();
-        updateModalSelectAllState();
-    });
-
-    // Modal select all checkbox
-    $('#modalSelectAllShops').on('change', function() {
-        var isChecked = $(this).prop('checked');
-        $('.modal-shop-checkbox').prop('checked', isChecked);
-        
-        // Sync with main table
-        $('.shop-checkbox').prop('checked', isChecked);
-        
-        // Update UI
-        if (isChecked) {
-            $('.modal-shop-checkbox').closest('.border').addClass('bg-light');
-        } else {
-            $('.modal-shop-checkbox').closest('.border').removeClass('bg-light');
-        }
-        
-        // Update states
-        updateBulkAssignButton();
-    });
-
     // ============================================================
     // HELPERS
     // ============================================================
 
-    function syncSelectAllState() {
-        var $visible  = $('#shopsTable tbody tr:visible .shop-checkbox');
-        var $checked  = $('#shopsTable tbody tr:visible .shop-checkbox:checked');
-        $('#selectAllShops').prop(
+    /**
+     * Render shop list inside bulk modal with optional search filter.
+     * Preserves already-checked state across re-renders.
+     */
+    function renderModalShopList(searchTerm) {
+        var $list = $('#selectedShopsList');
+
+        if (allShopsData.length === 0) {
+            $list.html('<p class="text-muted mb-0 text-center py-2">{{ __("No shops available") }}</p>');
+            updateSelectedCount();
+            return;
+        }
+
+        var filtered = searchTerm
+            ? allShopsData.filter(function(s) {
+                return s.name.toLowerCase().indexOf(searchTerm) !== -1;
+              })
+            : allShopsData;
+
+        if (filtered.length === 0) {
+            $list.html('<p class="text-muted mb-0 text-center py-2">{{ __("No shops match your search") }}</p>');
+            updateSelectedCount();
+            return;
+        }
+
+        // Preserve already-checked IDs before re-rendering
+        var checkedIds = [];
+        $('.modal-shop-checkbox:checked').each(function() {
+            checkedIds.push(String($(this).val()));
+        });
+
+        var html = '';
+        filtered.forEach(function(shop) {
+            var isChecked    = checkedIds.indexOf(String(shop.id)) !== -1;
+            var checkedAttr  = isChecked ? 'checked' : '';
+            var highlightCls = isChecked ? 'bg-light' : '';
+
+            html += '<div class="mb-1 px-2 py-1 border rounded d-flex align-items-center ' + highlightCls + '">';
+            html += '<input type="checkbox" class="modal-shop-checkbox form-check-input mr-2 mt-0" '
+                  + 'value="' + shop.id + '" data-shop-name="' + shop.name + '" '
+                  + checkedAttr + ' style="cursor:pointer;">';
+            html += '<span style="font-size:0.92rem;">' + shop.name + '</span>';
+            html += '</div>';
+        });
+
+        $list.html(html);
+        updateModalSelectAllState();
+        updateSelectedCount();
+    }
+
+    /**
+     * Update selected count badge
+     */
+    function updateSelectedCount() {
+        var count = $('.modal-shop-checkbox:checked').length;
+        $('#selectedCountBadge').text(count + ' {{ __("selected") }}');
+    }
+
+    /**
+     * Sync modal "Select All" checkbox state
+     */
+    function updateModalSelectAllState() {
+        var $all     = $('.modal-shop-checkbox');
+        var $checked = $('.modal-shop-checkbox:checked');
+        $('#modalSelectAllShops').prop(
             'checked',
-            $visible.length > 0 && $visible.length === $checked.length
+            $all.length > 0 && $all.length === $checked.length
         );
     }
 
-    function updateBulkAssignButton() {
-        var count = $('.shop-checkbox:checked').length;
-        // Always enable bulk assign button
-        $('#bulkAssignBtn').prop('disabled', false);
-        if (count > 0) {
-            $('#bulkAssignBtn').html(
-                '<i class="fas fa-user-plus"></i> {{ __("Bulk Assign Jobs") }} (' + count + ')'
-            );
-        } else {
-            $('#bulkAssignBtn').html(
-                '<i class="fas fa-user-plus"></i> {{ __("Bulk Assign Jobs") }}'
-            );
-        }
-    }
-
-    function updateSelectedShopsList() {
-        var allShops = [];
-        $('#shopsTable tbody tr').each(function() {
-            var $checkbox = $(this).find('.shop-checkbox');
-            allShops.push({
-                id       : $checkbox.val(),
-                name     : $checkbox.data('shop-name'),
-                checked  : $checkbox.prop('checked'),
-                district : $(this).data('district-id')
-            });
-        });
-
-        var $list = $('#selectedShopsList');
-        if (allShops.length > 0) {
-            var html = '<div class="shop-list">';
-            allShops.forEach(function(shop) {
-                var checkedAttr = shop.checked ? 'checked' : '';
-                var districtName = shop.district ? getDistrictName(shop.district) : 'N/A';
-                html += '<div class="mb-2 p-2 border rounded ' + (shop.checked ? 'bg-light' : '') + '">';
-                html += '<div class="d-flex align-items-center">';
-                html += '<input type="checkbox" class="modal-shop-checkbox form-check-input mr-2" ' + 
-                        'value="' + shop.id + '" data-shop-name="' + shop.name + '" ' + checkedAttr + '>';
-                html += '<div class="flex-grow-1">';
-                html += '<div class="font-weight-medium">' + shop.name + '</div>';
-                html += '<small class="text-muted">District: ' + districtName + '</small>';
-                html += '</div>';
-                html += '</div>';
-                html += '</div>';
-            });
-            html += '</div>';
-            $list.html(html);
-            
-            // Update modal select all checkbox state
-            updateModalSelectAllState();
-        } else {
-            $list.html('<p class="text-muted mb-0">{{ __("No shops available") }}</p>');
-        }
-    }
-
+    /**
+     * Validate single assign form
+     */
     function validateAssignForm() {
         var valid = true;
-        [
-            { id: '#assigned_to' },
-            { id: '#scheduled_date' },
-            { id: '#scheduled_time' }
-        ].forEach(function(f) {
-            var $el = $(f.id);
+        ['#assigned_to', '#scheduled_date', '#scheduled_time'].forEach(function(id) {
+            var $el = $(id);
             if (!$el.val() || $el.val().trim() === '') {
                 $el.addClass('is-invalid');
                 $el.siblings('.invalid-feedback').show();
@@ -676,21 +686,18 @@ $(document).ready(function() {
         return valid;
     }
 
+    /**
+     * Validate bulk assign form
+     */
     function validateBulkAssignForm() {
         var valid = true;
 
-        ['#bulk_assigned_to','#bulk_scheduled_date','#bulk_scheduled_time','#bulk_description']
-        .forEach(function(id) {
+        ['#bulk_assigned_to', '#bulk_scheduled_date', '#bulk_scheduled_time'].forEach(function(id) {
             var $el = $(id);
             var val = $el.val();
             if (!val || val.trim() === '') {
                 $el.addClass('is-invalid');
                 $el.siblings('.invalid-feedback').show();
-                valid = false;
-            } else if (id === '#bulk_description' && val.trim().length < 5) {
-                $el.addClass('is-invalid');
-                $el.siblings('.invalid-feedback')
-                   .text('{{ __("Description must be at least 5 characters") }}').show();
                 valid = false;
             } else {
                 $el.removeClass('is-invalid');
@@ -698,13 +705,19 @@ $(document).ready(function() {
             }
         });
 
-        if ($('.shop-checkbox:checked').length === 0) {
-            toastr.error('{{ __("Please select at least one shop") }}');
+        if ($('.modal-shop-checkbox:checked').length === 0) {
+            $('#shopSelectionError').removeClass('d-none');
             valid = false;
+        } else {
+            $('#shopSelectionError').addClass('d-none');
         }
+
         return valid;
     }
 
+    /**
+     * Handle AJAX errors
+     */
     function handleAjaxErrors(xhr) {
         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
             $.each(xhr.responseJSON.errors, function(key, msgs) {
@@ -718,27 +731,6 @@ $(document).ready(function() {
         } else {
             toastr.error('{{ __("Something went wrong. Please try again.") }}');
         }
-    }
-
-    function updateModalSelectAllState() {
-        var $modalCheckboxes = $('.modal-shop-checkbox');
-        var $checked = $('.modal-shop-checkbox:checked');
-        $('#modalSelectAllShops').prop(
-            'checked',
-            $modalCheckboxes.length > 0 && $modalCheckboxes.length === $checked.length
-        );
-    }
-
-    function getDistrictName(districtId) {
-        // This is a simplified version - you might want to enhance this
-        var districtNames = {
-            '1': 'Punjab',
-            '2': 'Sindh', 
-            '3': 'Balochistan',
-            '4': 'KPK'
-            // Add more as needed
-        };
-        return districtNames[districtId] || 'Unknown';
     }
 
 }); // END document.ready

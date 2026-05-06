@@ -70,14 +70,13 @@ class ShopManagementController extends Controller
         
         $request->validate([
             'assigned_to' => 'required|exists:staff,id',
-            'description' => 'required|min:5',
+            'description' => 'nullable|string|min:5',
             'scheduled_date' => 'required|date|after_or_equal:today',
             'scheduled_time' => 'required|date_format:H:i',
             'notes' => 'nullable|string',
         ], [
             'assigned_to.required' => 'Please select a staff member.',
             'assigned_to.exists' => 'Selected staff member does not exist.',
-            'description.required' => 'Job description is required.',
             'description.min' => 'Job description must be at least 5 characters.',
             'scheduled_date.required' => 'Please select a scheduled date.',
             'scheduled_date.after_or_equal' => 'Scheduled date cannot be in the past.',
@@ -189,15 +188,23 @@ class ShopManagementController extends Controller
         return response()->json(['html' => $html]);
     }
 
-    public function toggleJobStatus($id)
+    public function toggleJobStatus(Request $request, $id)
     {
         // Check if admin has permission to manage job status
         if (!auth('admin')->user()->hasPermissionTo('edit shop-management')) {
-            abort(403, 'Unauthorized action.');
+            abort(403, 'Access Denied. You do not have permission to manage job status.');
         }
         
         $job = StaffJob::findOrFail($id);
-        $job->status = $job->status == 'pending' ? 'done' : 'pending';
+        
+        // Use the status from request or toggle default behavior
+        if ($request->has('status')) {
+            $job->status = $request->status;
+        } else {
+            // Default toggle behavior
+            $job->status = $job->status == 'pending' ? 'done' : 'pending';
+        }
+        
         $job->save();
         
         return response()->json([
@@ -210,6 +217,16 @@ class ShopManagementController extends Controller
     {
         $shop = Shop::findOrFail($id);
         return response()->json(['district_id' => $shop->district_id]);
+    }
+
+    public function showJobDetails($id)
+    {
+        // Check if admin has permission to view shop management details
+      
+        
+        $job = StaffJob::with(['shop', 'assignedTo', 'assignedBy'])->findOrFail($id);
+        
+        return view('admin.shop-management.job-details', compact('job'));
     }
 
     public function getStaffWithPermissions(Request $request)
@@ -293,7 +310,7 @@ public function bulkAssign(Request $request)
         'shop_ids' => 'required|array',
         'shop_ids.*' => 'exists:shops,id',
         'assigned_to' => 'required|exists:staff,id',
-        'description' => 'required|min:5',
+        'description' => 'nullable|string|min:5',
         'scheduled_date' => 'required|date|after_or_equal:today',
         'scheduled_time' => 'required|date_format:H:i',
         'notes' => 'nullable|string',
@@ -302,7 +319,6 @@ public function bulkAssign(Request $request)
         'shop_ids.*.exists' => 'One or more selected shops do not exist.',
         'assigned_to.required' => 'Please select a staff member.',
         'assigned_to.exists' => 'Selected staff member does not exist.',
-        'description.required' => 'Job description is required.',
         'description.min' => 'Job description must be at least 5 characters.',
         'scheduled_date.required' => 'Please select a scheduled date.',
         'scheduled_date.after_or_equal' => 'Scheduled date cannot be in the past.',
@@ -311,36 +327,68 @@ public function bulkAssign(Request $request)
     ]);
     
     $staff = Staff::findOrFail($request->assigned_to);
-    $assignedCount = 0;
-    $skippedCount = 0;
     
-    foreach ($request->shop_ids as $shopId) {
-        $shop = Shop::findOrFail($shopId);
-        
+    // Get all shops in one query for better performance
+    $shops = Shop::whereIn('id', $request->shop_ids)->get();
+    
+    $validShopIds = [];
+    $skippedShops = [];
+    
+    foreach ($shops as $shop) {
         // Verify staff district matches shop district
         if ($shop->district_id && $staff->district_id != $shop->district_id) {
-            $skippedCount++;
+            $skippedShops[] = $shop->name ?? $shop->shop_name ?? 'Unknown Shop';
             continue;
         }
         
-        StaffJob::create([
-            'shop_id' => $shop->id,
-            'assigned_by' => auth('admin')->id(),
-            'assigned_to' => $request->assigned_to,
-            'job_type' => 'general', // Default job type
-            'description' => $request->description,
-            'scheduled_date' => $request->scheduled_date,
-            'scheduled_time' => $request->scheduled_time,
-            'notes' => $request->notes,
-            'status' => 'pending',
-        ]);
-        
-        $assignedCount++;
+        $validShopIds[] = $shop->id;
     }
     
-    $message = "Successfully assigned jobs to {$assignedCount} shops.";
-    if ($skippedCount > 0) {
-        $message .= " Skipped {$skippedCount} shops due to district mismatch.";
+    $assignedCount = 0;
+    
+    // Bulk insert for better performance
+    if (!empty($validShopIds)) {
+        $jobsToInsert = [];
+        $now = now();
+        
+        foreach ($validShopIds as $shopId) {
+            $jobsToInsert[] = [
+                'shop_id' => $shopId,
+                'assigned_by' => auth('admin')->id(),
+                'assigned_to' => $request->assigned_to,
+                'job_type' => 'general',
+                'description' => $request->description,
+                'scheduled_date' => $request->scheduled_date,
+                'scheduled_time' => $request->scheduled_time,
+                'notes' => $request->notes,
+                'status' => 'pending',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+        
+        // Bulk insert for performance
+        StaffJob::insert($jobsToInsert);
+        $assignedCount = count($validShopIds);
+    }
+    
+    // Build response message
+    if ($assignedCount > 0) {
+        $message = "Successfully assigned jobs to {$assignedCount} shops.";
+        
+        if (!empty($skippedShops)) {
+            $message .= " Skipped " . count($skippedShops) . " shops due to district mismatch: " . implode(', ', array_slice($skippedShops, 0, 3));
+            if (count($skippedShops) > 3) {
+                $message .= " and " . (count($skippedShops) - 3) . " more.";
+            }
+        }
+    } else {
+        $message = "No jobs were assigned. ";
+        if (!empty($skippedShops)) {
+            $message .= "All shops were skipped due to district mismatch.";
+        } else {
+            $message .= "No valid shops found.";
+        }
     }
     
     return response()->json(['message' => $message]);

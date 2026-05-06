@@ -31,10 +31,9 @@
                                                 <th>{{ __('SN') }}</th>
                                                 <th>{{ __('Scheduled Date & Time') }}</th>
                                                 <th>{{ __('Shop Name') }}</th>
+                                                <th>{{ __('Shop Address') }}</th>
                                                 <th>{{ __('Assigned To') }}</th>
                                                 <th>{{ __('Assigned By') }}</th>
-                                                <th>{{ __('Description') }}</th>
-                                                <th>{{ __('Additional Notes') }}</th>
                                                 <th>{{ __('Status') }}</th>
                                                 <th>{{ __('Action') }}</th>
                                             </tr>
@@ -54,23 +53,9 @@
                                                         @endif
                                                     </td>
                                                     <td>{{ $job->shop->shop_name ?? 'N/A' }}</td>
-                                                    <td>{{ $job->assignedTo->email ?? 'N/A' }}</td>
+                                                    <td>{{ $job->shop->address ?? 'N/A' }}</td>
+                                                    <td>{{ $job->assignedTo->name ?? 'N/A' }}</td>
                                                     <td>{{ $job->assignedBy->name ?? 'N/A' }}</td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-sm btn-info" onclick="viewDescription({{ $job->id }}, '{{ addslashes($job->description) }}')">
-                                                            <i class="fas fa-eye"></i> {{ __('View Details') }}
-                                                        </button>
-                                                    </td>
-                                                    <td>
-                                                        @if($job->notes)
-                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="viewNotes({{ $job->id }}, '{{ addslashes($job->notes) }}')">
-                                                                <i class="fas fa-sticky-note"></i> {{ __('View Notes') }}
-                                                            </button>
-                                                        @else
-                                                            <span class="text-muted">{{ __('No notes') }}</span>
-                                                        @endif
-                                                    </td>
-                                                     
                                                     <td>
                                                         @if($job->status == 'pending')
                                                             <span class="badge badge-warning">{{ __('Pending') }}</span>
@@ -78,8 +63,11 @@
                                                             <span class="badge badge-success">{{ __('Done') }}</span>
                                                         @endif
                                                     </td>
-                                                    <!-- Action Column with Delete Button -->
+                                                    <!-- Action Column with Show and Delete Button -->
                                                     <td>
+                                                        <button type="button" class="btn btn-sm btn-primary" onclick="showJobDetails({{ $job->id }})">
+                                                            <i class="fas fa-eye"></i> {{ __('Show') }}
+                                                        </button>
                                                         @if(auth('admin')->user()->hasPermissionTo('assign.job.delete'))
                                                             <x-admin.delete-button :id="$job->id" onclick="deleteData" />
                                                         @else
@@ -89,7 +77,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="9" class="text-center">
+                                                    <td colspan="8" class="text-center">
                                                         <div class="alert alert-info mb-0">
                                                             <i class="fas fa-info-circle"></i> 
                                                             {{ __('No jobs assigned yet!') }}
@@ -205,12 +193,10 @@
             $('#notesModal').modal('show');
         }
 
-        // Delete function for assigned jobs
-        @if(auth('admin')->user()->hasPermissionTo('assign.job.delete'))
-        function deleteData(id) {
-            $("#deleteForm").attr("action", "{{ route('admin.assigned-jobs.destroy', ':id') }}".replace(':id', id));
+        // Show job details function
+        function showJobDetails(jobId) {
+            window.location.href = "{{ route('admin.shop-management.job-details.show', ':id') }}".replace(':id', jobId);
         }
-        @endif
 
         // Delete function for assigned jobs
         @if(auth('admin')->user()->hasPermissionTo('assign.job.delete'))

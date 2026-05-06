@@ -32,7 +32,7 @@ class StaffController extends Controller
         foreach ($permissions as $key => $name) {
             \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $key, 'guard_name' => 'staff']);
         }
-        $districts = \App\Models\District::all();
+        $districts = \App\Models\District::where('status', 'active')->get();
         return view('admin.staff.create', compact('permissions', 'districts'));
     }
     public function store(Request $request)
@@ -74,7 +74,7 @@ class StaffController extends Controller
             \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $key, 'guard_name' => 'staff']);
         }
         $staffPermissions = $staff->permissions->pluck('name')->toArray();
-        $districts = \App\Models\District::all();
+        $districts = \App\Models\District::where('status', 'active')->get();;
         return view('admin.staff.edit', compact('staff', 'permissions', 'staffPermissions', 'districts'));
     }
     public function update(Request $request, $id)

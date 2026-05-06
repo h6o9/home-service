@@ -240,7 +240,7 @@
                 @endphp
 
                 @if($pendingJobsCount > 0)
-                    <span class="badge-danger"  style="
+                    <span class="badge-danger"    style="
     display:flex;
     align-items:center;
     justify-content:center;
