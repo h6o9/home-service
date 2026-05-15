@@ -31,13 +31,24 @@ class ShopController extends Controller
         // Get staff member's district
         $staffDistrict = auth('staff')->user()->district_id;
         
-        // Filter shops by staff's district
-        $shops = Shop::with('photos')
-            ->where('district_id', $staffDistrict)
-            ->latest()
-            ->paginate(10);
+        // Get active categories and all districts for filtering
+        $categories = \App\Models\ShopCategory::where('is_active', 1)->get();
+        $districts = \App\Models\District::all();
+
+        // Filter shops with applying requested filters
+        $query = Shop::with('photos')->where('district_id', $staffDistrict);
+        
+        if (request()->has('district_id') && request('district_id') != '') {
+            $query->where('district_id', request('district_id'));
+        }
+        
+        if (request()->has('category') && request('category') != '') {
+            $query->where('category', request('category'));
+        }
+        
+        $shops = $query->latest()->paginate(10);
             
-        return view('staff.shop.index', compact('shops'));
+        return view('staff.shop.index', compact('shops', 'categories', 'districts'));
     }
 
     /**
@@ -79,6 +90,7 @@ class ShopController extends Controller
         'phone_number' => 'required|string|max:20',
         'whatsapp_number' => 'required|string|max:20',
         'address' => 'required|string',
+        'location' => 'nullable|string',
         'about_shop' => 'required|string',
         'shop_photos' => 'nullable|array',
         'shop_photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
@@ -116,6 +128,7 @@ class ShopController extends Controller
         'phone_number' => $validated['phone_number'],
         'whatsapp_number' => $validated['whatsapp_number'],
         'address' => $validated['address'],
+        'location' => $validated['location'] ?? auth('staff')->user()->location ?? 'University of Management & Technology C-II Block C 2 Phase 1 Johar Town, Lahore, 54770, Pakistan',
         'about_shop' => $validated['about_shop'],
         'slug' => Str::slug($validated['shop_name']) . '-' . uniqid(),
         'staff_id' => auth('staff')->id(),
@@ -215,6 +228,7 @@ class ShopController extends Controller
             'phone_number' => 'required|string|max:20',
             'whatsapp_number' => 'required|string|max:20',
             'address' => 'required|string',
+            'location' => 'nullable|string',
             'about_shop' => 'required|string',
             'district_id' => 'required|exists:districts,id',
             'shop_photos' => 'nullable|array',
@@ -228,6 +242,7 @@ class ShopController extends Controller
             'phone_number' => $validated['phone_number'],
             'whatsapp_number' => $validated['whatsapp_number'],
             'address' => $validated['address'],
+            'location' => $validated['location'] ?? auth('staff')->user()->location ?? 'University of Management & Technology C-II Block C 2 Phase 1 Johar Town, Lahore, 54770, Pakistan',
             'about_shop' => $validated['about_shop'],
             'district_id' => $validated['district_id'],
             'slug' => Str::slug($validated['shop_name']) . '-' . uniqid(),

@@ -26,16 +26,28 @@
     var type = "{{ Session::get('alert-type', 'info') }}"
     switch (type) {
         case 'info':
-            toastr.info("{{ $value }}");
+            iziToast.info({
+                message: "{{ $value }}",
+                position: 'topRight'
+            });
             break;
         case 'success':
-            toastr.success("{{ $value }}");
+            iziToast.success({
+                message: "{{ $value }}",
+                position: 'topRight'
+            });
             break;
         case 'warning':
-            toastr.warning("{{ $value }}");
+            iziToast.warning({
+                message: "{{ $value }}",
+                position: 'topRight'
+            });
             break;
         case 'error':
-            toastr.error("{{ $value }}");
+            iziToast.error({
+                message: "{{ $value }}",
+                position: 'topRight'
+            });
             break;
     }
     @endsession
@@ -44,7 +56,10 @@
 @if ($errors->any())
     @foreach ($errors->all() as $error)
         <script>
-            toastr.error('{{ $error }}');
+            iziToast.error({
+                message: '{{ $error }}',
+                position: 'topRight'
+            });
         </script>
     @endforeach
 @endif
@@ -87,7 +102,10 @@
                 'Accept': 'application/json'
             },
             success: function(res) {
-                toastr.success(res.message);
+                iziToast.success({
+                    message: res.message,
+                    position: 'topRight'
+                });
             },
             error: function(err) {
                 handleFetchError(err)
@@ -97,9 +115,15 @@
 
     function handleFetchError(err) {
         if (err.status == 500) {
-            toastr.error('Something went wrong!')
+            iziToast.error({
+                message: 'Something went wrong!',
+                position: 'topRight'
+            });
         } else {
-            toastr.error(err.responseJSON.message)
+            iziToast.error({
+                message: err.responseJSON.message,
+                position: 'topRight'
+            });
         }
     }
 </script>

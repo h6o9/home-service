@@ -29,7 +29,10 @@
                     <ul class="navbar-nav d-flex align-items-center">
                         <li><a class="nav-link nav-link-lg" data-toggle="sidebar" href="#"><i
                                     class="fas fa-bars"></i></a></li>
-																		<p style="margin: 0; padding: 0; color: #ffffff; font-size: 20px;">Loy Madok Panel</p>
+                        <p style="margin:0; margin-right: 10px; padding: 0;  color: #ffffff; font-size: 20px;">Laymadyok
+                            Panel</p>
+                        <small style="color: #ffffff;"><i class="fas fa-map-marker-alt"></i> Location:
+                            {{ Auth::guard('staff')->user()->location ?? 'University of Management & Technology C-II Block C 2 Phase 1 Johar Town, Lahore, 54770, Pakistan' }}</small>
                         <!-- @if (Module::isEnabled('Language') && Route::has('set-language') && allLanguages()?->where('status', 1)->count() > 1)
                             <li class="setLanguageHeader dropdown border rounded-2"><a
                                     class="nav-link dropdown-toggle nav-link-lg nav-link-user" data-bs-toggle="dropdown"
@@ -103,21 +106,20 @@
                         'adminNotifications' => Cache::get('admin-notifications', collect([])),
                     ]) -->
 
-                   
+
 
                     <li class="dropdown"><a class="nav-link dropdown-toggle nav-link-lg nav-link-user dropdown_user"
                             data-bs-toggle="dropdown" href="javascript:;">
                             @if ($staffUser && $staffUser->image)
-                                <img class="me-1 rounded-circle" src="{{ asset($staffUser->image) }}"
-                                    alt="image">
+                                <img class="me-1 rounded-circle" src="{{ asset($staffUser->image) }}" alt="image">
                             @else
-                                <img class="me-1 rounded-circle" src="{{ asset($defaultAvatar) }}"
-                                    alt="image">
+                                <img class="me-1 rounded-circle" src="{{ asset($defaultAvatar) }}" alt="image">
                             @endif
 
-                            <div class="d-sm-none d-lg-inline-block">{{ $staffUser ? $staffUser->name : __('Staff') }}</div>
+                            <div class="d-sm-none d-lg-inline-block">{{ $staffUser ? $staffUser->name : __('Staff') }}
+                            </div>
                         </a>
-                        
+
                         <div class="dropdown-menu dropdown-menu-right">
                             @if($staffUser)
                                 <a class="dropdown-item has-icon d-flex align-items-center {{ isRoute(['staff.edit-profile'], 'text-primary') }}"
@@ -128,9 +130,9 @@
                                     href="{{ route('staff.dashboard') }}">
                                     <i class="fas fa-chart-line"></i> {{ __('Dashboard') }}
                                 </a>
-                                
+
                                 <div class="dropdown-divider"></div>
-                                
+
                                 <a class="dropdown-item has-icon d-flex align-items-center" href="javascript:;"
                                     onclick="event.preventDefault(); $('#staff-logout-form').trigger('submit');">
                                     <i class="fas fa-sign-out-alt"></i> {{ __('Logout') }}
@@ -147,12 +149,12 @@
             </nav>
 
             @include('staff.sidebar')
-            
+
             @yield('staff-content')
 
             <footer class="main-footer">
                 <div class="footer-left">
-					Home-Services-Technicians-Plumbers
+                    Home-Services-Technicians-Plumbers
                 </div>
                 <!-- <div class="footer-right">
                     <span>{{ __('version') }}: {{ $version }} ({{ __('Loaded in') }}

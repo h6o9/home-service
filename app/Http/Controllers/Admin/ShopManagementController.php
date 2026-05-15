@@ -85,11 +85,8 @@ class ShopManagementController extends Controller
         ]);
         $shop = Shop::with('district')->findOrFail($shopId);
         
-        // Verify staff district matches shop district
+        // District validation removed per user request
         $staff = Staff::findOrFail($request->assigned_to);
-        if ($shop->district_id && $staff->district_id != $shop->district_id) {
-            return response()->json(['message' => 'Staff district does not match shop district!'], 422);
-        }
         
         StaffJob::create([
             'shop_id' => $shop->id,
@@ -121,13 +118,24 @@ class ShopManagementController extends Controller
             })
             ->get();
         
-        // Get all districts
+        // Get all districts and categories for filtering
         $districts = \App\Models\District::all();
+        $categories = \App\Models\ShopCategory::where('is_active', 1)->get();
             
-        // Get all shops with their relationships
-        $shops = Shop::with(['staff', 'jobs.assignedTo', 'district'])->latest()->paginate(10);
+        // Get all shops with their relationships and apply filters
+        $query = Shop::with(['staff', 'jobs.assignedTo', 'district']);
+        
+        if (request()->has('district_id') && request('district_id') != '') {
+            $query->where('district_id', request('district_id'));
+        }
+        
+        if (request()->has('category') && request('category') != '') {
+            $query->where('category', request('category'));
+        }
+        
+        $shops = $query->latest()->paginate(10);
             
-        return view('admin.shop-management.shopindex', compact('shops', 'allStaff', 'districts'));
+        return view('admin.shop-management.shopindex', compact('shops', 'allStaff', 'districts', 'categories'));
     }
 
     public function jobDetails(Request $request)
@@ -335,12 +343,7 @@ public function bulkAssign(Request $request)
     $skippedShops = [];
     
     foreach ($shops as $shop) {
-        // Verify staff district matches shop district
-        if ($shop->district_id && $staff->district_id != $shop->district_id) {
-            $skippedShops[] = $shop->name ?? $shop->shop_name ?? 'Unknown Shop';
-            continue;
-        }
-        
+        // District validation removed per user request
         $validShopIds[] = $shop->id;
     }
     

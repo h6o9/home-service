@@ -26,6 +26,9 @@
                                                 <th>{{ __('Scheduled Date') }}</th>
                                                 <th>{{ __('Description') }}</th>
                                                 <th>{{ __('Additional Notes') }}</th>
+                                                <th>{{ __('From') }}</th>
+                                                <th>{{ __('To') }}</th>
+                                                <th>{{ __('Navigation') }}</th>
                                                 <th>{{ __('Status') }}</th>
                                                 <th>{{ __('Action') }}</th>
                                             </tr>
@@ -77,6 +80,14 @@
                                                         @endif
                                                     </td>
                                                     
+                                                    <td>{{ $job->assignedTo->location ?? 'University of Management & Technology C-II Block C 2 Phase 1 Johar Town, Lahore, 54770, Pakistan' }}</td>
+                                                    <td>{{ $job->shop->location ?? $job->shop->address ?? 'N/A' }}</td>
+                                                    <td>
+                                                        <a href="https://www.google.com/maps/dir/{{ urlencode($job->assignedTo->location ?? 'University of Management & Technology C-II Block C 2 Phase 1 Johar Town, Lahore, 54770, Pakistan') }}/{{ urlencode($job->shop->location ?? $job->shop->address ?? 'Lahore') }}" target="_blank" class="btn btn-sm btn-info">
+                                                            <i class="fas fa-location-arrow"></i> {{ __('Navigate') }}
+                                                        </a>
+                                                    </td>
+                                                    
                                                     <!-- Status Column -->
                                                     <td>
                                                         @if($job->status == 'pending')
@@ -88,19 +99,15 @@
                                                     
                                                     <!-- Action Column (Only Done/Undo Button) -->
                                                     <td>
-                                                        @if(auth('staff')->user()->hasPermission('my_jobs', 'can_edit'))
-                                                            @if($job->status == 'pending')
-                                                                <button type="button" class="btn btn-sm btn-success mark-done-btn" data-id="{{ $job->id }}" data-shop="{{ $job->shop->shop_name ?? 'N/A' }}">
-                                                                    <i class="fas fa-check"></i> {{ __('Done') }}
-                                                                </button>
-                                                            @else
-                                                                <button type="button" class="btn btn-sm btn-warning mark-undone-btn" data-id="{{ $job->id }}" data-shop="{{ $job->shop->shop_name ?? 'N/A' }}">
-                                                                    <i class="fas fa-undo"></i> {{ __('Undo') }}
-                                                                </button>
-                                                            @endif
-                                                        @else
-                                                            <span class="text-muted">{{ __('No permission') }}</span>
-                                                        @endif
+                                                        @if($job->status == 'pending')
+														<button type="button" class="btn btn-sm btn-success mark-done-btn" data-id="{{ $job->id }}" data-shop="{{ $job->shop->shop_name ?? 'N/A' }}">
+															<i class="fas fa-check"></i> {{ __('Done') }}
+														</button>
+													@else
+														<button type="button" class="btn btn-sm btn-warning mark-undone-btn" data-id="{{ $job->id }}" data-shop="{{ $job->shop->shop_name ?? 'N/A' }}">
+															<i class="fas fa-undo"></i> {{ __('Undo') }}
+														</button>
+													@endif
                                                     </td>
                                                 </tr>
                                             @empty

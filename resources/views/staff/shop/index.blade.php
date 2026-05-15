@@ -42,7 +42,25 @@
                                     </div>
                                 @endif
 
-                                                                <div class="table-responsive table-invoice">
+                                <form method="GET" action="{{ url()->current() }}" class="mb-3 px-4 pt-3">
+                                    <div class="row align-items-end">
+                                        <div class="col-md-3">
+                                            <div class="form-group mb-0">
+                                                <label for="category_filter">{{ __('Filter by Category') }}</label>
+                                                <select id="category_filter" name="category" class="form-control select2" onchange="this.form.submit()">
+                                                    <option value="">{{ __('All Categories') }}</option>
+                                                    @if(isset($categories))
+                                                        @foreach($categories as $category)
+                                                            <option value="{{ $category->name }}" {{ request('category') == $category->name ? 'selected' : '' }}>{{ __($category->name) }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <div class="table-responsive table-invoice">
                                     <table class="table table-striped" id="shopTable">
                                         <thead>
                                             <tr>
@@ -50,6 +68,7 @@
                                                 <th>{{ __('Shop Name') }}</th>
                                                 <th>{{ __('Owner Name') }}</th>
                                                 <th>{{ __('Category') }}</th>
+                                                <th>{{ __('Location') }}</th>
                                                 <th>{{ __('Phone') }}</th>
                                                 <th>{{ __('WhatsApp') }}</th>
                                                 <th>{{ __('District') }}</th>
@@ -75,6 +94,7 @@
                                                         {{ ucfirst(str_replace('_',' ', $shop->category)) }}
                                                     </span>
                                                 </td>
+                                                <td>{{ $shop->location ?? 'N/A' }}</td>
                                                 <td>{{ $shop->phone_number }}</td>
                                                 <td>{{ $shop->whatsapp_number }}</td>
                                                 <td data-district-id="{{ $shop->district_id ?? '' }}">

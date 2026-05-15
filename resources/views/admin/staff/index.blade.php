@@ -15,7 +15,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
-                                <h4>{{ __('Agent List') }} <small class="font-weight-bold text-danger"> (The default password for all agent members is 12345678. This password is automatically generated when a new agent member is created.)</small></h4>
+                                <h4>{{ __('Agent List') }} <small class="font-weight-bold text-danger"> ({{ __('The default password for all agent members is 12345678. This password is automatically generated when a new agent member is created.') }})</small></h4>
                                 @can('staff.create')
                                 <div>
                                     <a class="btn btn-primary" href="{{ route('admin.staff.create') }}"><i
@@ -28,7 +28,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="district_filter">{{ __('Filter by District') }}</label>
-                                            <select id="district_filter" class="form-control">
+                                            <select id="district_filter" class="form-control select2">
                                                 <option value="">{{ __('All Districts') }}</option>
                                                 @if(isset($districts))
                                                     @foreach($districts as $district)
@@ -42,7 +42,7 @@
                                 <div class="table-responsive table-invoice">
                                     <table class="table table-striped" id="staffTable">
                                         <thead>
-                    <tr>
+                                            <tr>
                                                 <th>{{ __('SN') }}</th>
                                                 <th>{{ __('Name') }}</th>
                                                 <th>{{ __('Email') }}</th>
@@ -137,11 +137,22 @@
 @endsection
 
 @push('js')
+    <!-- Select2 CSS and JS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
         "use strict";
 
-        // District filtering functionality
         $(document).ready(function() {
+            // Initialize Select2 for district filter
+            $('.select2').select2({
+                placeholder: "{{ __('Search district...') }}",
+                allowClear: true,
+                width: '100%'
+            });
+
+            // District filtering functionality
             $('#district_filter').on('change', function() {
                 var districtId = $(this).val();
                 

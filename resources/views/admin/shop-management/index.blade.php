@@ -34,6 +34,9 @@
                                                 <th>{{ __('Shop Address') }}</th>
                                                 <th>{{ __('Assigned To') }}</th>
                                                 <th>{{ __('Assigned By') }}</th>
+                                                <th>{{ __('From (Staff)') }}</th>
+                                                <th>{{ __('To (Shop)') }}</th>
+                                                <th>{{ __('Navigation') }}</th>
                                                 <th>{{ __('Status') }}</th>
                                                 <th>{{ __('Action') }}</th>
                                             </tr>
@@ -43,19 +46,25 @@
                                                 <tr>
                                                     <td>{{ $jobs->firstItem() + $index }}</td>
                                                     <td>
-                                                       @if($job->scheduled_date)
-                                                            {{ \Carbon\Carbon::parse($job->scheduled_date)->format('M d, Y') }}
-                                                            @if($job->scheduled_time)
-                                                                <br><small>{{ \Carbon\Carbon::parse($job->scheduled_time)->format('h:i A') }}</small>
-                                                            @endif
-                                                        @else
-                                                            {{ __('Not scheduled') }}
-                                                        @endif
+                                                      <td>
+															@if($job->scheduled_date)
+																{{ \Carbon\Carbon::parse($job->scheduled_date . ' ' . ($job->scheduled_time ?? '00:00:00'))->format('d M Y, h:i A') }}
+															@else
+																{{ __('Not scheduled') }}
+															@endif
+														</td>
                                                     </td>
                                                     <td>{{ $job->shop->shop_name ?? 'N/A' }}</td>
                                                     <td>{{ $job->shop->address ?? 'N/A' }}</td>
                                                     <td>{{ $job->assignedTo->name ?? 'N/A' }}</td>
                                                     <td>{{ $job->assignedBy->name ?? 'N/A' }}</td>
+                                                    <td>{{ $job->assignedTo->location ?? 'University of Management & Technology C-II Block C 2 Phase 1 Johar Town, Lahore, 54770, Pakistan' }}</td>
+                                                    <td>{{ $job->shop->location ?? $job->shop->address ?? 'N/A' }}</td>
+                                                    <td>
+                                                        <a href="https://www.google.com/maps/dir/{{ urlencode($job->assignedTo->location ?? 'University of Management & Technology C-II Block C 2 Phase 1 Johar Town, Lahore, 54770, Pakistan') }}/{{ urlencode($job->shop->location ?? $job->shop->address ?? 'Lahore') }}" target="_blank" class="btn btn-sm btn-info">
+                                                            <i class="fas fa-location-arrow"></i> {{ __('Navigate') }}
+                                                        </a>
+                                                    </td>
                                                     <td>
                                                         @if($job->status == 'pending')
                                                             <span class="badge badge-warning">{{ __('Pending') }}</span>

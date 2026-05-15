@@ -75,11 +75,13 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="district_id">{{ __('District') }} <span class="text-danger">*</span></label>
-                                                <select name="district_id" id="district_id" class="form-control" required>
+                                                <select name="district_id" id="district_id" class="form-control select2" required>
                                                     <option value="">{{ __('Select District') }}</option>
                                                     @if(isset($districts))
                                                         @foreach($districts as $district)
-                                                            <option value="{{ $district->id }}" {{ $staff->district_id == $district->id ? 'selected' : '' }}>{{ $district->name }}</option>
+                                                            <option value="{{ $district->id }}" {{ $staff->district_id == $district->id ? 'selected' : '' }}>
+                                                                {{ $district->name }}
+                                                            </option>
                                                         @endforeach
                                                     @endif
                                                 </select>
@@ -109,6 +111,7 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <button class="btn btn-primary" type="submit">{{ __('Update') }}</button>
+                                            <a href="{{ route('admin.staff.index') }}" class="btn btn-danger">{{ __('Cancel') }}</a>
                                         </div>
                                     </div>
 
@@ -121,11 +124,22 @@
         </section>
     </div>
 
+<!-- Select2 CSS and JS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <!-- jQuery CDN add karo -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 
 <script>
 $(document).ready(function() {
+    // Initialize Select2 for district dropdown
+    $('.select2').select2({
+        placeholder: "{{ __('Search district...') }}",
+        allowClear: true,
+        width: '100%'
+    });
+    
     // Jab bhi input field mein click, type ya focus karo
     $('.clear-error').on('click keyup focus', function() {
         // Uske parent form-group mein jo error-message hai use hide karo
