@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Rules\CustomRecaptcha;
 use App\Traits\GlobalMailTrait;
 use Exception;
+use App\Http\Requests\AntiBotFormRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ class ContactMessageController extends Controller
     /**
      * @param Request $request
      */
-    public function store(Request $request)
+    public function store(AntiBotFormRequest $request)
     {
         $setting = Cache::get('setting');
 

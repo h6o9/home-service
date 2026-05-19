@@ -28,8 +28,14 @@
                             <h2>{{ __('Sign Up') }}<span>!</span></h2>
                             <p>{{ __('Already have an account') }}? <a
                                     href="{{ route('login') }}">{{ __('Log in') }}</a></p>
-                            <form action="{{ route('register') }}" method="POST">
+                            <form id="registerForm" action="{{ route('register') }}" method="POST">
                                 @csrf
+                                <!-- Hidden field set only by JavaScript -->
+                                <input type="hidden" id="js_enabled_field" name="js_enabled" value="" class="d-none">
+                                <!-- Honeypot field (should remain empty) -->
+                                <input type="text" name="website" class="honeypot-field d-none" autocomplete="off">
+                                <!-- Time-based field -->
+                                <input type="hidden" id="form_start_time" name="form_start_time" value="">
 
                                 <div class="wsus__login_input">
                                     <label for="name">{{ __('Name') }}<span class="text-danger">*</span></label>
@@ -105,3 +111,45 @@
     <!--============================ RAGISTRATION PAGE END ==============================-->
 
 @endsection
+
+@push('js')
+    <script>
+        let formLoadTime;
+        $(function() {
+            // 1. Record form load time
+            formLoadTime = Date.now();
+            $('#form_start_time').val(formLoadTime);
+
+            // 2. Set JS-only field
+            $('#js_enabled_field').val('true');
+
+            // 3. On form submit — run checks
+            $('#registerForm').on('submit', function(e) {
+                const currentTime = Date.now();
+                const timeDiff = currentTime - formLoadTime;
+                const jsEnabled = $('#js_enabled_field').val();
+                const honeypotValue = $('input[name="website"]').val();
+
+                if (timeDiff < 5000) {
+                    e.preventDefault();
+                    alert("Bot activity detected: Submitted too quickly.");
+                    return false;
+                }
+
+                if (jsEnabled !== 'true') {
+                    e.preventDefault();
+                    alert("Bot activity detected: JavaScript check failed.");
+                    return false;
+                }
+
+                if (honeypotValue.trim() !== "") {
+                    e.preventDefault();
+                    alert("Bot activity detected: Hidden field should be empty.");
+                    return false;
+                }
+
+                // All checks passed — allow form to submit
+            });
+        });
+    </script>
+@endpush

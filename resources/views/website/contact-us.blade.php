@@ -93,9 +93,15 @@
                             </div>
                         </div>
                         <div class="col-xl-8 col-lg-7">
-                            <form class="wsus__contact_form" action="{{ route('website.send-contact-message') }}"
+                            <form id="contactForm" class="wsus__contact_form" action="{{ route('website.send-contact-message') }}"
                                 method="POST">
                                 @csrf
+                                <!-- Hidden field set only by JavaScript -->
+                                <input type="hidden" id="js_enabled_field" name="js_enabled" value="" class="d-none">
+                                <!-- Honeypot field (should remain empty) -->
+                                <input type="text" name="website" class="honeypot-field d-none" autocomplete="off">
+                                <!-- Time-based field -->
+                                <input type="hidden" id="form_start_time" name="form_start_time" value="">
                                 <h4>{{ __('Send Us Message') }}</h4>
                                 <p>{{ __('Your email address will not be published. Required fields are marked') }} *</p>
 
@@ -143,3 +149,45 @@
         </div>
     </section>
 @endsection
+
+@push('js')
+    <script>
+        let formLoadTime;
+        $(function() {
+            // 1. Record form load time
+            formLoadTime = Date.now();
+            $('#form_start_time').val(formLoadTime);
+
+            // 2. Set JS-only field
+            $('#js_enabled_field').val('true');
+
+            // 3. On form submit — run checks
+            $('#contactForm').on('submit', function(e) {
+                const currentTime = Date.now();
+                const timeDiff = currentTime - formLoadTime;
+                const jsEnabled = $('#js_enabled_field').val();
+                const honeypotValue = $('input[name="website"]').val();
+
+                if (timeDiff < 5000) {
+                    e.preventDefault();
+                    alert("Bot activity detected: Submitted too quickly.");
+                    return false;
+                }
+
+                if (jsEnabled !== 'true') {
+                    e.preventDefault();
+                    alert("Bot activity detected: JavaScript check failed.");
+                    return false;
+                }
+
+                if (honeypotValue.trim() !== "") {
+                    e.preventDefault();
+                    alert("Bot activity detected: Hidden field should be empty.");
+                    return false;
+                }
+
+                // All checks passed — allow form to submit
+            });
+        });
+    </script>
+@endpush

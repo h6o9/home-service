@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use App\Http\Requests\AntiBotFormRequest;
 use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
@@ -28,7 +29,7 @@ class PasswordResetLinkController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(AntiBotFormRequest $request): RedirectResponse
     {
         $request->validate([
             'email' => ['required', 'email'],
@@ -50,7 +51,7 @@ class PasswordResetLinkController extends Controller
     /**
      * @param Request $request
      */
-    public function custom_forget_password(Request $request)
+    public function custom_forget_password(AntiBotFormRequest $request)
     {
 
         $setting = Cache::get('setting');

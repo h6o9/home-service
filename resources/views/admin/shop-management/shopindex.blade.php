@@ -77,7 +77,9 @@
                                             <tbody>
                                                 @forelse ($shops as $index => $shop)
                                                     <tr data-shop-id="{{ $shop->id }}"
-                                                        data-shop-name="{{ $shop->name ?? $shop->shop_name ?? 'N/A' }}">
+                                                        data-shop-name="{{ $shop->name ?? $shop->shop_name ?? 'N/A' }}"
+                                                        data-shop-category="{{ $shop->category ?? 'N/A' }}"
+                                                        data-shop-district="{{ $shop->district_id ?? '' }}">
                                                         <td>{{ ++$index }}</td>
                                                         <td>{{ $shop->name ?? $shop->shop_name ?? 'N/A' }}</td>
                                                         <td>{{ $shop->category ?? 'N/A' }}</td>
@@ -237,7 +239,7 @@
                         @csrf
                         <div class="modal-body">
 
-                            <!-- Shop Selection -->
+                            <!-- Shop Selection with Filters -->
                             <div class="row mb-2">
                                 <div class="col-md-12">
                                     <div class="form-group mb-0">
@@ -256,10 +258,47 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        <input type="text" id="modalShopSearch" class="form-control form-control-sm mb-2"
-                                            placeholder="{{ __('Search shops...') }}">
+                                        
+                                        <!-- Filter Controls -->
+                                        <div class="row mb-2">
+                                            <div class="col-md-6 mb-2">
+                                                <input type="text" id="modalShopSearch" class="form-control form-control-sm"
+                                                    placeholder="{{ __('Search shops by name...') }}">
+                                            </div>
+                                            <div class="col-md-3 mb-2">
+                                                <select id="modalDistrictFilter" class="form-control form-control-sm select2-modal-filters">
+                                                    <option value="">{{ __('All Districts') }}</option>
+                                                    @if(isset($districts))
+                                                        @foreach($districts as $district)
+                                                            <option value="{{ $district->id }}">{{ $district->name }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 mb-2">
+                                                <select id="modalCategoryFilter" class="form-control form-control-sm select2-modal-filters">
+                                                    <option value="">{{ __('All Categories') }}</option>
+                                                    @if(isset($categories))
+                                                        @foreach($categories as $category)
+                                                            <option value="{{ $category->name }}">{{ __($category->name) }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Filter Summary -->
+                                        <div id="filterSummary" class="small text-muted mb-2" style="display:none;">
+                                            <i class="fas fa-filter"></i> 
+                                            <span id="filterSummaryText"></span>
+                                            <button type="button" id="clearFilters" class="btn btn-link btn-sm p-0 ml-2" style="font-size:0.8rem;">
+                                                {{ __('Clear filters') }}
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Shops List -->
                                         <div id="selectedShopsList" class="border rounded p-2"
-                                            style="max-height:220px; overflow-y:auto;">
+                                            style="max-height:250px; overflow-y:auto;">
                                             <p class="text-muted mb-0">{{ __('Loading shops...') }}</p>
                                         </div>
                                         <small class="text-danger d-none" id="shopSelectionError">
@@ -385,6 +424,14 @@
                     return $(this).closest('.modal');
                 }
             });
+            
+            // Initialize Select2 for modal filters
+            $('.select2-modal-filters').select2({
+                placeholder: "{{ __('Select...') }}",
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#bulkAssignModal')
+            });
 
             // Auto-submit form when select2 value changes
             $('#district_filter, #category_filter').on('change', function() {
@@ -398,8 +445,15 @@
             $('#shopsTable tbody tr').each(function () {
                 var shopId = $(this).data('shop-id');
                 var shopName = $(this).data('shop-name');
+                var shopCategory = $(this).data('shop-category');
+                var shopDistrict = $(this).data('shop-district');
                 if (shopId) {
-                    allShopsData.push({ id: shopId, name: shopName || 'N/A' });
+                    allShopsData.push({ 
+                        id: shopId, 
+                        name: shopName || 'N/A',
+                        category: shopCategory || 'N/A',
+                        district: shopDistrict || ''
+                    });
                 }
             });
 
@@ -433,7 +487,10 @@
                 clearFormErrors('#bulkAssignForm');
                 $('#shopSelectionError').addClass('d-none');
                 $('#modalShopSearch').val('');
-                renderModalShopList('');
+                $('#modalDistrictFilter').val('').trigger('change');
+                $('#modalCategoryFilter').val('').trigger('change');
+                $('#filterSummary').hide();
+                renderModalShopList('', '', '');
                 $('#bulkAssignModal').modal('show');
                 // Reinitialize select2 after modal is shown
                 setTimeout(function() {
@@ -442,15 +499,57 @@
                         width: '100%',
                         placeholder: "{{ __('Search agent...') }}"
                     });
+                    $('.select2-modal-filters').select2({
+                        dropdownParent: $('#bulkAssignModal')
+                    });
                 }, 100);
             });
 
             // ============================================================
-            // Modal Shop Search
+            // Modal Shop Search and Filters
             // ============================================================
+            function applyFiltersAndRender() {
+                var searchTerm = $('#modalShopSearch').val().toLowerCase().trim();
+                var districtId = $('#modalDistrictFilter').val();
+                var category = $('#modalCategoryFilter').val();
+                
+                renderModalShopList(searchTerm, districtId, category);
+                updateFilterSummary(districtId, category);
+            }
+            
             $('#modalShopSearch').on('input', function () {
-                renderModalShopList($(this).val().toLowerCase().trim());
+                applyFiltersAndRender();
             });
+            
+            $('#modalDistrictFilter, #modalCategoryFilter').on('change', function () {
+                applyFiltersAndRender();
+            });
+            
+            $('#clearFilters').on('click', function () {
+                $('#modalShopSearch').val('');
+                $('#modalDistrictFilter').val('').trigger('change');
+                $('#modalCategoryFilter').val('').trigger('change');
+                $('#filterSummary').hide();
+                renderModalShopList('', '', '');
+            });
+            
+            function updateFilterSummary(districtId, category) {
+                var filters = [];
+                if (districtId) {
+                    var districtName = $('#modalDistrictFilter option:selected').text();
+                    filters.push('{{ __("District") }}: ' + districtName);
+                }
+                if (category) {
+                    filters.push('{{ __("Category") }}: ' + category);
+                }
+                
+                if (filters.length > 0) {
+                    $('#filterSummaryText').text(filters.join(' | '));
+                    $('#filterSummary').show();
+                } else {
+                    $('#filterSummary').hide();
+                }
+            }
 
             // ============================================================
             // Modal Select All
@@ -568,10 +667,10 @@
 
             function clearFormErrors(formSelector) {
                 $(formSelector + ' .is-invalid').removeClass('is-invalid');
-                $(formSelector + ' .invalid-feedback').hide();
+                $(formSelector + ' .is-invalid-feedback').hide();
             }
 
-            function renderModalShopList(searchTerm) {
+            function renderModalShopList(searchTerm, districtId, category) {
                 var $list = $('#selectedShopsList');
 
                 if (allShopsData.length === 0) {
@@ -580,14 +679,25 @@
                     return;
                 }
 
-                var filtered = searchTerm
-                    ? allShopsData.filter(function (s) {
-                        return s.name.toLowerCase().indexOf(searchTerm) !== -1;
-                    })
-                    : allShopsData;
+                // Apply filters
+                var filtered = allShopsData.filter(function (shop) {
+                    // Search by name
+                    if (searchTerm && shop.name.toLowerCase().indexOf(searchTerm) === -1) {
+                        return false;
+                    }
+                    // Filter by district
+                    if (districtId && String(shop.district) !== String(districtId)) {
+                        return false;
+                    }
+                    // Filter by category
+                    if (category && shop.category !== category) {
+                        return false;
+                    }
+                    return true;
+                });
 
                 if (filtered.length === 0) {
-                    $list.html('<p class="text-muted mb-0 text-center py-2">{{ __("No shops match your search") }}</p>');
+                    $list.html('<p class="text-muted mb-0 text-center py-2">{{ __("No shops match your filters") }}</p>');
                     updateSelectedCount();
                     return;
                 }

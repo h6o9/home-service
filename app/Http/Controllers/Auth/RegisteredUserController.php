@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Http\Requests\AntiBotFormRequest;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -28,7 +29,7 @@ class RegisteredUserController extends Controller
     /**
      * @return mixed
      */
-    public function store(Request $request): RedirectResponse
+    public function store(AntiBotFormRequest $request): RedirectResponse
     {
         $setting = Cache::get('setting');
 
