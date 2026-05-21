@@ -224,7 +224,7 @@
         </div>
 
         {{-- ================================================================
-        Bulk Assign Job Modal
+        Bulk Assign Job Modal - All shops shown by default, filters filter the list
         ================================================================ --}}
         <div class="modal fade" id="bulkAssignModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
@@ -238,13 +238,59 @@
                     <form id="bulkAssignForm" action="{{ route('admin.shop-management.bulk-assign') }}" method="POST">
                         @csrf
                         <div class="modal-body">
+                            <!-- Step 1: Filter Shops - District then Category (auto-filter on change) -->
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body p-3">
+                                            <h6 class="font-weight-bold mb-3">{{ __('Filter Shops') }}</h6>
+                                            <div class="row">
+                                                <div class="col-md-5 mb-2">
+                                                    <label for="modalDistrictFilter" class="small font-weight-bold">{{ __('District') }}</label>
+                                                    <select id="modalDistrictFilter" name="district_filter" class="form-control select2-modal-filters">
+                                                        <option value="">{{ __('All Districts') }}</option>
+                                                        @if(isset($districts))
+                                                            @foreach($districts as $district)
+                                                                <option value="{{ $district->id }}">{{ $district->name }}</option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-5 mb-2">
+                                                    <label for="modalCategoryFilter" class="small font-weight-bold">{{ __('Category') }}</label>
+                                                    <select id="modalCategoryFilter" name="category_filter" class="form-control select2-modal-filters">
+                                                        <option value="">{{ __('All Categories') }}</option>
+                                                        @if(isset($categories))
+                                                            @foreach($categories as $category)
+                                                                <option value="{{ $category->name }}">{{ __($category->name) }}</option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2 mb-2">
+                                                    <label class="small font-weight-bold d-block">&nbsp;</label>
+                                                    <button type="button" id="resetFiltersBtn" class="btn btn-secondary btn-sm btn-block">
+                                                        <i class="fas fa-undo-alt"></i> {{ __('Reset') }}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Filter Summary -->
+                                            <div id="filterSummary" class="small text-muted mt-2" style="display:none;">
+                                                <i class="fas fa-filter"></i> 
+                                                <span id="filterSummaryText"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <!-- Shop Selection with Filters -->
-                            <div class="row mb-2">
+                            <!-- Step 2: Select Shops with Select All and Selection Badge -->
+                            <div class="row mb-3">
                                 <div class="col-md-12">
                                     <div class="form-group mb-0">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <label class="mb-0 font-weight-bold">
+                                            <label class="mb-0" style="font-weight: bold !important;">
                                                 {{ __('Select Shops') }} <span class="text-danger">*</span>
                                             </label>
                                             <div class="d-flex align-items-center">
@@ -259,47 +305,21 @@
                                             </div>
                                         </div>
                                         
-                                        <!-- Filter Controls -->
-                                        <div class="row mb-2">
-                                            <div class="col-md-6 mb-2">
-                                                <input type="text" id="modalShopSearch" class="form-control form-control-sm"
-                                                    placeholder="{{ __('Search shops by name...') }}">
-                                            </div>
-                                            <div class="col-md-3 mb-2">
-                                                <select id="modalDistrictFilter" class="form-control form-control-sm select2-modal-filters">
-                                                    <option value="">{{ __('All Districts') }}</option>
-                                                    @if(isset($districts))
-                                                        @foreach($districts as $district)
-                                                            <option value="{{ $district->id }}">{{ $district->name }}</option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3 mb-2">
-                                                <select id="modalCategoryFilter" class="form-control form-control-sm select2-modal-filters">
-                                                    <option value="">{{ __('All Categories') }}</option>
-                                                    @if(isset($categories))
-                                                        @foreach($categories as $category)
-                                                            <option value="{{ $category->name }}">{{ __($category->name) }}</option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Filter Summary -->
-                                        <div id="filterSummary" class="small text-muted mb-2" style="display:none;">
-                                            <i class="fas fa-filter"></i> 
-                                            <span id="filterSummaryText"></span>
-                                            <button type="button" id="clearFilters" class="btn btn-link btn-sm p-0 ml-2" style="font-size:0.8rem;">
-                                                {{ __('Clear filters') }}
-                                            </button>
+                                        <!-- Search within filtered shops -->
+                                        <div class="mb-2">
+                                            <input type="text" id="modalShopSearch" class="form-control form-control-sm"
+                                                placeholder="{{ __('Search shops by name...') }}">
                                         </div>
                                         
                                         <!-- Shops List -->
                                         <div id="selectedShopsList" class="border rounded p-2"
-                                            style="max-height:250px; overflow-y:auto;">
-                                            <p class="text-muted mb-0">{{ __('Loading shops...') }}</p>
+                                            style="max-height:300px; overflow-y:auto; min-height:150px;">
+                                            <div class="text-center py-3">
+                                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                    <span class="sr-only">{{ __('Loading...') }}</span>
+                                                </div>
+                                                <p class="text-muted mb-0 mt-2">{{ __('Loading shops...') }}</p>
+                                            </div>
                                         </div>
                                         <small class="text-danger d-none" id="shopSelectionError">
                                             {{ __('Please select at least one shop') }}
@@ -308,78 +328,75 @@
                                 </div>
                             </div>
 
-                            <!-- Assign To -->
+                            <!-- Step 3: Job Assignment Details -->
                             <div class="row mt-3">
                                 <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="bulk_assigned_to">
-                                            {{ __('Assign To') }} <span class="text-danger">*</span>
-                                        </label>
-                                        <select id="bulk_assigned_to" name="assigned_to" class="form-control select2-modal" required>
-                                            <option value="">{{ __('Select Agent') }}</option>
-                                            @foreach($allStaff as $staff)
-                                                <option value="{{ $staff->id }}">
-                                                    {{ $staff->name }} — {{ $staff->email }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <div class="invalid-feedback">{{ __('Please select an agent') }}</div>
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body p-3">
+                                            <h6 class="font-weight-bold mb-3">{{ __('Job Assignment Details') }}</h6>
+                                            
+                                            <!-- Assign To -->
+                                            <div class="form-group">
+                                                <label for="bulk_assigned_to">
+                                                    {{ __('Assign To') }} <span class="text-danger">*</span>
+                                                </label>
+                                                <select id="bulk_assigned_to" name="assigned_to" class="form-control select2-modal" required>
+                                                    <option value="">{{ __('Select Agent') }}</option>
+                                                    @foreach($allStaff as $staff)
+                                                        <option value="{{ $staff->id }}">
+                                                            {{ $staff->name }} — {{ $staff->email }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <div class="invalid-feedback">{{ __('Please select an agent') }}</div>
+                                            </div>
+
+                                            <!-- Date & Time -->
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="bulk_scheduled_date">
+                                                            {{ __('Scheduled Date') }} <span class="text-danger">*</span>
+                                                        </label>
+                                                        <input type="date" id="bulk_scheduled_date" name="scheduled_date" class="form-control">
+                                                        <div class="invalid-feedback">{{ __('Please select a scheduled date') }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="bulk_scheduled_time">
+                                                            {{ __('Scheduled Time') }} <span class="text-danger">*</span>
+                                                        </label>
+                                                        <input type="time" id="bulk_scheduled_time" name="scheduled_time" class="form-control">
+                                                        <div class="invalid-feedback">{{ __('Please select a scheduled time') }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Description -->
+                                            <div class="form-group">
+                                                <label for="bulk_description">
+                                                    {{ __('Job Description') }}
+                                                    <span class="text-muted">({{ __('Optional') }})</span>
+                                                </label>
+                                                <textarea id="bulk_description" name="description" class="form-control" rows="3"
+                                                    placeholder="{{ __('Enter job description') }}"></textarea>
+                                            </div>
+
+                                            <!-- Notes -->
+                                            <div class="form-group mb-0">
+                                                <label for="bulk_notes">
+                                                    {{ __('Notes') }}
+                                                    <span class="text-muted">({{ __('Optional') }})</span>
+                                                </label>
+                                                <textarea id="bulk_notes" name="notes" class="form-control" rows="2"
+                                                    placeholder="{{ __('Enter any additional notes (optional)') }}"></textarea>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Date & Time -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="bulk_scheduled_date">
-                                            {{ __('Scheduled Date') }} <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="date" id="bulk_scheduled_date" name="scheduled_date" class="form-control">
-                                        <div class="invalid-feedback">{{ __('Please select a scheduled date') }}</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="bulk_scheduled_time">
-                                            {{ __('Scheduled Time') }} <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="time" id="bulk_scheduled_time" name="scheduled_time" class="form-control">
-                                        <div class="invalid-feedback">{{ __('Please select a scheduled time') }}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Description -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="bulk_description">
-                                            {{ __('Job Description') }}
-                                            <span class="text-muted">({{ __('Optional') }})</span>
-                                        </label>
-                                        <textarea id="bulk_description" name="description" class="form-control" rows="3"
-                                            placeholder="{{ __('Enter job description') }}"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Notes -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-0">
-                                        <label for="bulk_notes">
-                                            {{ __('Notes') }}
-                                            <span class="text-muted">({{ __('Optional') }})</span>
-                                        </label>
-                                        <textarea id="bulk_notes" name="notes" class="form-control" rows="2"
-                                            placeholder="{{ __('Enter any additional notes (optional)') }}"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
-
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                 {{ __('Cancel') }}
@@ -480,8 +497,10 @@
             window.openAssignModal = openAssignModal;
 
             // ============================================================
-            // Bulk Assign Button
+            // Bulk Assign Functions - All shops shown by default
             // ============================================================
+            let currentFilteredShops = [];
+
             $('#bulkAssignBtn').on('click', function () {
                 $('#bulkAssignForm')[0].reset();
                 clearFormErrors('#bulkAssignForm');
@@ -490,8 +509,13 @@
                 $('#modalDistrictFilter').val('').trigger('change');
                 $('#modalCategoryFilter').val('').trigger('change');
                 $('#filterSummary').hide();
-                renderModalShopList('', '', '');
+                
+                // Show all shops by default
+                currentFilteredShops = [...allShopsData];
+                renderModalShopListFromFiltered();
+                
                 $('#bulkAssignModal').modal('show');
+                
                 // Reinitialize select2 after modal is shown
                 setTimeout(function() {
                     $('#bulk_assigned_to').select2({
@@ -505,34 +529,124 @@
                 }, 100);
             });
 
-            // ============================================================
-            // Modal Shop Search and Filters
-            // ============================================================
+            // Auto-filter when district or category changes
+            $('#modalDistrictFilter, #modalCategoryFilter').on('change', function() {
+                applyFiltersAndRender();
+            });
+
+            // Modal Shop Search (search within filtered results)
+            $('#modalShopSearch').on('input', function () {
+                renderModalShopListFromFiltered();
+            });
+
+            // Reset filters button
+            $('#resetFiltersBtn').on('click', function () {
+                $('#modalDistrictFilter').val('').trigger('change');
+                $('#modalCategoryFilter').val('').trigger('change');
+                $('#modalShopSearch').val('');
+            });
+
+            // Filter shops from allShopsData
             function applyFiltersAndRender() {
-                var searchTerm = $('#modalShopSearch').val().toLowerCase().trim();
                 var districtId = $('#modalDistrictFilter').val();
                 var category = $('#modalCategoryFilter').val();
                 
-                renderModalShopList(searchTerm, districtId, category);
+                // Apply filters to all shops
+                currentFilteredShops = allShopsData.filter(function (shop) {
+                    // Filter by district
+                    if (districtId && String(shop.district) !== String(districtId)) {
+                        return false;
+                    }
+                    // Filter by category
+                    if (category && shop.category !== category) {
+                        return false;
+                    }
+                    return true;
+                });
+                
+                // Update filter summary
                 updateFilterSummary(districtId, category);
+                
+                // Render the filtered list
+                renderModalShopListFromFiltered();
             }
-            
-            $('#modalShopSearch').on('input', function () {
-                applyFiltersAndRender();
+
+            function renderModalShopListFromFiltered() {
+                var searchTerm = $('#modalShopSearch').val().toLowerCase().trim();
+                var $list = $('#selectedShopsList');
+                
+                // Apply search filter
+                var filtered = currentFilteredShops.filter(function (shop) {
+                    if (searchTerm && shop.name.toLowerCase().indexOf(searchTerm) === -1) {
+                        return false;
+                    }
+                    return true;
+                });
+                
+                if (filtered.length === 0) {
+                    $list.html('<p class="text-muted mb-0 text-center py-3">' +
+                        '<i class="fas fa-search"></i> ' +
+                        '{{ __("No shops match your filters") }}' +
+                        '</p>');
+                    updateSelectedCount();
+                    return;
+                }
+                
+                // Preserve checked state across re-renders
+                var checkedIds = [];
+                $('.modal-shop-checkbox:checked').each(function () {
+                    checkedIds.push(String($(this).val()));
+                });
+                
+                var html = '';
+                filtered.forEach(function (shop) {
+                    var isChecked = checkedIds.indexOf(String(shop.id)) !== -1;
+                    var checkedAttr = isChecked ? 'checked' : '';
+                    var highlightCls = isChecked ? 'bg-light' : '';
+                    
+                    html += '<div class="mb-1 px-2 py-1 border rounded d-flex align-items-center ' + highlightCls + '">';
+                    html += '<input type="checkbox" class="modal-shop-checkbox form-check-input mr-2 mt-0" '
+                        + 'value="' + shop.id + '" ' + checkedAttr + ' style="cursor:pointer;">';
+                    html += '<span style="font-size:0.92rem;">' + shop.name + '</span>';
+                    html += '</div>';
+                });
+                
+                $list.html(html);
+                updateModalSelectAllState();
+                updateSelectedCount();
+            }
+
+            // Modal Select All
+            $('#modalSelectAllShops').on('change', function () {
+                var isChecked = $(this).prop('checked');
+                $('#selectedShopsList .modal-shop-checkbox').prop('checked', isChecked);
+                updateSelectedCount();
+                if (isChecked) $('#shopSelectionError').addClass('d-none');
             });
-            
-            $('#modalDistrictFilter, #modalCategoryFilter').on('change', function () {
-                applyFiltersAndRender();
+
+            // Individual checkbox
+            $(document).on('change', '.modal-shop-checkbox', function () {
+                updateModalSelectAllState();
+                updateSelectedCount();
+                if ($('.modal-shop-checkbox:checked').length > 0) {
+                    $('#shopSelectionError').addClass('d-none');
+                }
             });
-            
-            $('#clearFilters').on('click', function () {
-                $('#modalShopSearch').val('');
-                $('#modalDistrictFilter').val('').trigger('change');
-                $('#modalCategoryFilter').val('').trigger('change');
-                $('#filterSummary').hide();
-                renderModalShopList('', '', '');
-            });
-            
+
+            function updateSelectedCount() {
+                var count = $('.modal-shop-checkbox:checked').length;
+                $('#selectedCountBadge').text(count + ' {{ __("selected") }}');
+            }
+
+            function updateModalSelectAllState() {
+                var $all = $('#selectedShopsList .modal-shop-checkbox');
+                var $checked = $('#selectedShopsList .modal-shop-checkbox:checked');
+                $('#modalSelectAllShops').prop(
+                    'checked',
+                    $all.length > 0 && $all.length === $checked.length
+                );
+            }
+
             function updateFilterSummary(districtId, category) {
                 var filters = [];
                 if (districtId) {
@@ -550,25 +664,6 @@
                     $('#filterSummary').hide();
                 }
             }
-
-            // ============================================================
-            // Modal Select All
-            // ============================================================
-            $('#modalSelectAllShops').on('change', function () {
-                var isChecked = $(this).prop('checked');
-                $('#selectedShopsList .modal-shop-checkbox').prop('checked', isChecked);
-                updateSelectedCount();
-                if (isChecked) $('#shopSelectionError').addClass('d-none');
-            });
-
-            // Individual checkbox
-            $(document).on('change', '.modal-shop-checkbox', function () {
-                updateModalSelectAllState();
-                updateSelectedCount();
-                if ($('.modal-shop-checkbox:checked').length > 0) {
-                    $('#shopSelectionError').addClass('d-none');
-                }
-            });
 
             // ============================================================
             // Single Assign Form Submit
@@ -668,76 +763,6 @@
             function clearFormErrors(formSelector) {
                 $(formSelector + ' .is-invalid').removeClass('is-invalid');
                 $(formSelector + ' .is-invalid-feedback').hide();
-            }
-
-            function renderModalShopList(searchTerm, districtId, category) {
-                var $list = $('#selectedShopsList');
-
-                if (allShopsData.length === 0) {
-                    $list.html('<p class="text-muted mb-0 text-center py-2">{{ __("No shops available") }}</p>');
-                    updateSelectedCount();
-                    return;
-                }
-
-                // Apply filters
-                var filtered = allShopsData.filter(function (shop) {
-                    // Search by name
-                    if (searchTerm && shop.name.toLowerCase().indexOf(searchTerm) === -1) {
-                        return false;
-                    }
-                    // Filter by district
-                    if (districtId && String(shop.district) !== String(districtId)) {
-                        return false;
-                    }
-                    // Filter by category
-                    if (category && shop.category !== category) {
-                        return false;
-                    }
-                    return true;
-                });
-
-                if (filtered.length === 0) {
-                    $list.html('<p class="text-muted mb-0 text-center py-2">{{ __("No shops match your filters") }}</p>');
-                    updateSelectedCount();
-                    return;
-                }
-
-                // Preserve checked state across re-renders
-                var checkedIds = [];
-                $('.modal-shop-checkbox:checked').each(function () {
-                    checkedIds.push(String($(this).val()));
-                });
-
-                var html = '';
-                filtered.forEach(function (shop) {
-                    var isChecked = checkedIds.indexOf(String(shop.id)) !== -1;
-                    var checkedAttr = isChecked ? 'checked' : '';
-                    var highlightCls = isChecked ? 'bg-light' : '';
-
-                    html += '<div class="mb-1 px-2 py-1 border rounded d-flex align-items-center ' + highlightCls + '">';
-                    html += '<input type="checkbox" class="modal-shop-checkbox form-check-input mr-2 mt-0" '
-                        + 'value="' + shop.id + '" ' + checkedAttr + ' style="cursor:pointer;">';
-                    html += '<span style="font-size:0.92rem;">' + shop.name + '</span>';
-                    html += '</div>';
-                });
-
-                $list.html(html);
-                updateModalSelectAllState();
-                updateSelectedCount();
-            }
-
-            function updateSelectedCount() {
-                var count = $('.modal-shop-checkbox:checked').length;
-                $('#selectedCountBadge').text(count + ' {{ __("selected") }}');
-            }
-
-            function updateModalSelectAllState() {
-                var $all = $('.modal-shop-checkbox');
-                var $checked = $('.modal-shop-checkbox:checked');
-                $('#modalSelectAllShops').prop(
-                    'checked',
-                    $all.length > 0 && $all.length === $checked.length
-                );
             }
 
             function validateAssignForm() {
